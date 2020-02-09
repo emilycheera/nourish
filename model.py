@@ -40,7 +40,7 @@ class Patient(db.Model):
     state = db.Column(db.String(2))
     zipcode = db.Column(db.String(11))
     phone = db.Column(db.String(15))
-    birthdate = db.Column(db.Datetime)
+    birthdate = db.Column(db.DateTime)
 
     # Define relationship to dietitian
     dietitian = db.relationship("Dietitian", backref=db.backref("patients"))
@@ -58,7 +58,7 @@ class Goal(db.Model):
     goal_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     patient_id = db.Column(db.Integer, 
                            db.ForeignKey("patients.patient_id"))
-    time_stamp = db.Column(db.Datetime, nullable=False)
+    time_stamp = db.Column(db.DateTime, nullable=False)
     goal_body = db.Column(db.Text, nullable=False)
 
     # Define relationship to patient
@@ -79,8 +79,8 @@ class Post(db.Model):
     post_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     patient_id = db.Column(db.Integer, 
                            db.ForeignKey("patients.patient_id"))
-    post_time = db.Column(db.Datetime, nullable=False)
-    meal_time = db.Column(db.Datetime, nullable=False)
+    post_time = db.Column(db.DateTime, nullable=False)
+    meal_time = db.Column(db.DateTime, nullable=False)
     img_path = db.Column(db.String)
     meal_setting = db.Column(db.String(200))
     TEB = db.Column(db.Text)
@@ -98,14 +98,14 @@ class Post(db.Model):
                     patient={self.patient_id},
                     time={self.time_stamp}>"""
 
-class Comment(db.Model)
+class Comment(db.Model):
     """A dietitian's comment on a patient's post."""
 
     __tablename__ = "comments"
 
     comment_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     post_id = db.Column(db.Integer, db.ForeignKey("posts.post_id"))
-    time_stamp = db.Column(db.Datetime, nullable=False)
+    time_stamp = db.Column(db.DateTime, nullable=False)
     comment_body = db.Column(db.Text, nullable=False)
 
     # Define relationship to post
