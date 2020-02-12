@@ -3,6 +3,8 @@ from jinja2 import StrictUndefined
 from flask import Flask, render_template, request, flash, redirect, session
 from sqlalchemy import desc
 
+from datetime import datetime
+
 from flask_debugtoolbar import DebugToolbarExtension
 
 from model import connect_to_db, db, Dietitian, Patient, Goal, Post, Comment
@@ -18,6 +20,15 @@ app.jinja_env.undefined = StrictUndefined
 @app.route("/", methods=["GET"])
 def index():
     """Homepage that shows login form."""
+
+    ### EDIT REDIRECT WHEN ROUTE CREATED###
+    if get_current_patient_id():
+        return redirect(f"/dietitian/{dietitian_id}")
+
+    if get_current_dietitian_id():
+        dietitian_id = get_current_dietitian_id()
+        return redirect(f"/dietitian/{dietitian_id}")
+
 
     return render_template("homepage.html")
 
@@ -62,13 +73,14 @@ def handle_login():
 def logout():
     """Log out."""
 
-    if session.get("dietitian_id"):
+    if get_current_dietitian_id():
         del session["dietitian_id"]
+        flash("Logout successful.")
 
-    if session.get("patient_id"):
+    elif get_current_patient_id():
         del session["patient_id"]
+        flash("Logout successful.")
     
-    flash("Logout successful.")
     return redirect("/")
 
 
@@ -105,19 +117,20 @@ def process_dietitian_registration():
     db.session.add(new_dietitian)
     db.session.commit()
 
+    dietitian_id = new_dietitian.dietitian_id
+
+    # Log in new dietitian
+    session["dietitian_id"] = dietitian_id
+
     flash(f"Successfully registered {email}.")
-    return redirect("/")
+    return redirect(f"/dietitian/{dietitian_id}")
 
 
 @app.route("/dietitian/<int:dietitian_id>")
 def show_dietitian_homepage(dietitian_id):
     """Show a dietitian's homepage."""
 
-    # Get the current user's dietitian_id.
-    user_id = get_current_dietitian_id()
-
-    # If correct dietitian is not logged in, show unauthorized template.
-    if not user_id or user_id != dietitian_id:
+    if not check_dietitian_authorization(dietitian_id):
         return render_template("unauthorized.html")
 
     dietitian = get_current_dietitian()
@@ -134,20 +147,19 @@ def show_dietitian_homepage(dietitian_id):
                             posts=posts)
 
 
-@app.route("/dietitian/<int:dietitian_id>/<int:patient_id>/overview")
+@app.route("/dietitian/<int:dietitian_id>/<int:patient_id>")
 def show_single_patient_overview(dietitian_id, patient_id):
     """Show a dietitian's view of a single patient."""
 
-    # Get the current user's dietitian_id.
-    user_id = get_current_dietitian_id()
-
-    # If correct dietitian is not logged in, show unauthorized template.
-    if not user_id or user_id != dietitian_id:
+    if not check_dietitian_authorization(dietitian_id):
         return render_template("unauthorized.html")
 
     dietitian = get_current_dietitian()
     patients_list = dietitian.patients
     patient = Patient.query.get(patient_id)
+
+    if not patient:
+        return redirect(f"/dietitian/{dietitian_id}")
 
     return render_template("dietitian-home-patient-overview.html",
                             dietitian=dietitian,
@@ -155,35 +167,51 @@ def show_single_patient_overview(dietitian_id, patient_id):
                             patient=patient)
 
 
-@app.route("/dietitian/<int:dietitian_id>/<int:patient_id>/goals")
+@app.route("/dietitian/<int:dietitian_id>/<int:patient_id>/goals", methods=["GET"])
 def show_single_patient_goals(dietitian_id, patient_id):
-    """Show page where dietitian can add goals for a patient."""
+    """Show page where dietitian can add and view goals for a patient."""
 
-    # Get the current user's dietitian_id.
-    user_id = get_current_dietitian_id()
-
-    # If correct dietitian is not logged in, show unauthorized template.
-    if not user_id or user_id != dietitian_id:
+    if not check_dietitian_authorization(dietitian_id):
         return render_template("unauthorized.html")
 
     dietitian = get_current_dietitian()
     patients_list = dietitian.patients
     patient = Patient.query.get(patient_id)
+    current_patient_goal = patient.goals[-1]
+    past_goals = patient.goals[:-1]
+    
 
     return render_template("dietitian-home-patient-goals.html",
                             dietitian=dietitian,
                             patients=patients_list,
-                            patient=patient)
+                            patient=patient,
+                            current_goal=current_patient_goal,
+                            past_goals=past_goals)
+
+@app.route("/dietitian/<int:dietitian_id>/<int:patient_id>/goals", methods=["POST"])
+def add_new_patient_goal(dietitian_id, patient_id):
+    """Process new goals form."""
+
+    time_stamp = datetime.now()
+    goal_body = request.form.get("goal_body")
+
+    new_goal = Goal(patient_id=patient_id,
+                    time_stamp=time_stamp,
+                    goal_body=goal_body)
+
+    db.session.add(new_goal)
+    db.session.commit()
+
+    flash("Successfully added goal.")
+    return redirect(f"/dietitian/{dietitian_id}/{patient_id}/goals")
+
+
 
 @app.route("/dietitian/<int:dietitian_id>/<int:patient_id>/posts")
 def show_single_patient_posts(dietitian_id, patient_id):
     """Show a dietitian's view of a single patient's posts."""
 
-    # Get the current user's dietitian_id.
-    user_id = get_current_dietitian_id()
-
-    # If correct dietitian is not logged in, show unauthorized template.
-    if not user_id or user_id != dietitian_id:
+    if not check_dietitian_authorization(dietitian_id):
         return render_template("unauthorized.html")
 
     dietitian = get_current_dietitian()
@@ -217,13 +245,28 @@ def get_current_patient_id():
 
 
 def get_current_patient():
-    """Returns current patient id."""
+    """Returns patient object for current patient_id."""
 
     return Patient.query.get(get_current_patient_id())
 
 
-def datetimeformat(value, format='%b %-d, %Y at %-H:%M %p'):
+def check_dietitian_authorization(dietitian_id):
+    """Check to see if the logged in dietitian is authorized to view page."""
+
+    # Get the current user's dietitian_id.
+    user_id = get_current_dietitian_id()
+
+    # If correct dietitian is not logged in, show unauthorized template.
+    if user_id != dietitian_id:
+        return False
+
+    return True
+
+
+# Add jinja datetime filter to format datetime in patient posts
+def datetimeformat(value, format='%b %-d, %Y at %-I:%M %p'):
     return value.strftime(format)
+
 app.jinja_env.filters['datetime'] = datetimeformat
 
 

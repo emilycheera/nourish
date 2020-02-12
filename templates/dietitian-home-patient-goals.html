@@ -2,6 +2,22 @@
 
 {% block single_patient_content %}
     <div>
-        <p>Ability to see add patient goals will go here.</p>
+        {% block flash %} {{ super() }} {% endblock %}
+    </div>
+    <div>
+        <h3>Add a new goal for {{ patient.fname }} {{ patient.lname }}:</h3>
+        
+        <form action="" method="POST">
+            <textarea name="goal_body" required rows="4" cols="48"></textarea>
+            <input type="submit" value="Add New Goal">
+        </form>
+        <h3>Current Goal</h3>
+            <p>{{ current_goal.time_stamp|datetime }}</p>
+            <p>{{ current_goal.goal_body }}</p>
+        <h3>Past Goals</h3>
+        {% for goal in past_goals %}
+            <p>{{ goal.time_stamp|datetime }}</p>
+            <p>{{ goal.goal_body }}</p>
+        {% endfor %}
     </div>
 {% endblock %}

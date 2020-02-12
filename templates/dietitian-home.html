@@ -5,11 +5,18 @@
 {% endblock %}
 {% block content %}
     <h1>{{ dietitian.fname }} {{ dietitian.lname }}</h1>
-
+    <div>
+        {% block flash %} {{ super() }} {% endblock %}
+    </div>
     <div>
         <h2>Patients</h2>
+        {% if not patients %}
+            <p>No patients to display.</p>
+        {% endif %}
         {% for patient in patients %}
-            <p><a href="/dietitian/{{ dietitian.dietitian_id }}/{{ patient.patient_id }}/overview">{{ patient.fname }} {{ patient.lname }}</a></p>
+            <p><a href="/dietitian/{{ dietitian.dietitian_id }}/{{ patient.patient_id }}">
+                {{ patient.fname }} {{ patient.lname }}
+            </a></p>
         {% endfor %}
     </div>
     <div>{% block dashboard_content %}{% endblock %}</div>

@@ -14,9 +14,12 @@
         <img src="">
     </div>
     <div>
+        <div>
+            {% block flash %} {{ super() }} {% endblock %}
+        </div>
         <h3>Sign In:</h3>
         <form action="/" method="POST">
-            <input type="text" required name="email" placeholder="Email address">
+            <input type="email" required name="email" placeholder="Email address">
             <input type="password" required name="password" placeholder="Password">
             
             <label for="user-type">I'm a: </label>
@@ -27,15 +30,6 @@
             
             <input type="submit" value="Log In">
         </form>
-        <div>
-            {% with messages = get_flashed_messages() %}
-              {% if messages %}
-                {% for message in messages %}
-                  {{ message }}
-                {% endfor %}
-              {% endif %}
-            {% endwith %}
-        </div>
      <a href="/register">Create a new dietitian account</a>
     </div>
 {% endblock %}

@@ -3,8 +3,9 @@
 {% block dashboard_content %}
     <div>
         <h2>{{ patient.fname }} {{ patient.lname }}</h2>
-        <a href="/dietitian/{{ dietitian.dietitian_id }}/{{ patient.patient_id }}/overview">Overview</a>
+        <a href="/dietitian/{{ dietitian.dietitian_id }}/{{ patient.patient_id }}">Overview</a>
         <a href="/dietitian/{{ dietitian.dietitian_id }}/{{ patient.patient_id }}/goals">Goals</a>
         <a href="/dietitian/{{ dietitian.dietitian_id }}/{{ patient.patient_id }}/posts">Posts</a>
+    </div>
     <div>{% block single_patient_content %}{% endblock %}</div>
 {% endblock %}
