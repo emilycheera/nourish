@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Unauthorized{% endblock %}
+{% block head %}
+    {{ super() }}
+{% endblock %}
+{% block content %}
+    <h1>You are not authorized to view this page.</h1>
+    <p><a href="/">Click here</a> to return to the homepage to login to your account.</p>
+{% endblock %}

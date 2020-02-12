@@ -189,7 +189,7 @@ def show_single_patient_posts(dietitian_id, patient_id):
     dietitian = get_current_dietitian()
     patients_list = dietitian.patients
     patient = Patient.query.get(patient_id)
-    patient_posts = Patient.posts
+    patient_posts = patient.posts
 
     return render_template("dietitian-home-patient-posts.html",
                             dietitian=dietitian,
@@ -221,6 +221,10 @@ def get_current_patient():
 
     return Patient.query.get(get_current_patient_id())
 
+
+def datetimeformat(value, format='%b %-d, %Y at %-H:%M %p'):
+    return value.strftime(format)
+app.jinja_env.filters['datetime'] = datetimeformat
 
 
 

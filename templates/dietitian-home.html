@@ -9,7 +9,7 @@
     <div>
         <h2>Patients</h2>
         {% for patient in patients %}
-            <p>- {{ patient.fname }} {{ patient.lname }}</p>
+            <p><a href="/dietitian/{{ dietitian.dietitian_id }}/{{ patient.patient_id }}/overview">{{ patient.fname }} {{ patient.lname }}</a></p>
         {% endfor %}
     </div>
     <div>{% block dashboard_content %}{% endblock %}</div>

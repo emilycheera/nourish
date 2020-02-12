@@ -2,6 +2,31 @@
 
 {% block single_patient_content %}
     <div>
-        <p>Ability to see a specific patient's posts will go here.</p>
+        {% if not posts %}
+            <p>No posts to display.</p>
+        {% endif %}
+
+        {% if posts %}
+            {% for post in posts %}
+                <p>{{ patient.fname }} {{ patient.lname }}</p>
+                <p>{{ post.post_time|datetime }}</p>
+                <img src="{{post.img_path}}" width="400">
+                <p>Meal time: {{ post.meal_time|datetime }}</p>
+                <p>Setting: {{ post.meal_setting }}</p>
+                <p>Thoughts, emotions, behaviors: {{ post.TEB }}</p>
+                {% if post.hunger %}
+                    <p>Hunger: {{ post.hunger }}
+                {% endif %}
+                {% if post.fullness %}
+                    <p>Fullness: {{ post.fullness }}
+                {% endif %}
+                {% if post.satisfaction %}
+                    <p>Satisfaction: {{ post.satisfaction }}
+                {% endif %}
+                {% if post.meal_notes %}
+                    <p>Additional Notes: {{ post.hunger }}
+                {% endif %}
+            {% endfor %}
+        {% endif %}
     </div>
 {% endblock %}
