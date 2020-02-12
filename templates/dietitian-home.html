@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Dietitian Dashboard{% endblock %}
+{% block head %}
+    {{ super() }}
+{% endblock %}
+{% block content %}
+    <h1>{{ dietitian.fname }} {{ dietitian.lname }}</h1>
+
+    <div>
+        <h2>Patients</h2>
+        {% for patient in patients %}
+            <p>- {{ patient.fname }} {{ patient.lname }}</p>
+        {% endfor %}
+    </div>
+    <div>{% block dashboard_content %}{% endblock %}</div>
+{% endblock %}

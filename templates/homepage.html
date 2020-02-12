@@ -2,13 +2,40 @@
 {% block title %}Home{% endblock %}
 {% block head %}
     {{ super() }}
-    <style type="text/css">
-        .important { color: #336699; }
-    </style>
 {% endblock %}
 {% block content %}
-    <h1>Index</h1>
-    <p class="important">
-      Welcome to my awesome homepage.
-    </p>
+    <div>
+        <h1>
+            Nourish Tagline
+        </h1>
+        <h2>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation.
+        </h2>
+        <img src="">
+    </div>
+    <div>
+        <h3>Sign In:</h3>
+        <form action="/" method="POST">
+            <input type="text" required name="email" placeholder="Email address">
+            <input type="password" required name="password" placeholder="Password">
+            
+            <label for="user-type">I'm a: </label>
+            <input type="radio" required name="user-type" value="patient">
+            <label>patient</label>
+            <input type="radio" required name="user-type" value="dietitian">
+            <label>dietitian</label>
+            
+            <input type="submit" value="Log In">
+        </form>
+        <div>
+            {% with messages = get_flashed_messages() %}
+              {% if messages %}
+                {% for message in messages %}
+                  {{ message }}
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+        </div>
+     <a href="/register">Create a new dietitian account</a>
+    </div>
 {% endblock %}

@@ -1,4 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy import desc
 
 db = SQLAlchemy()
 
@@ -12,11 +14,17 @@ class Dietitian(db.Model):
     fname = db.Column(db.String(50), nullable=False)
     lname = db.Column(db.String(50), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(20), nullable=False)
+    password_hash = db.Column(db.String(128), nullable=False)
     street_address = db.Column(db.String(100))
     city = db.Column(db.String(40))
     state = db.Column(db.String(2))
     zipcode = db.Column(db.String(11))
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
 
     def __repr__(self):
 
@@ -34,7 +42,7 @@ class Patient(db.Model):
     fname = db.Column(db.String(50), nullable=False)
     lname = db.Column(db.String(50), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(20), nullable=False)
+    password_hash = db.Column(db.String(128), nullable=False)
     street_address = db.Column(db.String(100))
     city = db.Column(db.String(40))
     state = db.Column(db.String(2))
@@ -45,6 +53,12 @@ class Patient(db.Model):
     # Define relationship to dietitian
     dietitian = db.relationship("Dietitian", backref=db.backref("patients"))
 
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+    
     def __repr__(self):
 
         return f"<Patient id={self.patient_id}, email={self.email}>"
@@ -66,9 +80,7 @@ class Goal(db.Model):
 
     def __repr__(self):
 
-        return f"""<Goal id={self.goal_id},
-                    patient={self.patient_id},
-                    time={self.time_stamp}>"""
+        return f"""<Goal id={self.goal_id}, patient={self.patient_id}, time={self.time_stamp}>"""
 
 
 class Post(db.Model):
@@ -94,9 +106,8 @@ class Post(db.Model):
 
     def __repr__(self):
 
-        return f"""<Post id={self.post_id},
-                    patient={self.patient_id},
-                    time={self.time_stamp}>"""
+        return f"""<Post id={self.post_id}, patient={self.patient_id}, time={self.post_time}>"""
+
 
 class Comment(db.Model):
     """A dietitian's comment on a patient's post."""
@@ -113,17 +124,16 @@ class Comment(db.Model):
 
     def __repr__(self):
 
-        return f"""<Comment id={self.comment_id},
-                    post={self.post_id},
-                    time={self.time_stamp}>"""
+        return f"""<Comment id={self.comment_id}, post={self.post_id}, time={self.time_stamp}>"""
 
 
 
-# Helper functions
+
 def connect_to_db(app):
     """Connect Flask app to database."""
 
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///nourish'
+    app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql:///nourish'
+    app.config["SQLALCHEMY_ECHO"] = False
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.app = app
     db.init_app(app)
@@ -132,9 +142,6 @@ def connect_to_db(app):
 if __name__ == "__main__":
     from server import app
     connect_to_db(app)
-
-
-
 
 
 
