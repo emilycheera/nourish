@@ -177,8 +177,13 @@ def show_single_patient_goals(dietitian_id, patient_id):
     dietitian = get_current_dietitian()
     patients_list = dietitian.patients
     patient = Patient.query.get(patient_id)
-    current_patient_goal = patient.goals[-1]
-    past_goals = patient.goals[:-1]
+
+    if patient.goals:
+        current_patient_goal = patient.goals[-1]
+        past_goals = patient.goals[:-1]
+    else: 
+        current_patient_goal = None
+        past_goals = None
     
 
     return render_template("dietitian-home-patient-goals.html",

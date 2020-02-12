@@ -3,7 +3,7 @@
 {% block single_patient_content %}
     <div>
         {% if not posts %}
-            <p>No posts to display.</p>
+            <p>{{ patient.fname }} {{ patient.lname }} hasn't created any posts yet.</p>
         {% endif %}
 
         {% if posts %}

@@ -6,18 +6,25 @@
     </div>
     <div>
         <h3>Add a new goal for {{ patient.fname }} {{ patient.lname }}:</h3>
-        
         <form action="" method="POST">
             <textarea name="goal_body" required rows="4" cols="48"></textarea>
             <input type="submit" value="Add New Goal">
         </form>
-        <h3>Current Goal</h3>
-            <p>{{ current_goal.time_stamp|datetime }}</p>
-            <p>{{ current_goal.goal_body }}</p>
-        <h3>Past Goals</h3>
-        {% for goal in past_goals %}
-            <p>{{ goal.time_stamp|datetime }}</p>
-            <p>{{ goal.goal_body }}</p>
-        {% endfor %}
+        {% if not current_goal %}
+            <p>
+                {{ patient.fname }} {{ patient.lname }} has no goals yet.
+                Add a goal to see it here.
+            </p>
+        {% endif %}
+        {% if current_goal %}
+            <h3>Current Goal</h3>
+                <p>{{ current_goal.time_stamp|datetime }}</p>
+                <p>{{ current_goal.goal_body }}</p>
+            <h3>Past Goals</h3>
+            {% for goal in past_goals %}
+                <p>{{ goal.time_stamp|datetime }}</p>
+                <p>{{ goal.goal_body }}</p>
+            {% endfor %}
+        {% endif %}
     </div>
 {% endblock %}
