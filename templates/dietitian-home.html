@@ -10,7 +10,7 @@
     </div>
     <div id="sidebar">
         {% block sidebar_top %}{% endblock %}
-        <p><a href="/new-patient">Register a New Patient</a></p>
+        <p><a href="/dietitian/{{ dietitian.dietitian_id }}/new-patient">Register a New Patient</a></p>
         <h2>All Patients</h2>
         {% if not patients %}
             <p>No patients to display.</p>

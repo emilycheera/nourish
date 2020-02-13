@@ -2,6 +2,19 @@
 
 {% block single_patient_content %}
     <div>
-        <p>Ability to see patient details and edit them will go here.</p>
+        <h3>Basic Information</h3>
+        <a href="/dietitian/{{ dietitian.dietitian_id }}/{{ patient.patient_id }}/edit">Edit</a>
+        <a href="/dietitian/{{ dietitian.dietitian_id }}/{{ patient.patient_id }}/reset-password">Reset Password</a>
+        <ul>
+            <li>First name: {{ patient.fname }}</li>
+            <li>Last name: {{ patient.lname }}</li>
+            <li>Email: {{ patient.email }}</li>
+            <li>Address: {{ patient.street_address }}</li>
+            <li>City: {{ patient.city }}</li>
+            <li>State: {{ patient.state }}</li>
+            <li>Zipcode: {{ patient.zipcode }}</li>
+            <li>Phone number: {{ patient.phone }}</li>
+            <li>Birthdate: {{ patient.birthdate|date }}</li>
+        </ul>
     </div>
 {% endblock %}

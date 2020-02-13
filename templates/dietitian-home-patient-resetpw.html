@@ -1,0 +1,12 @@
+{% extends "dietitian-home-single-patient.html" %}
+
+{% block single_patient_content %}
+    <div>
+        <h3>Reset Password</h3>
+        <p>Type in a new password, and click "Reset" to save.</p>
+        <form action="/dietitian/{{ dietitian.dietitian_id }}/{{ patient.patient_id }}/reset-password" method="POST">
+            <input type="password" required name="password">
+            <input type="submit" value="Reset">
+        </form>
+    </div>
+{% endblock %}

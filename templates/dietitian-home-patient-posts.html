@@ -26,6 +26,20 @@
                 {% if post.meal_notes %}
                     <p>Additional Notes: {{ post.hunger }}
                 {% endif %}
+                <div>
+                    <form action="/dietitian/{{ dietitian.dietitian_id }}/{{ patient.patient_id }}/posts/{{ post.post_id }}" method="POST">
+                        <textarea required name="comment" placeholder="Write a comment..."></textarea>
+                        <input type="submit" value="Add Comment">
+                    </form>
+                    {% if post.comments %}
+                        <h4>Comments</h4>
+                        {% for comment in post.comments %}
+                            <p>{{ dietitian.fname }} {{ dietitian.lname }} 
+                            {{ comment.time_stamp|datetime }}</p>
+                            <p>{{ comment.comment_body }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
             {% endfor %}
         {% endif %}
     </div>

@@ -1,28 +1,16 @@
-{% extends "base.html" %}
-{% block title %}Dietitian Registration{% endblock %}
-{% block head %}
-    {{ super() }}
-{% endblock %}
-{% block content %}
+{% extends "dietitian-home-single-patient.html" %}
+
+{% block single_patient_content %}
     <div>
-        <h1>
-            Dietitian Registration
-        </h1>
-        <h2>
-            Are you a dietitian new to Nourish? Register below to start using
-            Nourish with your patients!
-        </h2>
-    </div>
-    <div>
-        <h3>Complete the form to register:</h3>
-        <form action="/register" method="POST">
-            <input type="text" required name="fname" placeholder="First name">
-            <input type="text" required name="lname" placeholder="Last name">
-            <input type="email" required name="email" placeholder="Email address">
-            <input type="password" required name="password" placeholder="Password">
-            <input type="text" required name="street-address" placeholder="Street address">
-            <input type="text" required name="city" placeholder="City">
-            <select required name="state">
+        <h3>Basic Information</h3>
+        <p>Edit the patient's information, and click the button to save.</p>
+        <form action="/dietitian/{{ dietitian.dietitian_id }}/{{ patient.patient_id }}/edit" method="POST">
+            <input type="text" required name="fname" value="{{ patient.fname }}">
+            <input type="text" required name="lname" value="{{ patient.lname }}">
+            <input type="email" required name="email" value="{{ patient.email }}">
+            <input type="text" required name="street-address" size="50" value="{{ patient.street_address }}">
+            <input type="text" required name="city" value="{{ patient.city }}">
+            <select name="state" required value="{{ patient.state }}">
                 <option value="AL">Alabama</option>
                 <option value="AK">Alaska</option>
                 <option value="AZ">Arizona</option>
@@ -75,8 +63,10 @@
                 <option value="WI">Wisconsin</option>
                 <option value="WY">Wyoming</option>
             </select>
-            <input type="text" required name="zipcode" placeholder="Zipcode">
-            <input type="submit" value="Register Now">
+            <input type="text" required name="zipcode" value="{{ patient.zipcode }}">
+            <input type="tel" required name="phone" value="{{ patient.phone }}">
+            <input type="date" required name="birthdate" value={{ patient.birthdate }}>
+            <input type="submit" value="Submit Changes">
         </form>
     </div>
 {% endblock %}

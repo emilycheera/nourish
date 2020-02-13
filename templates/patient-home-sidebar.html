@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Patient Dashboard{% endblock %}
+{% block head %}
+    {{ super() }}
+{% endblock %}
+{% block content %}
+    <h1>{{ patient.fname }} {{ patient.lname }}</h1>
+    <div>
+        {% block flash %} {{ super() }} {% endblock %}
+    </div>
+    <div id="sidebar">
+        {% block sidebar_top %}{% endblock %}
+        <p><a href="">
+            Past Goals</a>
+        </p>
+        <p><a href="">
+            Past Posts</a>
+        </p>
+    </div>
+    <div>{% block dashboard_content %}{% endblock %}</div>
+{% endblock %}

@@ -1,9 +1,11 @@
 from jinja2 import StrictUndefined
 
 from flask import Flask, render_template, request, flash, redirect, session
+from werkzeug.utils import secure_filename
 from sqlalchemy import desc
 
 from datetime import datetime
+import os
 
 from flask_debugtoolbar import DebugToolbarExtension
 
@@ -12,6 +14,11 @@ from model import connect_to_db, db, Dietitian, Patient, Goal, Post, Comment
 
 app = Flask(__name__)
 app.secret_key = "b_xd3xf9095~xa68x90E^O1xd3R"
+
+app.config["IMAGE_UPLOADS"] = "/Users/Emily/src/nourish/static/images/uploads"
+app.config["ALLOWED_IMAGE_EXTENSIONS"] = ["JPEG", "JPG", "PNG"]
+app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024
+
 
 app.jinja_env.undefined = StrictUndefined
 
@@ -84,14 +91,16 @@ def logout():
     return redirect("/")
 
 
-@app.route('/register', methods=["GET"])
+########################   DIETITIAN ROUTES   ########################
+
+@app.route("/register", methods=["GET"])
 def show_dietitian_registration_form():
     """Show form for dietitian registration."""
     
     return render_template("dietitian-registration.html")
 
 
-@app.route('/register', methods=["POST"])
+@app.route("/register", methods=["POST"])
 def process_dietitian_registration():
     """Process dietitian registration."""
     
@@ -124,6 +133,54 @@ def process_dietitian_registration():
 
     flash(f"Successfully registered {email}.")
     return redirect(f"/dietitian/{dietitian_id}")
+
+
+@app.route("/dietitian/<int:dietitian_id>/new-patient", methods=["GET"])
+def show_patient_registration_form(dietitian_id):
+    """Show form for new patient registration."""
+    
+    if not check_dietitian_authorization(dietitian_id):
+        return render_template("unauthorized.html")
+
+    return render_template("patient-registration.html",
+                            dietitian_id=dietitian_id)
+
+
+@app.route("/dietitian/<int:dietitian_id>/new-patient", methods=["POST"])
+def process_patient_registration(dietitian_id):
+    """Process new patient registration."""
+
+    fname = request.form.get("fname")
+    lname = request.form.get("lname")
+    email = request.form.get("email")
+    password = request.form.get("password")
+    street_address = request.form.get("street-address")
+    city = request.form.get("city")
+    state = request.form.get("state")
+    zipcode = request.form.get("zipcode")
+    phone = request.form.get("phone")
+    birthdate = request.form.get("birthdate")
+
+    new_patient = Patient(dietitian_id=dietitian_id,
+                          fname=fname,
+                          lname=lname,
+                          email=email,
+                          street_address=street_address,
+                          city=city,
+                          state=state,
+                          zipcode=zipcode,
+                          phone=phone,
+                          birthdate=birthdate)
+
+    new_patient.set_password(password)
+
+    db.session.add(new_patient)
+    db.session.commit()
+
+    patient_id = new_patient.patient_id
+
+    flash(f"Successfully registered new patient {fname} {lname}.")
+    return redirect(f"/dietitian/{dietitian_id}/{patient_id}")
 
 
 @app.route("/dietitian/<int:dietitian_id>")
@@ -167,6 +224,84 @@ def show_single_patient_overview(dietitian_id, patient_id):
                             patient=patient)
 
 
+@app.route("/dietitian/<int:dietitian_id>/<int:patient_id>/edit")
+def view_edit_patient_information_form(dietitian_id, patient_id):
+    """Edit a patient's basic information as a dietitian."""
+
+    if not check_dietitian_authorization(dietitian_id):
+        return render_template("unauthorized.html")
+
+    dietitian = get_current_dietitian()
+    patients_list = dietitian.patients
+    patient = Patient.query.get(patient_id)
+
+    if not patient:
+        return redirect(f"/dietitian/{dietitian_id}")
+
+    return render_template("dietitian-home-patient-edit.html",
+                            dietitian=dietitian,
+                            patients=patients_list,
+                            patient=patient)
+
+
+@app.route("/dietitian/<int:dietitian_id>/<int:patient_id>/edit", methods=["POST"])
+def edit_single_patient_information(dietitian_id, patient_id):
+    """Process edit of a single patient's basic information."""
+
+    patient = Patient.query.get(patient_id)
+
+    patient.fname = request.form.get("fname")
+    patient.lname = request.form.get("lname")
+    patient.email = request.form.get("email")
+    patient.street_address = request.form.get("street-address")
+    patient.city = request.form.get("city")
+    patient.state = request.form.get("state")
+    patient.zipcode = request.form.get("zipcode")
+    patient.phone = request.form.get("phone")
+    patient.birthdate = request.form.get("birthdate")
+
+    db.session.add(patient)
+    db.session.commit()
+
+    return redirect(f"/dietitian/{dietitian_id}/{patient_id}")
+
+
+@app.route("/dietitian/<int:dietitian_id>/<int:patient_id>/reset-password")
+def view_reset_patient_password_form(dietitian_id, patient_id):
+    """Reset a patient's password as a dietitian."""
+
+    if not check_dietitian_authorization(dietitian_id):
+        return render_template("unauthorized.html")
+
+    dietitian = get_current_dietitian()
+    patients_list = dietitian.patients
+    patient = Patient.query.get(patient_id)
+
+    if not patient:
+        return redirect(f"/dietitian/{dietitian_id}")
+
+    return render_template("dietitian-home-patient-resetpw.html",
+                            dietitian=dietitian,
+                            patients=patients_list,
+                            patient=patient)
+
+
+@app.route("/dietitian/<int:dietitian_id>/<int:patient_id>/reset-password", methods=["POST"])
+def reset_patient_password(dietitian_id, patient_id):
+    """Process reset of a patient's password as a dietitian."""
+
+    patient = Patient.query.get(patient_id)
+
+    password = request.form.get("password")
+
+    patient.set_password(password)
+
+    db.session.add(patient)
+    db.session.commit()
+
+    return redirect(f"/dietitian/{dietitian_id}/{patient_id}")
+
+
 @app.route("/dietitian/<int:dietitian_id>/<int:patient_id>/goals", methods=["GET"])
 def show_single_patient_goals(dietitian_id, patient_id):
     """Show page where dietitian can add and view goals for a patient."""
@@ -177,6 +312,9 @@ def show_single_patient_goals(dietitian_id, patient_id):
     dietitian = get_current_dietitian()
     patients_list = dietitian.patients
     patient = Patient.query.get(patient_id)
+
+    if not patient:
+        return redirect(f"/dietitian/{dietitian_id}")
 
     if patient.goals:
         current_patient_goal = patient.goals[-1]
@@ -193,12 +331,13 @@ def show_single_patient_goals(dietitian_id, patient_id):
                             current_goal=current_patient_goal,
                             past_goals=past_goals)
 
+
 @app.route("/dietitian/<int:dietitian_id>/<int:patient_id>/goals", methods=["POST"])
 def add_new_patient_goal(dietitian_id, patient_id):
     """Process new goals form."""
 
     time_stamp = datetime.now()
-    goal_body = request.form.get("goal_body")
+    goal_body = request.form.get("goal-body")
 
     new_goal = Goal(patient_id=patient_id,
                     time_stamp=time_stamp,
@@ -211,7 +350,6 @@ def add_new_patient_goal(dietitian_id, patient_id):
     return redirect(f"/dietitian/{dietitian_id}/{patient_id}/goals")
 
 
-
 @app.route("/dietitian/<int:dietitian_id>/<int:patient_id>/posts")
 def show_single_patient_posts(dietitian_id, patient_id):
     """Show a dietitian's view of a single patient's posts."""
@@ -222,6 +360,10 @@ def show_single_patient_posts(dietitian_id, patient_id):
     dietitian = get_current_dietitian()
     patients_list = dietitian.patients
     patient = Patient.query.get(patient_id)
+
+    if not patient:
+        return redirect(f"/dietitian/{dietitian_id}")
+
     patient_posts = patient.posts
 
     return render_template("dietitian-home-patient-posts.html",
@@ -230,6 +372,114 @@ def show_single_patient_posts(dietitian_id, patient_id):
                             patient=patient,
                             posts=patient_posts)
 
+
+@app.route("/dietitian/<int:dietitian_id>/<int:post_id>", methods=["POST"])
+def add_post_comment_dietitian_homepage(dietitian_id, post_id):
+    """Add a comment to a post on the dietitian's homepage."""
+
+    time_stamp = datetime.now()
+    comment_body = request.form.get("comment")
+
+    new_comment = Comment(post_id=post_id,
+                          time_stamp=time_stamp,
+                          comment_body=comment_body)
+
+    db.session.add(new_comment)
+    db.session.commit()
+
+    return redirect(f"/dietitian/{dietitian_id}")
+
+
+@app.route("/dietitian/<int:dietitian_id>/<int:patient_id>/posts/<int:post_id>", methods=["POST"])
+def add_post_comment_single_patient_page(dietitian_id, patient_id, post_id):
+    """Add a comment to a post on a single patient's page."""
+
+    time_stamp = datetime.now()
+    comment_body = request.form.get("comment")
+
+    new_comment = Comment(post_id=post_id,
+                          time_stamp=time_stamp,
+                          comment_body=comment_body)
+
+    db.session.add(new_comment)
+    db.session.commit()
+
+    return redirect(f"/dietitian/{dietitian_id}/{patient_id}/posts")
+
+
+########################   PATIENT ROUTES   ########################
+
+@app.route("/patient/<int:patient_id>")
+def show_patient_homepage(patient_id):
+    """Show a patient's homepage."""
+
+    if not check_patient_authorization(patient_id):
+        return render_template("unauthorized.html")
+
+    patient = get_current_patient()
+    current_time = datetime.now().strftime("%Y-%m-%dT%H:%M")
+
+    if patient.goals:
+        current_goal = patient.goals[-1]
+    else: 
+        current_goal = None
+
+    return render_template("patient-home-main.html",
+                            patient=patient,
+                            goal=current_goal,
+                            current_time=current_time)
+
+
+@app.route("/patient/<int:patient_id>/new-post", methods=["POST"])
+def add_new_patient_post(patient_id):
+    """Add a new patient post from patient's homepage."""
+
+    if request.files:
+        image = request.files.get("meal-image")
+
+        filename = secure_filename(image.filename)
+
+        if image.filename == "":
+            flash("Please make sure your image has a filename.")
+            return redirect(f"/patient/{patient_id}")
+
+        if not allowed_image(image.filename):
+            flash("Only .png, .jpg, or .jpeg images are accepted.")
+            return redirect(f"/patient/{patient_id}")
+
+        filename = secure_filename(image.filename)
+        image.save(os.path.join(app.config["IMAGE_UPLOADS"], filename))
+
+
+    post_time = datetime.now()
+    meal_time = request.form.get("meal-time")
+    img_path = f"/static/images/uploads/{filename}"
+    meal_setting = request.form.get("meal-setting")
+    TEB = request.form.get("TEB")
+    hunger = request.form.get("hunger")
+    fullness = request.form.get("fullness")
+    satisfaction = request.form.get("satisfaction")
+    meal_notes = request.form.get("meal-notes")
+
+    new_post = Post(patient_id=patient_id,
+                    post_time=post_time,
+                    meal_time=meal_time,
+                    img_path=img_path,
+                    meal_setting=meal_setting,
+                    TEB=TEB,
+                    hunger=hunger,
+                    fullness=fullness,
+                    satisfaction=satisfaction,
+                    meal_notes=meal_notes)
+    
+    db.session.add(new_post)
+    db.session.commit()
+
+    return redirect(f"/patient/{patient_id}")
+
+
+
+########################   HELPER FUNCTIONS   ########################
 
 def get_current_dietitian_id():
     """Returns current dietitian id."""
@@ -268,11 +518,45 @@ def check_dietitian_authorization(dietitian_id):
     return True
 
 
-# Add jinja datetime filter to format datetime in patient posts
-def datetimeformat(value, format='%b %-d, %Y at %-I:%M %p'):
+def check_patient_authorization(patient_id):
+    """Check to see if the logged in patient is authorized to view page."""
+
+    # Get the current user's patient_id.
+    user_id = get_current_patient_id()
+
+    # If correct patient is not logged in, show unauthorized template.
+    if user_id != patient_id:
+        return False
+
+    return True
+
+
+def allowed_image(filename):
+
+    # We only want files with a . in the filename.
+    if not "." in filename:
+        return False
+
+    # Split the extension from the filename.
+    ext = filename.rsplit(".", 1)[1]
+
+    # Check if the extension is in ALLOWED_IMAGE_EXTENSIONS.
+    if ext.upper() in app.config["ALLOWED_IMAGE_EXTENSIONS"]:
+        return True
+    else:
+        return False
+
+
+# Add jinja datetime filters to format datetime object in posts and comments.
+def datetimeformat(value, format="%b %-d, %Y at %-I:%M %p"):
     return value.strftime(format)
 
 app.jinja_env.filters['datetime'] = datetimeformat
+
+def dateformat(value, format="%m-%d-%Y"):
+    return value.strftime(format)
+
+app.jinja_env.filters['date'] = dateformat
 
 
 

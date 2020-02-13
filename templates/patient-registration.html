@@ -1,28 +1,27 @@
 {% extends "base.html" %}
-{% block title %}Dietitian Registration{% endblock %}
+{% block title %}Patient Registration{% endblock %}
 {% block head %}
     {{ super() }}
 {% endblock %}
 {% block content %}
     <div>
         <h1>
-            Dietitian Registration
+            Register a New Patient
         </h1>
-        <h2>
-            Are you a dietitian new to Nourish? Register below to start using
-            Nourish with your patients!
-        </h2>
+        <p>
+           Instructions: Patients must be registered by their dietitian. Please enter a default password and ask your patient to reset their password when they log into their account for the first time.
+        </p>
     </div>
     <div>
-        <h3>Complete the form to register:</h3>
-        <form action="/register" method="POST">
+        <h3>Complete the form to register a new patient:</h3>
+        <form action="/dietitian/{{ dietitian_id }}/new-patient" method="POST">
             <input type="text" required name="fname" placeholder="First name">
             <input type="text" required name="lname" placeholder="Last name">
             <input type="email" required name="email" placeholder="Email address">
             <input type="password" required name="password" placeholder="Password">
             <input type="text" required name="street-address" placeholder="Street address">
             <input type="text" required name="city" placeholder="City">
-            <select required name="state">
+            <select name="state" required>
                 <option value="AL">Alabama</option>
                 <option value="AK">Alaska</option>
                 <option value="AZ">Arizona</option>
@@ -76,7 +75,9 @@
                 <option value="WY">Wyoming</option>
             </select>
             <input type="text" required name="zipcode" placeholder="Zipcode">
-            <input type="submit" value="Register Now">
+            <input type="tel" required name="phone" placeholder="Phone number">
+            <input type="date" required name="birthdate" placeholder="Birthdate">
+            <input type="submit" value="Register New Patient">
         </form>
     </div>
 {% endblock %}
