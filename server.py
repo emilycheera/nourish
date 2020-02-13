@@ -320,6 +320,7 @@ def show_single_patient_goals(dietitian_id, patient_id):
     if patient.goals:
         current_patient_goal = patient.goals[-1]
         past_goals = patient.goals[:-1]
+        past_goals.reverse()
     else: 
         current_patient_goal = None
         past_goals = None
@@ -504,6 +505,24 @@ def view_all_posts(patient_id):
     return render_template("patient-posts.html",
                             patient=patient,
                             posts=posts)
+
+
+@app.route("/patient/<int:patient_id>/goals")
+def view_all_goals(patient_id):
+    """Show a patient all of their past goals."""
+
+    if not check_patient_authorization(patient_id):
+        return render_template("unauthorized.html")
+
+    patient = get_current_patient()
+
+    goals = patient.goals
+    goals.reverse()
+
+    return render_template("patient-goals.html",
+                            patient=patient,
+                            goals=goals)
+
 
 
 ########################   HELPER FUNCTIONS   ########################

@@ -1,7 +1,16 @@
 {% extends "patient-home-sidebar.html" %}
-
+{% block sidebar %}
+    <p>
+        <a href="/patient/{{ patient.patient_id }}">
+        &lt;&lt; Back to your main page</a>
+    </p>
+    <p><a href="/patient/{{ patient.patient_id }}/goals">
+        Past Goals</a>
+    </p>
+{% endblock %}
 {% block dashboard_content %}
     <div>
+        <h2>Past Posts</h2>
         {% if not posts %}
             <p>
                 You haven't created any posts yet.
@@ -11,7 +20,6 @@
                 Click here to add your first post.</a>
             </p>
         {% endif %}
-
         {% if posts %}
             {% for post in posts %}
                 <p>{{ patient.fname }} {{ patient.lname }}</p>
@@ -35,6 +43,14 @@
                 {% endif %}
                 {% if post.meal_notes %}
                     <p>Additional Notes: {{ post.hunger }}</p>
+                {% endif %}
+                {% if post.comments %}
+                    <h4>Comments</h4>
+                    {% for comment in post.comments %}
+                        <p>{{ patient.dietitian.fname }} {{ patient.dietitian.lname }} 
+                        {{ comment.time_stamp|datetime }}</p>
+                        <p>{{ comment.comment_body }}</p>
+                    {% endfor %}
                 {% endif %}
             {% endfor %}
         {% endif %}

@@ -4,18 +4,12 @@
     {{ super() }}
 {% endblock %}
 {% block content %}
+    <div id="sidebar">
+        {% block sidebar %}{% endblock %}
+    </div>
     <h1>{{ patient.fname }} {{ patient.lname }}</h1>
     <div>
         {% block flash %} {{ super() }} {% endblock %}
-    </div>
-    <div id="sidebar">
-        {% block sidebar_top %}{% endblock %}
-        <p><a href="/patient/{{ patient.patient_id }}">
-            Past Goals</a>
-        </p>
-        <p><a href="/patient/{{ patient.patient_id }}/posts">
-            Past Posts</a>
-        </p>
     </div>
     <div>{% block dashboard_content %}{% endblock %}</div>
 {% endblock %}
