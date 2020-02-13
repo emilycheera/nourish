@@ -1,9 +1,15 @@
-{% extends "dietitian-home-single-patient.html" %}
+{% extends "patient-home-sidebar.html" %}
 
-{% block single_patient_content %}
+{% block dashboard_content %}
     <div>
         {% if not posts %}
-            <p>{{ patient.fname }} {{ patient.lname }} hasn't created any posts yet.</p>
+            <p>
+                You haven't created any posts yet.
+            </p>
+            <p>
+                <a href="/patient/{{ patient.patient_id }}">
+                Click here to add your first post.</a>
+            </p>
         {% endif %}
 
         {% if posts %}
@@ -30,20 +36,6 @@
                 {% if post.meal_notes %}
                     <p>Additional Notes: {{ post.hunger }}</p>
                 {% endif %}
-                <div>
-                    <form action="/dietitian/{{ dietitian.dietitian_id }}/{{ patient.patient_id }}/posts/{{ post.post_id }}" method="POST">
-                        <textarea required name="comment" placeholder="Write a comment..."></textarea>
-                        <input type="submit" value="Add Comment">
-                    </form>
-                    {% if post.comments %}
-                        <h4>Comments</h4>
-                        {% for comment in post.comments %}
-                            <p>{{ dietitian.fname }} {{ dietitian.lname }} 
-                            {{ comment.time_stamp|datetime }}</p>
-                            <p>{{ comment.comment_body }}</p>
-                        {% endfor %}
-                    {% endif %}
-                </div>
             {% endfor %}
         {% endif %}
     </div>

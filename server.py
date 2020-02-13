@@ -15,10 +15,11 @@ from model import connect_to_db, db, Dietitian, Patient, Goal, Post, Comment
 app = Flask(__name__)
 app.secret_key = "b_xd3xf9095~xa68x90E^O1xd3R"
 
-app.config["IMAGE_UPLOADS"] = "/Users/Emily/src/nourish/static/images/uploads"
-app.config["ALLOWED_IMAGE_EXTENSIONS"] = ["JPEG", "JPG", "PNG"]
-app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024
+UPLOAD_FOLDER = "static/images/uploads/"
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024
 
 app.jinja_env.undefined = StrictUndefined
 
@@ -365,6 +366,7 @@ def show_single_patient_posts(dietitian_id, patient_id):
         return redirect(f"/dietitian/{dietitian_id}")
 
     patient_posts = patient.posts
+    patient_posts.reverse()
 
     return render_template("dietitian-home-patient-posts.html",
                             dietitian=dietitian,
@@ -435,25 +437,19 @@ def add_new_patient_post(patient_id):
     """Add a new patient post from patient's homepage."""
 
     if request.files:
-        image = request.files.get("meal-image")
+        file = request.files.get("meal-image")
 
-        filename = secure_filename(image.filename)
+    if not allowed_image(file.filename):
+        flash("Only .png, .jpg, or .jpeg images are accepted.")
+        return redirect(f"/patient/{patient_id}")
 
-        if image.filename == "":
-            flash("Please make sure your image has a filename.")
-            return redirect(f"/patient/{patient_id}")
-
-        if not allowed_image(image.filename):
-            flash("Only .png, .jpg, or .jpeg images are accepted.")
-            return redirect(f"/patient/{patient_id}")
-
-        filename = secure_filename(image.filename)
-        image.save(os.path.join(app.config["IMAGE_UPLOADS"], filename))
-
+    if file:
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        img_path = f"/static/images/uploads/{filename}"
 
     post_time = datetime.now()
     meal_time = request.form.get("meal-time")
-    img_path = f"/static/images/uploads/{filename}"
     meal_setting = request.form.get("meal-setting")
     TEB = request.form.get("TEB")
     hunger = request.form.get("hunger")
@@ -464,19 +460,50 @@ def add_new_patient_post(patient_id):
     new_post = Post(patient_id=patient_id,
                     post_time=post_time,
                     meal_time=meal_time,
-                    img_path=img_path,
-                    meal_setting=meal_setting,
-                    TEB=TEB,
-                    hunger=hunger,
-                    fullness=fullness,
-                    satisfaction=satisfaction,
-                    meal_notes=meal_notes)
+                    meal_setting=meal_setting)
+
+    # Save optional fields if completed in form.
+    if img_path:
+        new_post.img_path = img_path
+
+    if TEB:
+        new_post.TEB = TEB
+
+    if hunger:
+        new_post.hunger = hunger
+
+    if fullness:
+        new_post.fullness = fullness
+
+    if satisfaction:
+        new_post.satisfaction = satisfaction
+
+    if meal_notes:
+        new_post.meal_notes = meal_notes
+
     
     db.session.add(new_post)
     db.session.commit()
 
+    flash("Post added successfully.")
     return redirect(f"/patient/{patient_id}")
 
+
+@app.route("/patient/<int:patient_id>/posts")
+def view_all_posts(patient_id):
+    """Show a patient all of their past posts."""
+
+    if not check_patient_authorization(patient_id):
+        return render_template("unauthorized.html")
+
+    patient = get_current_patient()
+
+    posts = patient.posts
+    posts.reverse()
+
+    return render_template("patient-posts.html",
+                            patient=patient,
+                            posts=posts)
 
 
 ########################   HELPER FUNCTIONS   ########################
@@ -532,19 +559,10 @@ def check_patient_authorization(patient_id):
 
 
 def allowed_image(filename):
+    """Check if image file has one of the allowed extensions."""
 
-    # We only want files with a . in the filename.
-    if not "." in filename:
-        return False
-
-    # Split the extension from the filename.
-    ext = filename.rsplit(".", 1)[1]
-
-    # Check if the extension is in ALLOWED_IMAGE_EXTENSIONS.
-    if ext.upper() in app.config["ALLOWED_IMAGE_EXTENSIONS"]:
-        return True
-    else:
-        return False
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 # Add jinja datetime filters to format datetime object in posts and comments.
