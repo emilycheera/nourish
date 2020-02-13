@@ -1,0 +1,19 @@
+{% extends "dietitian-home.html" %}
+
+{% block sidebar_top %}
+<p>
+    <a href="/dietitian/{{ dietitian.dietitian_id }}">
+    &lt;&lt; Back to all patient posts</a>
+</p>
+{% endblock %}
+{% block dashboard_content %}
+    <div>
+        <h3>Reset Password</h3>
+        <p>Type in a new password, and click "Reset" to save.</p>
+        <form action="/dietitian/{{ dietitian.dietitian_id }}/reset-password" method="POST">
+            <input type="password" required name="password">
+            <input type="submit" value="Reset">
+        </form>
+        <a href="/dietitian/{{ dietitian.dietitian_id }}/account">Cancel</a>
+    </div>
+{% endblock %}

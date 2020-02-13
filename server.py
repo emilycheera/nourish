@@ -29,9 +29,8 @@ app.jinja_env.undefined = StrictUndefined
 def index():
     """Homepage that shows login form."""
 
-    ### EDIT REDIRECT WHEN ROUTE CREATED###
     if get_current_patient_id():
-        return redirect(f"/dietitian/{dietitian_id}")
+        return redirect(f"/patient/{patient_id}")
 
     if get_current_dietitian_id():
         dietitian_id = get_current_dietitian_id()
@@ -136,6 +135,89 @@ def process_dietitian_registration():
     return redirect(f"/dietitian/{dietitian_id}")
 
 
+@app.route("/dietitian/<int:dietitian_id>/account")
+def show_dietitian_account(dietitian_id):
+    """Show a dietitian their account information"""
+
+    if not check_dietitian_authorization(dietitian_id):
+        return render_template("unauthorized.html")
+
+    dietitian = get_current_dietitian()
+    patients_list = dietitian.patients
+
+    return render_template("dietitian-account.html",
+                            dietitian=dietitian,
+                            patients=patients_list)
+
+
+@app.route("/dietitian/<int:dietitian_id>/edit", methods=["GET"])
+def view_edit_dietitian_information(dietitian_id):
+    """Edit a dietitian's account information."""
+
+    if not check_dietitian_authorization(dietitian_id):
+        return render_template("unauthorized.html")
+
+    dietitian = get_current_dietitian()
+    patients_list = dietitian.patients
+
+    return render_template("dietitian-account-edit.html",
+                            dietitian=dietitian,
+                            patients=patients_list)
+
+
+
+@app.route("/dietitian/<int:dietitian_id>/edit", methods=["POST"])
+def edit_dietitian_information(dietitian_id):
+    """Process edit of a dietitian's account information."""
+
+    dietitian = get_current_dietitian()
+
+    dietitian.fname = request.form.get("fname")
+    dietitian.lname = request.form.get("lname")
+    dietitian.email = request.form.get("email")
+    dietitian.street_address = request.form.get("street-address")
+    dietitian.city = request.form.get("city")
+    dietitian.state = request.form.get("state")
+    dietitian.zipcode = request.form.get("zipcode")
+
+    db.session.add(dietitian)
+    db.session.commit()
+
+    return redirect(f"/dietitian/{dietitian_id}/account")
+
+
+@app.route("/dietitian/<int:dietitian_id>/reset-password", methods=["GET"])
+def view_reset_dietitian_password_form(dietitian_id):
+    """Reset a dietitian's password."""
+
+    if not check_dietitian_authorization(dietitian_id):
+        return render_template("unauthorized.html")
+
+    dietitian = get_current_dietitian()
+    patients_list = dietitian.patients
+
+    return render_template("dietitian-resetpw.html",
+                            dietitian=dietitian,
+                            patients=patients_list)
+
+
+@app.route("/dietitian/<int:dietitian_id>/reset-password", methods=["POST"])
+def reset_dietitian_password(dietitian_id):
+    """Process reset of a dietitian's password."""
+
+    dietitian = get_current_dietitian()
+
+    password = request.form.get("password")
+
+    dietitian.set_password(password)
+
+    db.session.add(dietitian)
+    db.session.commit()
+    
+    flash("Password successfully reset.")
+    return redirect(f"/dietitian/{dietitian_id}/account")
+
+
 @app.route("/dietitian/<int:dietitian_id>/new-patient", methods=["GET"])
 def show_patient_registration_form(dietitian_id):
     """Show form for new patient registration."""
@@ -143,8 +225,12 @@ def show_patient_registration_form(dietitian_id):
     if not check_dietitian_authorization(dietitian_id):
         return render_template("unauthorized.html")
 
+    dietitian = get_current_dietitian()
+    patients_list = dietitian.patients
+
     return render_template("patient-registration.html",
-                            dietitian_id=dietitian_id)
+                            dietitian=dietitian,
+                            patients=patients_list)
 
 
 @app.route("/dietitian/<int:dietitian_id>/new-patient", methods=["POST"])
@@ -267,8 +353,8 @@ def edit_single_patient_information(dietitian_id, patient_id):
     return redirect(f"/dietitian/{dietitian_id}/{patient_id}")
 
 
-@app.route("/dietitian/<int:dietitian_id>/<int:patient_id>/reset-password")
-def view_reset_patient_password_form(dietitian_id, patient_id):
+@app.route("/dietitian/<int:dietitian_id>/<int:patient_id>/reset-password", methods=["GET"])
+def view_dietitian_reset_patient_password_form(dietitian_id, patient_id):
     """Reset a patient's password as a dietitian."""
 
     if not check_dietitian_authorization(dietitian_id):
@@ -288,7 +374,7 @@ def view_reset_patient_password_form(dietitian_id, patient_id):
 
 
 @app.route("/dietitian/<int:dietitian_id>/<int:patient_id>/reset-password", methods=["POST"])
-def reset_patient_password(dietitian_id, patient_id):
+def dietitian_reset_patient_password(dietitian_id, patient_id):
     """Process reset of a patient's password as a dietitian."""
 
     patient = Patient.query.get(patient_id)
@@ -300,6 +386,7 @@ def reset_patient_password(dietitian_id, patient_id):
     db.session.add(patient)
     db.session.commit()
 
+    flash("Password successfully reset.")
     return redirect(f"/dietitian/{dietitian_id}/{patient_id}")
 
 
@@ -522,6 +609,86 @@ def view_all_goals(patient_id):
     return render_template("patient-goals.html",
                             patient=patient,
                             goals=goals)
+
+
+@app.route("/patient/<int:patient_id>/account")
+def show_patient_account(patient_id):
+    """Show a patient their account information"""
+
+    if not check_patient_authorization(patient_id):
+        return render_template("unauthorized.html")
+
+    patient = get_current_patient()
+
+    return render_template("patient-account.html",
+                            patient=patient)
+
+
+@app.route("/patient/<int:patient_id>/edit", methods=["GET"])
+def view_edit_patient_information(patient_id):
+    """Edit a patient's account information."""
+
+    if not check_patient_authorization(patient_id):
+        return render_template("unauthorized.html")
+
+    patient = get_current_patient()
+
+    return render_template("patient-account-edit.html",
+                            patient=patient)
+
+
+
+@app.route("/patient/<int:patient_id>/edit", methods=["POST"])
+def edit_patient_information(patient_id):
+    """Process edit of a patient's account information."""
+
+    patient = get_current_patient()
+
+    patient.fname = request.form.get("fname")
+    patient.lname = request.form.get("lname")
+    patient.email = request.form.get("email")
+    patient.street_address = request.form.get("street-address")
+    patient.city = request.form.get("city")
+    patient.state = request.form.get("state")
+    patient.zipcode = request.form.get("zipcode")
+    patient.phone = request.form.get("phone")
+    patient.birthdate = request.form.get("birthdate")
+
+    db.session.add(patient)
+    db.session.commit()
+
+    return redirect(f"/patient/{patient_id}/account")
+
+
+@app.route("/patient/<int:patient_id>/reset-password", methods=["GET"])
+def view_reset_patient_password_form(patient_id):
+    """Reset a patient's password."""
+
+    if not check_patient_authorization(patient_id):
+        return render_template("unauthorized.html")
+
+    patient = get_current_patient()
+
+    return render_template("patient-resetpw.html",
+                            patient=patient)
+
+
+@app.route("/patient/<int:patient_id>/reset-password", methods=["POST"])
+def reset_patient_password(patient_id):
+    """Process reset of a patient's password."""
+
+    patient = get_current_patient()
+
+    password = request.form.get("password")
+
+    patient.set_password(password)
+
+    db.session.add(patient)
+    db.session.commit()
+    
+    flash("Password successfully reset.")
+    return redirect(f"/patient/{patient_id}/account")
+
 
 
 

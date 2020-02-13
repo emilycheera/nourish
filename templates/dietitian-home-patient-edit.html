@@ -1,5 +1,11 @@
 {% extends "dietitian-home-single-patient.html" %}
 
+{% block sidebar_top %}
+<p>
+    <a href="/dietitian/{{ dietitian.dietitian_id }}">
+    &lt;&lt; Back to all patient posts</a>
+</p>
+{% endblock %}
 {% block single_patient_content %}
     <div>
         <h3>Basic Information</h3>
@@ -68,5 +74,6 @@
             <input type="date" required name="birthdate" value={{ patient.birthdate }}>
             <input type="submit" value="Submit Changes">
         </form>
+        <a href="/dietitian/{{ dietitian.dietitian_id }}/{{ patient.patient_id }}">Cancel</a>
     </div>
 {% endblock %}

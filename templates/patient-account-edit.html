@@ -1,30 +1,27 @@
-{% extends "dietitian-home.html" %}
-
-{% block sidebar_top %}
-<p>
-    <a href="/dietitian/{{ dietitian.dietitian_id }}">
-    &lt;&lt; Back to all patient posts</a>
-</p>
+{% extends "patient-home-sidebar.html" %}
+{% block sidebar %}
+    <p>
+        <a href="/patient/{{ patient.patient_id }}">
+        &lt;&lt; Back to your main page</a>
+    </p>
+    <p><a href="/patient/{{ patient.patient_id }}/goals">
+        Past Goals</a>
+    </p>
+    <p><a href="/patient/{{ patient.patient_id }}/posts">
+        Past Posts</a>
+    </p>
 {% endblock %}
 {% block dashboard_content %}
     <div>
-        <h2>
-            Register a New Patient
-        </h2>
-        <p>
-           Instructions: Patients must be registered by their dietitian. Please enter a default password and ask your patient to reset their password when they log into their account for the first time.
-        <p>
-    </div>
-    <div>
-        <p><b>Complete the form to register a new patient:</b></p>
-        <form action="/dietitian/{{ dietitian.dietitian_id }}/new-patient" method="POST">
-            <input type="text" required name="fname" placeholder="First name">
-            <input type="text" required name="lname" placeholder="Last name">
-            <input type="email" required name="email" placeholder="Email address">
-            <input type="password" required name="password" placeholder="Password">
-            <input type="text" required name="street-address" placeholder="Street address">
-            <input type="text" required name="city" placeholder="City">
-            <select name="state" required>
+        <h3>Account Information</h3>
+        <p>Edit your information below. Click the button to save your changes.</p>
+        <form action="/patient/{{ patient.patient_id }}/edit" method="POST">
+            <input type="text" required name="fname" value="{{ patient.fname }}">
+            <input type="text" required name="lname" value="{{ patient.lname }}">
+            <input type="email" required name="email" value="{{ patient.email }}">
+            <input type="text" required name="street-address" size="50" value="{{ patient.street_address }}">
+            <input type="text" required name="city" value="{{ patient.city }}">
+            <select name="state" required value="{{ patient.state }}">
                 <option value="AL">Alabama</option>
                 <option value="AK">Alaska</option>
                 <option value="AZ">Arizona</option>
@@ -77,11 +74,11 @@
                 <option value="WI">Wisconsin</option>
                 <option value="WY">Wyoming</option>
             </select>
-            <input type="text" required name="zipcode" placeholder="Zipcode">
-            <input type="tel" required name="phone" placeholder="Phone number">
-            <input type="date" required name="birthdate" placeholder="Birthdate">
-            <input type="submit" value="Register New Patient">
+            <input type="text" required name="zipcode" value="{{ patient.zipcode }}">
+            <input type="tel" required name="phone" value="{{ patient.phone }}">
+            <input type="date" required name="birthdate" value={{ patient.birthdate }}>
+            <input type="submit" value="Submit Changes">
         </form>
-        <a href="/dietitian/{{ dietitian.dietitian_id }}">Cancel</a>
+        <a href="/patient/{{ patient.patient_id }}/account">Cancel</a>
     </div>
 {% endblock %}

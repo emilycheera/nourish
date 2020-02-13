@@ -1,0 +1,24 @@
+{% extends "dietitian-home.html" %}
+
+{% block sidebar_top %}
+<p>
+    <a href="/dietitian/{{ dietitian.dietitian_id }}">
+    &lt;&lt; Back to all patient posts</a>
+</p>
+{% endblock %}
+{% block dashboard_content %}
+    <div>
+        <h3>Account Information</h3>
+        <a href="/dietitian/{{ dietitian.dietitian_id }}/edit">Edit</a>
+        <a href="/dietitian/{{ dietitian.dietitian_id }}/reset-password">Reset Password</a>
+        <ul>
+            <li>First name: {{ dietitian.fname }}</li>
+            <li>Last name: {{ dietitian.lname }}</li>
+            <li>Email: {{ dietitian.email }}</li>
+            <li>Address: {{ dietitian.street_address }}</li>
+            <li>City: {{ dietitian.city }}</li>
+            <li>State: {{ dietitian.state }}</li>
+            <li>Zipcode: {{ dietitian.zipcode }}</li>
+        </ul>
+    </div>
+{% endblock %}

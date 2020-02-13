@@ -8,23 +8,15 @@
 {% endblock %}
 {% block dashboard_content %}
     <div>
-        <h2>
-            Register a New Patient
-        </h2>
-        <p>
-           Instructions: Patients must be registered by their dietitian. Please enter a default password and ask your patient to reset their password when they log into their account for the first time.
-        <p>
-    </div>
-    <div>
-        <p><b>Complete the form to register a new patient:</b></p>
-        <form action="/dietitian/{{ dietitian.dietitian_id }}/new-patient" method="POST">
-            <input type="text" required name="fname" placeholder="First name">
-            <input type="text" required name="lname" placeholder="Last name">
-            <input type="email" required name="email" placeholder="Email address">
-            <input type="password" required name="password" placeholder="Password">
-            <input type="text" required name="street-address" placeholder="Street address">
-            <input type="text" required name="city" placeholder="City">
-            <select name="state" required>
+        <h3>Account Information</h3>
+        <p>Edit your information below. Click the button to save your changes.</p>
+        <form action="/dietitian/{{ dietitian.dietitian_id }}/edit" method="POST">
+            <input type="text" required name="fname" value="{{ dietitian.fname }}">
+            <input type="text" required name="lname" value="{{ dietitian.lname }}">
+            <input type="email" required name="email" value="{{ dietitian.email }}">
+            <input type="text" required name="street-address" size="50" value="{{ dietitian.street_address }}">
+            <input type="text" required name="city" value="{{ dietitian.city }}">
+            <select name="state" required value="{{ dietitian.state }}">
                 <option value="AL">Alabama</option>
                 <option value="AK">Alaska</option>
                 <option value="AZ">Arizona</option>
@@ -77,11 +69,8 @@
                 <option value="WI">Wisconsin</option>
                 <option value="WY">Wyoming</option>
             </select>
-            <input type="text" required name="zipcode" placeholder="Zipcode">
-            <input type="tel" required name="phone" placeholder="Phone number">
-            <input type="date" required name="birthdate" placeholder="Birthdate">
-            <input type="submit" value="Register New Patient">
+            <input type="text" required name="zipcode" value="{{ dietitian.zipcode }}">
+            <input type="submit" value="Submit Changes">
         </form>
-        <a href="/dietitian/{{ dietitian.dietitian_id }}">Cancel</a>
-    </div>
+        <a href="/dietitian/{{ dietitian.dietitian_id }}/account">Cancel</a>
 {% endblock %}

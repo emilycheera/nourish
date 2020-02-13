@@ -7,6 +7,22 @@
     {% endblock %}
 </head>
 <body>
+    <nav>
+        <div>
+            {% if session.get("patient_id") %}
+                <p>
+                    <a href="/patient/{{ patient.patient_id }}/account">
+                    Account</a>
+                <p><a href="/logout">Logout</a></p>
+            {% endif %}
+            {% if session.get("dietitian_id") %}
+                <p>
+                    <a href="/dietitian/{{ dietitian.dietitian_id }}/account">
+                    Account</a>
+                <p><a href="/logout">Logout</a></p>
+            {% endif %}
+        </div>
+    </nav>
     <div id="content">
         {% block content %}
             <div id="flash-messages">
@@ -23,8 +39,6 @@
         {% endblock %}
     </div>
     <div id="footer">
-        {% block footer %}
-        {% endblock %}
     </div>
 </body>
 </html>
