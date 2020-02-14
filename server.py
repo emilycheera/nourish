@@ -29,13 +29,14 @@ app.jinja_env.undefined = StrictUndefined
 def index():
     """Homepage that shows login form."""
 
-    if get_current_patient_id():
+    patient_id = get_current_patient_id()
+    dietitian_id = get_current_dietitian_id()
+
+    if patient_id:
         return redirect(f"/patient/{patient_id}")
 
-    if get_current_dietitian_id():
-        dietitian_id = get_current_dietitian_id()
+    if dietitian_id:
         return redirect(f"/dietitian/{dietitian_id}")
-
 
     return render_template("homepage.html")
 
@@ -548,14 +549,12 @@ def add_new_patient_post(patient_id):
     new_post = Post(patient_id=patient_id,
                     post_time=post_time,
                     meal_time=meal_time,
+                    TEB=TEB,
                     meal_setting=meal_setting)
 
     # Save optional fields if completed in form.
     if img_path:
         new_post.img_path = img_path
-
-    if TEB:
-        new_post.TEB = TEB
 
     if hunger:
         new_post.hunger = hunger

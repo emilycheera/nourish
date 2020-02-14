@@ -1,6 +1,7 @@
 {% extends "patient-home-sidebar.html" %}
 
 {% block sidebar %}
+    <p id="patient-main-page-link"></p>
     <p><a href="/patient/{{ patient.patient_id }}/goals">
         Past Goals</a>
     </p>
@@ -9,67 +10,70 @@
     </p>
 {% endblock %}
 {% block dashboard_content %}
-    <div>
-        <h3>Current Goal:</h3>
-        {% if not goal %}
-            <p>No goal to display.</p>
-        {% endif %}
-        {% if goal %}
-            <p>{{ goal.time_stamp|datetime }}</p>
-            <p>{{ goal.goal_body }}</p>
-        {% endif %}
-    </div>
-    <div>
-        <h3>Add a New Post:</h3>
-        <form enctype="multipart/form-data" action="/patient/{{ patient.patient_id }}/new-post" method="POST">
-            <p>
-                <label for="datetime">
-                    <span>Time of meal/snack: </span>
-                    <input type="datetime-local" required name="meal-time" value={{ current_time }}>
-                </label>
-            </p>
-            <p>
-                <label for="meal-image">
-                    <span>Add an image: </span>
-                    <input type="file" name="meal-image" accept="image/png, image/jpeg, image/jpg">
-                </label>
-            </p>
-            <p>
-                <label for="meal-setting">
-                    <span>Where did you eat and with whom? </span>
-                    <textarea name="meal-setting" required></textarea>
-                </label>
-            </p>
-            <p>
-                <label for="TEB">
-                    <span>What thoughts, emotions, and/or behaviors did you notice? </span>
-                    <textarea name="TEB"></textarea>
-                </label>
-            </p>
-            <p>
-                <label for="hunger">
-                    <span>Hunger rating: </span>
-                    <input type="number" name="hunger" min="0" max="10" step="1">
-                </label>
-            </p>
-            <p>
-                <label for="fullness">
-                    <span>Fullness rating: </span>
-                    <input type="number" name="fullness" min="0" max="10" step="1">
-                </label>
-            </p>
-            <p>
-                <label for="satisfaction">
-                    <span>Satisfaction rating: </span>
-                    <input type="number" name="satisfaction" min="0" max="10" step="1">
-                </label>
-            <p>
-                <label for="meal-notes">
-                    <span>Anything else you'd like to share? </span>
-                    <textarea name="meal-notes"></textarea>
-                </label>
-            </p>
-            <p><button type="submit">Submit</button></p>
-        </form>
+    <div id="patient-main-content">
+        <div>
+            <h3>Current Goal:</h3>
+            {% if not goal %}
+                <p>No goal to display.</p>
+            {% endif %}
+            {% if goal %}
+                <p>{{ goal.time_stamp|datetime }}</p>
+                <p>{{ goal.goal_body }}</p>
+            {% endif %}
+        </div>
+        <div>
+            <h3>Add a New Post:</h3>
+            <p>* denotes required fields</p>
+            <form enctype="multipart/form-data" action="/patient/{{ patient.patient_id }}/new-post" method="POST">
+                <p>
+                    <label for="datetime">
+                        <span>Time of meal/snack*: </span>
+                        <input type="datetime-local" required name="meal-time" value={{ current_time }}>
+                    </label>
+                </p>
+                <p>
+                    <label for="meal-image">
+                        <span>Add an image: </span>
+                        <input type="file" name="meal-image" accept="image/png, image/jpeg, image/jpg">
+                    </label>
+                </p>
+                <p>
+                    <label for="meal-setting">
+                        <span>Where did you eat and with whom?* </span>
+                        <textarea name="meal-setting" required></textarea>
+                    </label>
+                </p>
+                <p>
+                    <label for="TEB">
+                        <span>What thoughts, emotions, and/or behaviors did you notice?* </span>
+                        <textarea name="TEB" required></textarea>
+                    </label>
+                </p>
+                <p>
+                    <label for="hunger">
+                        <span>Hunger rating: </span>
+                        <input type="number" name="hunger" min="0" max="10" step="1">
+                    </label>
+                </p>
+                <p>
+                    <label for="fullness">
+                        <span>Fullness rating: </span>
+                        <input type="number" name="fullness" min="0" max="10" step="1">
+                    </label>
+                </p>
+                <p>
+                    <label for="satisfaction">
+                        <span>Satisfaction rating: </span>
+                        <input type="number" name="satisfaction" min="0" max="10" step="1">
+                    </label>
+                <p>
+                    <label for="meal-notes">
+                        <span>Anything else you'd like to share: </span>
+                        <textarea name="meal-notes"></textarea>
+                    </label>
+                </p>
+                <p><button type="submit">Submit</button></p>
+            </form>
+        </div>
     </div>
 {% endblock %}

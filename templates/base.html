@@ -5,19 +5,23 @@
     <link rel="stylesheet" href="style.css" />
     <title>{% block title %}{% endblock %} | Nourish</title>
     {% endblock %}
+    <script src="https://code.jquery.com/jquery-3.4.1.js"
+        integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+        crossorigin="anonymous">
+    </script>
 </head>
 <body>
     <nav>
         <div>
             {% if session.get("patient_id") %}
                 <p>
-                    <a href="/patient/{{ patient.patient_id }}/account">
+                    <a href="/patient/{{ session.get('patient_id') }}/account">
                     Account</a>
                 <p><a href="/logout">Logout</a></p>
             {% endif %}
             {% if session.get("dietitian_id") %}
                 <p>
-                    <a href="/dietitian/{{ dietitian.dietitian_id }}/account">
+                    <a href="/dietitian/{{ session.get('dietitian_id') }}/account">
                     Account</a>
                 <p><a href="/logout">Logout</a></p>
             {% endif %}
