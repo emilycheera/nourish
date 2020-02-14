@@ -29,8 +29,8 @@ app.jinja_env.undefined = StrictUndefined
 def index():
     """Homepage that shows login form."""
 
-    patient_id = get_current_patient_id()
-    dietitian_id = get_current_dietitian_id()
+    patient_id = session.get("patient_id")
+    dietitian_id = session.get("dietitian_id")
 
     if patient_id:
         return redirect(f"/patient/{patient_id}")
@@ -81,11 +81,11 @@ def handle_login():
 def logout():
     """Log out."""
 
-    if get_current_dietitian_id():
+    if session.get("dietitian_id"):
         del session["dietitian_id"]
         flash("Logout successful.")
 
-    elif get_current_patient_id():
+    elif session.get("patient_id"):
         del session["patient_id"]
         flash("Logout successful.")
     
@@ -693,35 +693,27 @@ def reset_patient_password(patient_id):
 
 ########################   HELPER FUNCTIONS   ########################
 
-def get_current_dietitian_id():
-    """Returns current dietitian id."""
-
-    return session.get("dietitian_id")
-
 
 def get_current_dietitian():
     """Returns dietitian object for current dietitian_id."""
 
-    return Dietitian.query.get(get_current_dietitian_id())
+    dietitian_id = session.get("dietitian_id")
 
-
-def get_current_patient_id():
-    """Returns current patient id."""
-
-    return session.get("patient_id")
+    return Dietitian.query.get(dietitian_id)
 
 
 def get_current_patient():
     """Returns patient object for current patient_id."""
 
-    return Patient.query.get(get_current_patient_id())
+    patient_id = session.get("patient_id")
+    return Patient.query.get(patient_id)
 
 
 def check_dietitian_authorization(dietitian_id):
     """Check to see if the logged in dietitian is authorized to view page."""
 
     # Get the current user's dietitian_id.
-    user_id = get_current_dietitian_id()
+    user_id = session.get("dietitian_id")
 
     # If correct dietitian is not logged in, show unauthorized template.
     if user_id != dietitian_id:
@@ -734,7 +726,7 @@ def check_patient_authorization(patient_id):
     """Check to see if the logged in patient is authorized to view page."""
 
     # Get the current user's patient_id.
-    user_id = get_current_patient_id()
+    user_id = session.get("patient_id")
 
     # If correct patient is not logged in, show unauthorized template.
     if user_id != patient_id:
