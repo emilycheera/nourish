@@ -18,7 +18,7 @@
                 <p>
                     <label for="datetime">
                         <span>Time of meal/snack*: </span>
-                        <input type="datetime-local" required name="meal-time" value={{ meal_time }}>
+                        <input type="datetime-local" required name="meal-time" value="{{ post.meal_time|htmldatetime }}">
                     </label>
                 </p>
                 <p>

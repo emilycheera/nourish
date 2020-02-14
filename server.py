@@ -525,17 +525,11 @@ def show_patient_homepage(patient_id):
 def add_new_patient_post(patient_id):
     """Add a new patient post from patient's homepage."""
 
-    if request.files:
-        file = request.files.get("meal-image")
+    img_path = save_image()
 
-    if not allowed_image(file.filename):
+    if img_path == "Bad Extension":
         flash("Only .png, .jpg, or .jpeg images are accepted.")
         return redirect(f"/patient/{patient_id}")
-
-    if file:
-        filename = secure_filename(file.filename)
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        img_path = f"/static/images/uploads/{filename}"
 
     post_time = datetime.now()
     meal_time = request.form.get("meal-time")
@@ -602,12 +596,10 @@ def edit_post(patient_id, post_id):
 
     patient = get_current_patient()
     post = Post.query.get(post_id)
-    meal_time = post.meal_time.strftime("%Y-%m-%dT%H:%M")
 
     return render_template("edit-post.html",
                             patient=patient,
-                            post=post,
-                            meal_time=meal_time)
+                            post=post)
 
 
 @app.route("/patient/<int:patient_id>/edit/<int:post_id>", methods=["POST"])
@@ -615,6 +607,14 @@ def save_post_edit(patient_id, post_id):
     """Save edits made to a patient's post."""
 
     post = Post.query.get(post_id)
+
+    print(request.files)
+
+    img_path = save_image()
+
+    if img_path == "Bad Extension":
+        flash("Only .png, .jpg, or .jpeg images are accepted.")
+        return redirect(f"/patient/{patient_id}/posts")
 
     meal_time = request.form.get("meal-time")
     meal_setting = request.form.get("meal-setting")
@@ -626,6 +626,9 @@ def save_post_edit(patient_id, post_id):
 
     if meal_time:
         post.meal_time = meal_time
+
+    if img_path:
+        post.img_path = img_path
 
     if meal_setting:
         post.meal_setting = meal_setting
@@ -653,10 +656,11 @@ def save_post_edit(patient_id, post_id):
     return redirect(f"/patient/{patient_id}/posts")
 
 
-
-@app.route("/patient/<int:patient_id>/delete/<int:post_id>", methods=["POST"])
-def delete_post(patient_id, post_id):
+@app.route("/patient/delete/post", methods=["POST"])
+def delete_post():
     """Delete a post."""
+
+    post_id = request.form.get("post")
 
     post = Post.query.get(post_id)
     comments = post.comments
@@ -667,7 +671,7 @@ def delete_post(patient_id, post_id):
     db.session.delete(post)
     db.session.commit()
 
-    return redirect(f"/patient/{patient_id}/posts")
+    return "Success"
 
 
 @app.route("/patient/<int:patient_id>/goals")
@@ -819,6 +823,28 @@ def allowed_image(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
+def save_image():
+
+    if not request.files:
+        return None
+
+    if request.files:
+        file = request.files.get("meal-image")
+
+    if file.filename == "":
+        return None
+
+    if not allowed_image(file.filename):
+        return "Bad Extension"
+
+    if file:
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        img_path = f"/static/images/uploads/{filename}"
+
+    return img_path
+
+
 # Add jinja datetime filters to format datetime object in posts and comments.
 def datetimeformat(value, format="%b %-d, %Y at %-I:%M %p"):
     return value.strftime(format)
@@ -829,6 +855,11 @@ def dateformat(value, format="%m-%d-%Y"):
     return value.strftime(format)
 
 app.jinja_env.filters['date'] = dateformat
+
+def htmldateformat(value, format="%Y-%m-%dT%H:%M"):
+    return value.strftime(format)
+
+app.jinja_env.filters['htmldatetime'] = htmldateformat
 
 
 
