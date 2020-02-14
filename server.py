@@ -593,6 +593,83 @@ def view_all_posts(patient_id):
                             posts=posts)
 
 
+@app.route("/patient/<int:patient_id>/edit/<int:post_id>")
+def edit_post(patient_id, post_id):
+    """Show form to edit a patient's post."""
+
+    if not check_patient_authorization(patient_id):
+        return render_template("unauthorized.html")
+
+    patient = get_current_patient()
+    post = Post.query.get(post_id)
+    meal_time = post.meal_time.strftime("%Y-%m-%dT%H:%M")
+
+    return render_template("edit-post.html",
+                            patient=patient,
+                            post=post,
+                            meal_time=meal_time)
+
+
+@app.route("/patient/<int:patient_id>/edit/<int:post_id>", methods=["POST"])
+def save_post_edit(patient_id, post_id):
+    """Save edits made to a patient's post."""
+
+    post = Post.query.get(post_id)
+
+    meal_time = request.form.get("meal-time")
+    meal_setting = request.form.get("meal-setting")
+    TEB = request.form.get("TEB")
+    hunger = request.form.get("hunger")
+    fullness = request.form.get("fullness")
+    satisfaction = request.form.get("satisfaction")
+    meal_notes = request.form.get("meal-notes")
+
+    if meal_time:
+        post.meal_time = meal_time
+
+    if meal_setting:
+        post.meal_setting = meal_setting
+
+    if TEB:
+        post.TEB = TEB
+
+    if hunger:
+        post.hunger = hunger
+
+    if fullness:
+        post.fullness = fullness
+
+    if satisfaction:
+        post.satisfaction = satisfaction
+
+    if meal_notes:
+        post.meal_notes = meal_notes
+
+    
+    db.session.add(post)
+    db.session.commit()
+
+    flash("Post updated successfully.")
+    return redirect(f"/patient/{patient_id}/posts")
+
+
+
+@app.route("/patient/<int:patient_id>/delete/<int:post_id>", methods=["POST"])
+def delete_post(patient_id, post_id):
+    """Delete a post."""
+
+    post = Post.query.get(post_id)
+    comments = post.comments
+
+    for comment in comments:
+        db.session.delete(comment)
+
+    db.session.delete(post)
+    db.session.commit()
+
+    return redirect(f"/patient/{patient_id}/posts")
+
+
 @app.route("/patient/<int:patient_id>/goals")
 def view_all_goals(patient_id):
     """Show a patient all of their past goals."""

@@ -21,7 +21,7 @@
             </p>
         {% endif %}
         {% if posts %}
-            {% for post in posts %}
+        {% for post in posts %}
                 <p>{{ patient.fname }} {{ patient.lname }}</p>
                 <p>{{ post.post_time|datetime }}</p>
                 {% if post.img_path %}
@@ -44,6 +44,10 @@
                 {% if post.meal_notes %}
                     <p>Additional Notes: {{ post.hunger }}</p>
                 {% endif %}
+                <a href="/patient/{{ patient.patient_id }}/edit/{{ post.post_id }}">Edit</a>
+                <form action="/patient/{{ patient.patient_id }}/delete/{{ post.post_id }}" method="post">
+                    <input type="submit" value="Delete">
+                </form>
                 {% if post.comments %}
                     <h4>Comments</h4>
                     {% for comment in post.comments %}
