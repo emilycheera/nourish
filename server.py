@@ -497,6 +497,22 @@ def edit_post_comment_dietitian_homepage(dietitian_id, comment_id):
     return redirect(f"/dietitian/{dietitian_id}")
 
 
+@app.route("/dietitian/<int:dietitian_id>/<int:patient_id>/edit-comment/<int:comment_id>", methods=["POST"])
+def edit_post_comment_single_patient_posts(dietitian_id, patient_id, comment_id):
+    """Update a comment to a post on a single patient's page."""
+
+    comment = Comment.query.get(comment_id)
+
+    comment_body = request.form.get("comment")
+
+    comment.comment_body = comment_body
+
+    db.session.add(comment)
+    db.session.commit()
+
+    return redirect(f"/dietitian/{dietitian_id}/{patient_id}/posts")
+
+
 @app.route("/dietitian/delete/comment", methods=["POST"])
 def delete_comment():
     """Delete a comment."""
