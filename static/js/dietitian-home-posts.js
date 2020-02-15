@@ -17,7 +17,7 @@ $(".cancel-edit-btn").on("click", (evt) => {
 });
 
 // When a user clicks the delete button, they're asked if they
-// want to delete the post. If so, post is deleted in database
+// want to delete the comment. If so, comment is deleted in database
 // and page is relaoded to reflect change.
 $(".delete-comment-btn").on("click", (evt) => {
     result = window.confirm("Are you sure you want to delete this comment?");

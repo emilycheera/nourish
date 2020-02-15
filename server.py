@@ -440,6 +440,35 @@ def add_new_patient_goal(dietitian_id, patient_id):
     return redirect(f"/dietitian/{dietitian_id}/{patient_id}/goals")
 
 
+@app.route("/dietitian/<int:dietitian_id>/<int:patient_id>/edit/<int:goal_id>", methods=["POST"])
+def edit_patient_goal(dietitian_id, patient_id, goal_id):
+    """Edit a patient goal."""
+
+    goal = Goal.query.get(goal_id)
+
+    goal_body = request.form.get("goal-body")
+
+    goal.goal_body = goal_body
+
+    db.session.add(goal)
+    db.session.commit()
+
+    return redirect(f"/dietitian/{dietitian_id}/{patient_id}/goals")
+
+@app.route("/dietitian/delete/goal", methods=["POST"])
+def delete_goal():
+    """Delete a goal."""
+
+    goal_id = request.form.get("goal")
+
+    goal = Goal.query.get(goal_id)
+
+    db.session.delete(goal)
+    db.session.commit()
+
+    return "Success"
+
+
 @app.route("/dietitian/<int:dietitian_id>/<int:patient_id>/posts")
 def show_single_patient_posts(dietitian_id, patient_id):
     """Show a dietitian's view of a single patient's posts."""

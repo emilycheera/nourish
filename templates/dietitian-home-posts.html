@@ -51,7 +51,7 @@
                             <form action="/dietitian/{{ dietitian.dietitian_id }}/edit-comment/{{ comment.comment_id }}" method="POST">
                                 <textarea id="comment-body-{{ comment.comment_id }}" required name="comment" placeholder="Write a comment...">{{ comment.comment_body }}</textarea>
                                 <button class="cancel-edit-btn" data-comment-id="{{ comment.comment_id }}">Cancel</button>
-                                <p><button id="save-edit-btn" type="submit">Update Comment</button></p>
+                                <button id="save-edit-btn" type="submit">Update Comment</button>
                             </form>
                         </div>
                         {% endfor %}

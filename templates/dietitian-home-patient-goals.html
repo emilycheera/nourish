@@ -6,7 +6,7 @@
     </div>
     <div>
         <h3>Add a new goal for {{ patient.fname }} {{ patient.lname }}:</h3>
-        <form action="" method="POST">
+        <form action="/dietitian/{{ dietitian.dietitian_id }}/{{ patient.patient_id }}/goals" method="POST">
             <textarea name="goal-body" required rows="4" cols="48"></textarea>
             <input type="submit" value="Add New Goal">
         </form>
@@ -18,13 +18,42 @@
         {% endif %}
         {% if current_goal %}
             <h3>Current Goal</h3>
-                <p>{{ current_goal.time_stamp|datetime }}</p>
-                <p>{{ current_goal.goal_body }}</p>
+                <div id="goal-{{ current_goal.goal_id }}">
+                    <p>{{ current_goal.time_stamp|datetime }}</p>
+                    <p>{{ current_goal.goal_body }}</p>
+                    <button class="edit-goal-btn" data-goal-id="{{ current_goal.goal_id }}">Edit</button>
+                    <button class="delete-goal-btn" data-goal-id="{{ current_goal.goal_id }}">Delete</button>
+                </div>
+                <div id="editable-goal-{{ current_goal.goal_id }}" hidden>
+                    <form action="/dietitian/{{ dietitian.dietitian_id }}/{{ patient.patient_id }}/edit/{{ current_goal.goal_id }}" method="POST">
+                        <textarea name="goal-body" required rows="4" cols="48">{{ current_goal.goal_body }}</textarea>
+                        <div>
+                            <button class="cancel-edit-btn" data-goal-id="{{ current_goal.goal_id }}">Cancel</button>
+                            <button id="save-edit-btn" type="submit">Update Goal</button>
+                        </div>
+                    </form>
+                </div>
             <h3>Past Goals</h3>
             {% for goal in past_goals %}
-                <p>{{ goal.time_stamp|datetime }}</p>
-                <p>{{ goal.goal_body }}</p>
+                <div id="goal-{{ goal.goal_id }}">
+                    <p>{{ goal.time_stamp|datetime }}</p>
+                    <p>{{ goal.goal_body }}</p>
+                    <button class="edit-goal-btn" data-goal-id="{{ goal.goal_id }}">Edit</button>
+                    <button class="delete-goal-btn" data-goal-id="{{ goal.goal_id }}">Delete</button>
+                </div>
+                <div id="editable-goal-{{ goal.goal_id }}" hidden>
+                    <form action="/dietitian/{{ dietitian.dietitian_id }}/{{ patient.patient_id }}/edit/{{ goal.goal_id }}" method="POST">
+                        <textarea name="goal-body" required rows="4" cols="48">{{ goal.goal_body }}</textarea>
+                        <div>
+                            <button class="cancel-edit-btn" data-goal-id="{{ goal.goal_id }}">Cancel</button>
+                            <button id="save-edit-btn" type="submit">Update Goal</button>
+                        </div>
+                    </form>
+                </div>
             {% endfor %}
         {% endif %}
     </div>
+{% endblock %}
+{% block script %}
+    <script src="/static/js/dietitian-home-patient-goals.js"></script>
 {% endblock %}
