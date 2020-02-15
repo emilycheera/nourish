@@ -46,9 +46,6 @@
                     <p>Additional Notes: {{ post.hunger }}</p>
                 {% endif %}
                 <button class="edit-post-btn" data-post-id="{{ post.post_id }}">Edit</button>
-                <!-- <form action="/patient/{{ patient.patient_id }}/delete/{{ post.post_id }}" method="post">
-                    <input type="submit" value="Delete">
-                </form> -->
                 <button class="delete-post-btn" data-post-id="{{ post.post_id }}">Delete</button>
                 {% if post.comments %}
                     <h4>Comments</h4>
@@ -120,7 +117,7 @@
     </div>
 {% endblock %}
 {% block script %}
-<script src="/static/js/patient-posts.js"></script>
+    <script src="/static/js/patient-posts.js"></script>
 {% endblock %}
 
 

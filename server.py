@@ -481,6 +481,36 @@ def add_post_comment_dietitian_homepage(dietitian_id, post_id):
     return redirect(f"/dietitian/{dietitian_id}")
 
 
+@app.route("/dietitian/<int:dietitian_id>/edit-comment/<int:comment_id>", methods=["POST"])
+def edit_post_comment_dietitian_homepage(dietitian_id, comment_id):
+    """Update a comment to a post on the dietitian's homepage."""
+
+    comment = Comment.query.get(comment_id)
+
+    comment_body = request.form.get("comment")
+
+    comment.comment_body = comment_body
+
+    db.session.add(comment)
+    db.session.commit()
+
+    return redirect(f"/dietitian/{dietitian_id}")
+
+
+@app.route("/dietitian/delete/comment", methods=["POST"])
+def delete_comment():
+    """Delete a comment."""
+
+    comment_id = request.form.get("comment")
+
+    comment = Comment.query.get(comment_id)
+
+    db.session.delete(comment)
+    db.session.commit()
+
+    return "Success"
+
+
 @app.route("/dietitian/<int:dietitian_id>/<int:patient_id>/posts/<int:post_id>", methods=["POST"])
 def add_post_comment_single_patient_page(dietitian_id, patient_id, post_id):
     """Add a comment to a post on a single patient's page."""
@@ -587,19 +617,19 @@ def view_all_posts(patient_id):
                             posts=posts)
 
 
-@app.route("/patient/<int:patient_id>/edit/<int:post_id>")
-def edit_post(patient_id, post_id):
-    """Show form to edit a patient's post."""
+# @app.route("/patient/<int:patient_id>/edit/<int:post_id>")
+# def edit_post(patient_id, post_id):
+#     """Show form to edit a patient's post."""
 
-    if not check_patient_authorization(patient_id):
-        return render_template("unauthorized.html")
+#     if not check_patient_authorization(patient_id):
+#         return render_template("unauthorized.html")
 
-    patient = get_current_patient()
-    post = Post.query.get(post_id)
+#     patient = get_current_patient()
+#     post = Post.query.get(post_id)
 
-    return render_template("edit-post.html",
-                            patient=patient,
-                            post=post)
+#     return render_template("edit-post.html",
+#                             patient=patient,
+#                             post=post)
 
 
 @app.route("/patient/<int:patient_id>/edit/<int:post_id>", methods=["POST"])
@@ -607,8 +637,6 @@ def save_post_edit(patient_id, post_id):
     """Save edits made to a patient's post."""
 
     post = Post.query.get(post_id)
-
-    print(request.files)
 
     img_path = save_image()
 

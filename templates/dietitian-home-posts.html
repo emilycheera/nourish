@@ -31,20 +31,36 @@
                     <p>Additional Notes: {{ post.hunger }}</p>
                 {% endif %}
                 <div>
+                    {% if not post.comments %}
                     <form action="/dietitian/{{ dietitian.dietitian_id }}/{{ post.post_id }}" method="POST">
                         <textarea required name="comment" placeholder="Write a comment..."></textarea>
                         <input type="submit" value="Add Comment">
                     </form>
+                    {% endif %}
                     {% if post.comments %}
                         <h4>Comments</h4>
                         {% for comment in post.comments %}
-                            <p>{{ dietitian.fname }} {{ dietitian.lname }} 
-                            {{ comment.time_stamp|datetime }}</p>
-                            <p>{{ comment.comment_body }}</p>
+                            <div id="comment-{{ comment.comment_id }}">
+                                <p>{{ dietitian.fname }} {{ dietitian.lname }} 
+                                {{ comment.time_stamp|datetime }}</p>
+                                <p>{{ comment.comment_body }}</p>
+                                <button class="edit-comment-btn" data-comment-id="{{ comment.comment_id }}">Edit</button>
+                                <button class="delete-comment-btn" data-comment-id="{{ comment.comment_id }}">Delete</button>
+                            </div>
+                            <div id="editable-comment-{{ comment.comment_id }}" hidden>
+                            <form action="/dietitian/{{ dietitian.dietitian_id }}/edit-comment/{{ comment.comment_id }}" method="POST">
+                                <textarea id="comment-body-{{ comment.comment_id }}" required name="comment" placeholder="Write a comment...">{{ comment.comment_body }}</textarea>
+                                <button class="cancel-edit-btn" data-comment-id="{{ comment.comment_id }}">Cancel</button>
+                                <p><button id="save-edit-btn" type="submit">Update Comment</button></p>
+                            </form>
+                        </div>
                         {% endfor %}
                     {% endif %}
                 </div>
             {% endfor %}
         {% endif %}
     </div>
+{% endblock %}
+{% block script %}
+    <script src="/static/js/dietitian-home-posts.js"></script>
 {% endblock %}
