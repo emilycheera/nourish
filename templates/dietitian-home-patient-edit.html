@@ -1,12 +1,5 @@
-{% extends "dietitian-home-single-patient.html" %}
-
-{% block sidebar_top %}
-<p>
-    <a href="/dietitian/{{ dietitian.dietitian_id }}">
-    &lt;&lt; Back to all patient posts</a>
-</p>
-{% endblock %}
-{% block single_patient_content %}
+{% extends "dietitian-single-patient-base.html" %}
+{% block patient_content %}
     <div>
         <h3>Basic Information</h3>
         <p>Edit the patient's information, and click the button to save.</p>

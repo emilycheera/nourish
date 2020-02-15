@@ -17,13 +17,13 @@
                 <p>
                     <a href="/patient/{{ session.get('patient_id') }}/account">
                     Account</a>
-                <p><a href="/logout">Logout</a></p>
+                <p><a href="/logout">Sign out</a></p>
             {% endif %}
             {% if session.get("dietitian_id") %}
                 <p>
                     <a href="/dietitian/{{ session.get('dietitian_id') }}/account">
                     Account</a>
-                <p><a href="/logout">Logout</a></p>
+                <p><a href="/logout">Sign out</a></p>
             {% endif %}
         </div>
     </nav>
@@ -41,8 +41,6 @@
                 {% endblock %}
             </div>
         {% endblock %}
-    </div>
-    <div id="footer">
     </div>
     {% block script %}{% endblock %}
 </body>

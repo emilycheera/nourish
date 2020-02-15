@@ -5,7 +5,10 @@
 {% endblock %}
 {% block content %}
     <div id="sidebar">
-        {% block sidebar_top %}{% endblock %}
+        <p>
+            <a href="/dietitian/{{ dietitian.dietitian_id }}">
+            All Patient Posts</a>
+        </p>
         <p>
             <a href="/dietitian/{{ dietitian.dietitian_id }}/new-patient">
             Register a New Patient</a>

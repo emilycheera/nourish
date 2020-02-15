@@ -5,7 +5,16 @@
 {% endblock %}
 {% block content %}
     <div id="sidebar">
-        {% block sidebar %}{% endblock %}
+        <p>
+        <a href="/patient/{{ patient.patient_id }}">
+            Main Page</a>
+        </p>
+        <p><a href="/patient/{{ patient.patient_id }}/goals">
+            Goals</a>
+        </p>
+            <p><a href="/patient/{{ patient.patient_id }}/posts">
+            Posts</a>
+        </p>
     </div>
     <h1>{{ patient.fname }} {{ patient.lname }}</h1>
     <div>
