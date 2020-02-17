@@ -1,14 +1,14 @@
 {% extends "dietitian-single-patient-base.html" %}
 {% block patient_content %}
     <div>
-        <h3>Basic Information</h3>
-        <p>Edit the patient's information, and click the button to save.</p>
-        <form action="/dietitian/{{ dietitian.dietitian_id }}/{{ patient.patient_id }}/edit" method="POST">
-            <input type="text" required name="fname" value="{{ patient.fname }}">
-            <input type="text" required name="lname" value="{{ patient.lname }}">
-            <input type="email" required name="email" value="{{ patient.email }}">
-            <input type="text" required name="street-address" size="50" value="{{ patient.street_address }}">
-            <input type="text" required name="city" value="{{ patient.city }}">
+        <h3>Account Information</h3>
+        <p>Edit the information below. Click the button to save your changes.</p>
+        <form action="/patient/{{ patient.patient_id }}/account/edit" method="POST">
+            <input type="text" required name="fname" maxlength="50" value="{{ patient.fname }}">
+            <input type="text" required name="lname" maxlength="50" value="{{ patient.lname }}">
+            <input type="email" required name="email" maxlength="120" value="{{ patient.email }}">
+            <input type="text" required name="street-address" size="50" maxlength="100" value="{{ patient.street_address }}">
+            <input type="text" required name="city" maxlength="40" value="{{ patient.city }}">
             <select name="state" required value="{{ patient.state }}">
                 <option value="AL">Alabama</option>
                 <option value="AK">Alaska</option>
@@ -62,11 +62,11 @@
                 <option value="WI">Wisconsin</option>
                 <option value="WY">Wyoming</option>
             </select>
-            <input type="text" required name="zipcode" value="{{ patient.zipcode }}">
-            <input type="tel" required name="phone" value="{{ patient.phone }}">
+            <input type="text" required name="zipcode" maxlength="11" value="{{ patient.zipcode }}">
+            <input type="tel" required name="phone" maxlength="15" value="{{ patient.phone }}">
             <input type="date" required name="birthdate" value={{ patient.birthdate }}>
             <input type="submit" value="Submit Changes">
         </form>
-        <a href="/dietitian/{{ dietitian.dietitian_id }}/{{ patient.patient_id }}">Cancel</a>
+        <a href="/patient/{{ patient.patient_id }}/account">Cancel</a>
     </div>
 {% endblock %}

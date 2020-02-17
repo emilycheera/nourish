@@ -14,7 +14,8 @@
         <div>
             <h3>Add a New Post:</h3>
             <p>* denotes required fields</p>
-            <form enctype="multipart/form-data" action="/patient/{{ patient.patient_id }}/new-post" method="POST">
+            <form enctype="multipart/form-data" action="/post/new-post" method="POST">
+                <input type="hidden" name="patient-id" value={{ patient.patient_id }}>
                 <p>
                     <label for="datetime">
                         <span>Time of meal/snack*: </span>
@@ -30,7 +31,7 @@
                 <p>
                     <label for="meal-setting">
                         <span>Where did you eat and with whom?* </span>
-                        <textarea name="meal-setting" required></textarea>
+                        <textarea name="meal-setting" required maxlength="200"></textarea>
                     </label>
                 </p>
                 <p>

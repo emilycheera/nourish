@@ -10,7 +10,7 @@
             All Patient Posts</a>
         </p>
         <p>
-            <a href="/dietitian/{{ dietitian.dietitian_id }}/new-patient">
+            <a href="/patient/new-patient">
             Register a New Patient</a>
         </p>
         <h2>All Patients</h2>
@@ -19,7 +19,7 @@
         {% endif %}
         {% for patient in patients %}
             <p>
-                <a href="/dietitian/{{ dietitian.dietitian_id }}/{{ patient.patient_id }}">
+                <a href="/patient/{{ patient.patient_id }}">
                 {{ patient.fname }} {{ patient.lname }}</a>
             </p>
         {% endfor %}

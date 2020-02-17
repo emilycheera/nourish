@@ -24,7 +24,7 @@ $(".delete-comment-btn").on("click", (evt) => {
 
     if (result) {
         const commentId = evt.target.dataset.commentId;
-        $.post("/dietitian/delete/comment", { comment: commentId }, () => {
+        $.post("/delete-comment", { comment: commentId }, () => {
             location.reload(true);
         });
     };

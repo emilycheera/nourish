@@ -3,8 +3,8 @@
 {% block patient_content %}
     <div>
         <h3>Basic Information</h3>
-        <a href="/dietitian/{{ dietitian.dietitian_id }}/{{ patient.patient_id }}/edit">Edit</a>
-        <a href="/dietitian/{{ dietitian.dietitian_id }}/{{ patient.patient_id }}/reset-password">Reset Password</a>
+        <a href="/patient/{{ patient.patient_id }}/account/edit">Edit</a>
+        <a href="/patient/{{ patient.patient_id }}/account/reset-password">Reset Password</a>
         <ul>
             <li>First name: {{ patient.fname }}</li>
             <li>Last name: {{ patient.lname }}</li>

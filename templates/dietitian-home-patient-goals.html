@@ -6,7 +6,7 @@
     </div>
     <div>
         <h3>Add a new goal for {{ patient.fname }} {{ patient.lname }}:</h3>
-        <form action="/dietitian/{{ dietitian.dietitian_id }}/{{ patient.patient_id }}/goals" method="POST">
+        <form action="/patient/{{ patient.patient_id }}/add-goal" method="POST">
             <textarea name="goal-body" required rows="4" cols="48"></textarea>
             <input type="submit" value="Add New Goal">
         </form>
@@ -25,7 +25,7 @@
                     <button class="delete-goal-btn" data-goal-id="{{ current_goal.goal_id }}">Delete</button>
                 </div>
                 <div id="editable-goal-{{ current_goal.goal_id }}" hidden>
-                    <form action="/dietitian/{{ dietitian.dietitian_id }}/{{ patient.patient_id }}/edit/{{ current_goal.goal_id }}" method="POST">
+                    <form action="/patient/{{ patient.patient_id }}/edit/{{ current_goal.goal_id }}" method="POST">
                         <textarea name="goal-body" required rows="4" cols="48">{{ current_goal.goal_body }}</textarea>
                         <div>
                             <button class="cancel-edit-btn" data-goal-id="{{ current_goal.goal_id }}">Cancel</button>
@@ -42,7 +42,7 @@
                     <button class="delete-goal-btn" data-goal-id="{{ goal.goal_id }}">Delete</button>
                 </div>
                 <div id="editable-goal-{{ goal.goal_id }}" hidden>
-                    <form action="/dietitian/{{ dietitian.dietitian_id }}/{{ patient.patient_id }}/edit/{{ goal.goal_id }}" method="POST">
+                    <form action="/patient/{{ patient.patient_id }}/edit/{{ goal.goal_id }}" method="POST">
                         <textarea name="goal-body" required rows="4" cols="48">{{ goal.goal_body }}</textarea>
                         <div>
                             <button class="cancel-edit-btn" data-goal-id="{{ goal.goal_id }}">Cancel</button>

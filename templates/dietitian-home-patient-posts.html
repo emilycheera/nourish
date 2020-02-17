@@ -1,9 +1,8 @@
 {% extends "dietitian-single-patient-base.html" %}
-
 {% block patient_content %}
     <div>
         {% if not posts %}
-            <p>{{ patient.fname }} {{ patient.lname }} hasn't created any posts yet.</p>
+            <p>No posts to display.</p>
         {% endif %}
 
         {% if posts %}
@@ -31,12 +30,11 @@
                     <p>Additional Notes: {{ post.hunger }}</p>
                 {% endif %}
                 <div>
-                    {% if not post.comments %}
-                    <form action="/dietitian/{{ dietitian.dietitian_id }}/{{ patient.patient_id }}/posts/{{ post.post_id }}" method="POST">
-                        <textarea required name="comment" placeholder="Write a comment..."></textarea>
-                        <input type="submit" value="Add Comment">
-                    </form>
-                    {% endif %}
+                <form action="/post/{{ post.post_id }}/add-comment" method="POST">
+                    <input type="hidden" name="current-page" value="patient">
+                    <textarea required name="comment" placeholder="Write a comment..."></textarea>
+                    <input type="submit" value="Add Comment">
+                </form>
                     {% if post.comments %}
                         <h4>Comments</h4>
                         {% for comment in post.comments %}
@@ -48,10 +46,12 @@
                                 <button class="delete-comment-btn" data-comment-id="{{ comment.comment_id }}">Delete</button>
                             </div>
                             <div id="editable-comment-{{ comment.comment_id }}" hidden>
-                            <form action="/dietitian/{{ dietitian.dietitian_id }}/{{ patient.patient_id }}/edit-comment/{{ comment.comment_id }}" method="POST">
+                            <form action="/comment/{{ comment.comment_id }}/edit" method="POST">
+                                <input type="hidden" name="current-page" value="patient">
+                                <input type="hidden" name="patient-id" value={{ post.patient.patient_id }}>
                                 <textarea id="comment-body-{{ comment.comment_id }}" required name="comment" placeholder="Write a comment...">{{ comment.comment_body }}</textarea>
                                 <button class="cancel-edit-btn" data-comment-id="{{ comment.comment_id }}">Cancel</button>
-                                <p><button id="save-edit-btn" type="submit">Update Comment</button></p>
+                                <button id="save-edit-btn" type="submit">Update Comment</button>
                             </form>
                         </div>
                         {% endfor %}

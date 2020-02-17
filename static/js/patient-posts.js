@@ -24,7 +24,7 @@ $(".delete-post-btn").on("click", (evt) => {
 
     if (result) {
         const postId = evt.target.dataset.postId;
-        $.post("/patient/delete/post", { post: postId }, () => {
+        $.post("/delete-post", { post: postId }, () => {
             location.reload(true);
         });
     };

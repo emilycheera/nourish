@@ -10,13 +10,14 @@
     </div>
     <div>
         <p><b>Complete the form to register a new patient:</b></p>
-        <form action="/dietitian/{{ dietitian.dietitian_id }}/new-patient" method="POST">
-            <input type="text" required name="fname" placeholder="First name">
-            <input type="text" required name="lname" placeholder="Last name">
-            <input type="email" required name="email" placeholder="Email address">
-            <input type="password" required name="password" placeholder="Password">
-            <input type="text" required name="street-address" placeholder="Street address">
-            <input type="text" required name="city" placeholder="City">
+        <form action="/patient/new-patient" method="POST">
+            <input type="hidden" name="dietitian_id" value={{ dietitian.dietitian_id }}>
+            <input type="text" required name="fname" maxlength="50" placeholder="First name">
+            <input type="text" required name="lname" maxlength="50" placeholder="Last name">
+            <input type="email" required name="email" maxlength="120" placeholder="Email address">
+            <input type="password" required name="password" maxlength="50" placeholder="Password">
+            <input type="text" required name="street-address" maxlength="100" placeholder="Street address">
+            <input type="text" required name="city" maxlength="40" placeholder="City">
             <select name="state" required>
                 <option value="AL">Alabama</option>
                 <option value="AK">Alaska</option>
@@ -70,8 +71,8 @@
                 <option value="WI">Wisconsin</option>
                 <option value="WY">Wyoming</option>
             </select>
-            <input type="text" required name="zipcode" placeholder="Zipcode">
-            <input type="tel" required name="phone" placeholder="Phone number">
+            <input type="text" required name="zipcode" maxlength="11" placeholder="Zipcode">
+            <input type="tel" required name="phone" maxlength="15" placeholder="Phone number">
             <input type="date" required name="birthdate" placeholder="Birthdate">
             <input type="submit" value="Register New Patient">
         </form>

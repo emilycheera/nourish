@@ -3,8 +3,8 @@
     <div>
         <h3>Reset Password</h3>
         <p>Type in a new password, and click "Reset" to save.</p>
-        <form action="/dietitian/{{ dietitian.dietitian_id }}/reset-password" method="POST">
-            <input type="password" required name="password">
+        <form action="/dietitian/{{ dietitian.dietitian_id }}/account/reset-password" method="POST">
+            <input type="password" required maxlength="50" name="password">
             <input type="submit" value="Reset">
         </form>
         <a href="/dietitian/{{ dietitian.dietitian_id }}/account">Cancel</a>

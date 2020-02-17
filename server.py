@@ -92,8 +92,6 @@ def logout():
     return redirect("/")
 
 
-########################   DIETITIAN ROUTES   ########################
-
 @app.route("/register", methods=["GET"])
 def show_dietitian_registration_form():
     """Show form for dietitian registration."""
@@ -136,6 +134,27 @@ def process_dietitian_registration():
     return redirect(f"/dietitian/{dietitian_id}")
 
 
+@app.route("/dietitian/<int:dietitian_id>")
+def show_dietitian_homepage(dietitian_id):
+    """Show a dietitian's homepage."""
+
+    if not check_dietitian_authorization(dietitian_id):
+        return render_template("unauthorized.html")
+
+    dietitian = get_current_dietitian()
+    patients_list = dietitian.patients
+    posts = (Post.query.filter(Patient.dietitian_id == dietitian.dietitian_id)
+            .join(Patient)
+            .join(Dietitian)
+            .order_by(Post.post_time.desc())
+            .limit(30).all())
+
+    return render_template("dietitian-home-posts.html",
+                            dietitian=dietitian,
+                            patients=patients_list,
+                            posts=posts)
+
+
 @app.route("/dietitian/<int:dietitian_id>/account")
 def show_dietitian_account(dietitian_id):
     """Show a dietitian their account information"""
@@ -151,7 +170,7 @@ def show_dietitian_account(dietitian_id):
                             patients=patients_list)
 
 
-@app.route("/dietitian/<int:dietitian_id>/edit", methods=["GET"])
+@app.route("/dietitian/<int:dietitian_id>/account/edit", methods=["GET"])
 def view_edit_dietitian_information(dietitian_id):
     """Edit a dietitian's account information."""
 
@@ -166,8 +185,7 @@ def view_edit_dietitian_information(dietitian_id):
                             patients=patients_list)
 
 
-
-@app.route("/dietitian/<int:dietitian_id>/edit", methods=["POST"])
+@app.route("/dietitian/<int:dietitian_id>/account/edit", methods=["POST"])
 def edit_dietitian_information(dietitian_id):
     """Process edit of a dietitian's account information."""
 
@@ -184,10 +202,11 @@ def edit_dietitian_information(dietitian_id):
     db.session.add(dietitian)
     db.session.commit()
 
+    flash("Account successfully updated.")
     return redirect(f"/dietitian/{dietitian_id}/account")
 
 
-@app.route("/dietitian/<int:dietitian_id>/reset-password", methods=["GET"])
+@app.route("/dietitian/<int:dietitian_id>/account/reset-password", methods=["GET"])
 def view_reset_dietitian_password_form(dietitian_id):
     """Reset a dietitian's password."""
 
@@ -202,7 +221,7 @@ def view_reset_dietitian_password_form(dietitian_id):
                             patients=patients_list)
 
 
-@app.route("/dietitian/<int:dietitian_id>/reset-password", methods=["POST"])
+@app.route("/dietitian/<int:dietitian_id>/account/reset-password", methods=["POST"])
 def reset_dietitian_password(dietitian_id):
     """Process reset of a dietitian's password."""
 
@@ -219,11 +238,13 @@ def reset_dietitian_password(dietitian_id):
     return redirect(f"/dietitian/{dietitian_id}/account")
 
 
-@app.route("/dietitian/<int:dietitian_id>/new-patient", methods=["GET"])
-def show_patient_registration_form(dietitian_id):
+@app.route("/patient/new-patient", methods=["GET"])
+def show_patient_registration_form():
     """Show form for new patient registration."""
     
-    if not check_dietitian_authorization(dietitian_id):
+    user_type = get_user_type_from_session()
+
+    if user_type != "dietitian":
         return render_template("unauthorized.html")
 
     dietitian = get_current_dietitian()
@@ -234,10 +255,11 @@ def show_patient_registration_form(dietitian_id):
                             patients=patients_list)
 
 
-@app.route("/dietitian/<int:dietitian_id>/new-patient", methods=["POST"])
-def process_patient_registration(dietitian_id):
+@app.route("/patient/new-patient", methods=["POST"])
+def process_patient_registration():
     """Process new patient registration."""
 
+    dietitian_id = request.form.get("dietitian_id")
     fname = request.form.get("fname")
     lname = request.form.get("lname")
     email = request.form.get("email")
@@ -268,72 +290,68 @@ def process_patient_registration(dietitian_id):
     patient_id = new_patient.patient_id
 
     flash(f"Successfully registered new patient {fname} {lname}.")
-    return redirect(f"/dietitian/{dietitian_id}/{patient_id}")
+    return redirect(f"/patient/{patient_id}")
 
 
-@app.route("/dietitian/<int:dietitian_id>")
-def show_dietitian_homepage(dietitian_id):
-    """Show a dietitian's homepage."""
+@app.route("/patient/<int:patient_id>/account")
+def show_single_patient_overview(patient_id):
+    """Show information about a single patient."""
 
-    if not check_dietitian_authorization(dietitian_id):
-        return render_template("unauthorized.html")
+    user_type = get_user_type_from_session()
 
-    dietitian = get_current_dietitian()
-    patients_list = dietitian.patients
-    posts = (Post.query.filter(Patient.dietitian_id == dietitian.dietitian_id)
-            .join(Patient)
-            .join(Dietitian)
-            .order_by(Post.post_time.desc())
-            .limit(30).all())
+    if user_type == "dietitian":
+        dietitian = get_current_dietitian()
+        patients_list = dietitian.patients
+        patient = Patient.query.get(patient_id)
 
-    return render_template("dietitian-home-posts.html",
-                            dietitian=dietitian,
-                            patients=patients_list,
-                            posts=posts)
+        if not patient in patients_list:
+            return render_template("unauthorized.html")
 
-
-@app.route("/dietitian/<int:dietitian_id>/<int:patient_id>")
-def show_single_patient_overview(dietitian_id, patient_id):
-    """Show a dietitian's view of a single patient."""
-
-    if not check_dietitian_authorization(dietitian_id):
-        return render_template("unauthorized.html")
-
-    dietitian = get_current_dietitian()
-    patients_list = dietitian.patients
-    patient = Patient.query.get(patient_id)
-
-    if not patient:
-        return redirect(f"/dietitian/{dietitian_id}")
-
-    return render_template("dietitian-home-patient-overview.html",
+        return render_template("dietitian-home-patient-overview.html",
                             dietitian=dietitian,
                             patients=patients_list,
                             patient=patient)
 
 
-@app.route("/dietitian/<int:dietitian_id>/<int:patient_id>/edit")
-def view_edit_patient_information_form(dietitian_id, patient_id):
-    """Edit a patient's basic information as a dietitian."""
-
-    if not check_dietitian_authorization(dietitian_id):
+    if not check_patient_authorization(patient_id):
         return render_template("unauthorized.html")
 
-    dietitian = get_current_dietitian()
-    patients_list = dietitian.patients
-    patient = Patient.query.get(patient_id)
+    patient = get_current_patient()
 
-    if not patient:
-        return redirect(f"/dietitian/{dietitian_id}")
-
-    return render_template("dietitian-home-patient-edit.html",
-                            dietitian=dietitian,
-                            patients=patients_list,
+    return render_template("patient-account.html",
                             patient=patient)
 
 
-@app.route("/dietitian/<int:dietitian_id>/<int:patient_id>/edit", methods=["POST"])
-def edit_single_patient_information(dietitian_id, patient_id):
+@app.route("/patient/<int:patient_id>/account/edit")
+def view_edit_patient_information_form(patient_id):
+    """Edit a patient's basic information."""
+
+    user_type = get_user_type_from_session()
+
+    if user_type == "dietitian":
+        dietitian = get_current_dietitian()
+        patients_list = dietitian.patients
+        patient = Patient.query.get(patient_id)
+
+        if not patient in patients_list:
+            return render_template("unauthorized.html")
+
+        return render_template("dietitian-home-patient-edit.html",
+                                dietitian=dietitian,
+                                patients=patients_list,
+                                patient=patient)
+
+    if not check_patient_authorization(patient_id):
+        return render_template("unauthorized.html")
+
+    patient = get_current_patient()
+
+    return render_template("patient-account-edit.html",
+                            patient=patient)
+
+
+@app.route("/patient/<int:patient_id>/account/edit", methods=["POST"])
+def edit_single_patient_information(patient_id):
     """Process edit of a single patient's basic information."""
 
     patient = Patient.query.get(patient_id)
@@ -350,33 +368,43 @@ def edit_single_patient_information(dietitian_id, patient_id):
 
     db.session.add(patient)
     db.session.commit()
+    
+    flash("Account successfully updated.")
+    return redirect(f"/patient/{patient_id}/account")
 
-    return redirect(f"/dietitian/{dietitian_id}/{patient_id}")
+
+@app.route("/patient/<int:patient_id>/account/reset-password", methods=["GET"])
+def view_reset_patient_password_form(patient_id):
+    """Reset a patient's password."""
+
+    user_type = get_user_type_from_session()
+
+    if user_type == "dietitian":
+        dietitian = get_current_dietitian()
+        patients_list = dietitian.patients
+        patient = Patient.query.get(patient_id)
+
+        if not patient in patients_list:
+            return render_template("unauthorized.html")
+
+        return render_template("dietitian-home-patient-resetpw.html",
+                                dietitian=dietitian,
+                                patients=patients_list,
+                                patient=patient)
 
 
-@app.route("/dietitian/<int:dietitian_id>/<int:patient_id>/reset-password", methods=["GET"])
-def view_dietitian_reset_patient_password_form(dietitian_id, patient_id):
-    """Reset a patient's password as a dietitian."""
-
-    if not check_dietitian_authorization(dietitian_id):
+    if not check_patient_authorization(patient_id):
         return render_template("unauthorized.html")
 
-    dietitian = get_current_dietitian()
-    patients_list = dietitian.patients
-    patient = Patient.query.get(patient_id)
+    patient = get_current_patient()
 
-    if not patient:
-        return redirect(f"/dietitian/{dietitian_id}")
-
-    return render_template("dietitian-home-patient-resetpw.html",
-                            dietitian=dietitian,
-                            patients=patients_list,
+    return render_template("patient-resetpw.html",
                             patient=patient)
 
 
-@app.route("/dietitian/<int:dietitian_id>/<int:patient_id>/reset-password", methods=["POST"])
-def dietitian_reset_patient_password(dietitian_id, patient_id):
-    """Process reset of a patient's password as a dietitian."""
+@app.route("/patient/<int:patient_id>/account/reset-password", methods=["POST"])
+def reset_patient_password(patient_id):
+    """Process reset of a patient's password."""
 
     patient = Patient.query.get(patient_id)
 
@@ -388,43 +416,55 @@ def dietitian_reset_patient_password(dietitian_id, patient_id):
     db.session.commit()
 
     flash("Password successfully reset.")
-    return redirect(f"/dietitian/{dietitian_id}/{patient_id}")
+    return redirect(f"/patient/{patient_id}/account")
 
 
-@app.route("/dietitian/<int:dietitian_id>/<int:patient_id>/goals", methods=["GET"])
-def show_single_patient_goals(dietitian_id, patient_id):
-    """Show page where dietitian can add and view goals for a patient."""
+@app.route("/patient/<int:patient_id>/goals", methods=["GET"])
+def show_patient_goals(patient_id):
+    """Show goals for a patient and allow dietitian to update goals."""
 
-    if not check_dietitian_authorization(dietitian_id):
+    user_type = get_user_type_from_session()
+
+    if user_type == "dietitian":
+        dietitian = get_current_dietitian()
+        patients_list = dietitian.patients
+        patient = Patient.query.get(patient_id)
+
+        if not patient in patients_list:
+            return render_template("unauthorized.html")
+
+        if patient.goals:
+            current_patient_goal = patient.goals[-1]
+            past_goals = patient.goals[:-1]
+            past_goals.reverse()
+        
+        else: 
+            current_patient_goal = None
+            past_goals = None
+
+        return render_template("dietitian-home-patient-goals.html",
+                                dietitian=dietitian,
+                                patients=patients_list,
+                                patient=patient,
+                                current_goal=current_patient_goal,
+                                past_goals=past_goals)
+
+    if not check_patient_authorization(patient_id):
         return render_template("unauthorized.html")
 
-    dietitian = get_current_dietitian()
-    patients_list = dietitian.patients
-    patient = Patient.query.get(patient_id)
+    patient = get_current_patient()
 
-    if not patient:
-        return redirect(f"/dietitian/{dietitian_id}")
+    goals = patient.goals
+    goals.reverse()
 
-    if patient.goals:
-        current_patient_goal = patient.goals[-1]
-        past_goals = patient.goals[:-1]
-        past_goals.reverse()
-    else: 
-        current_patient_goal = None
-        past_goals = None
-    
-
-    return render_template("dietitian-home-patient-goals.html",
-                            dietitian=dietitian,
-                            patients=patients_list,
+    return render_template("patient-goals.html",
                             patient=patient,
-                            current_goal=current_patient_goal,
-                            past_goals=past_goals)
+                            goals=goals)
 
 
-@app.route("/dietitian/<int:dietitian_id>/<int:patient_id>/goals", methods=["POST"])
-def add_new_patient_goal(dietitian_id, patient_id):
-    """Process new goals form."""
+@app.route("/patient/<int:patient_id>/add-goal", methods=["POST"])
+def add_new_patient_goal(patient_id):
+    """Process form to add a new goal."""
 
     time_stamp = datetime.now()
     goal_body = request.form.get("goal-body")
@@ -437,11 +477,11 @@ def add_new_patient_goal(dietitian_id, patient_id):
     db.session.commit()
 
     flash("Successfully added goal.")
-    return redirect(f"/dietitian/{dietitian_id}/{patient_id}/goals")
+    return redirect(f"/patient/{patient_id}/goals")
 
 
-@app.route("/dietitian/<int:dietitian_id>/<int:patient_id>/edit/<int:goal_id>", methods=["POST"])
-def edit_patient_goal(dietitian_id, patient_id, goal_id):
+@app.route("/patient/<int:patient_id>/edit/<int:goal_id>", methods=["POST"])
+def edit_patient_goal(patient_id, goal_id):
     """Edit a patient goal."""
 
     goal = Goal.query.get(goal_id)
@@ -453,9 +493,10 @@ def edit_patient_goal(dietitian_id, patient_id, goal_id):
     db.session.add(goal)
     db.session.commit()
 
-    return redirect(f"/dietitian/{dietitian_id}/{patient_id}/goals")
+    return redirect(f"/patient/{patient_id}/goals")
 
-@app.route("/dietitian/delete/goal", methods=["POST"])
+
+@app.route("/delete-goal", methods=["POST"])
 def delete_goal():
     """Delete a goal."""
 
@@ -469,36 +510,49 @@ def delete_goal():
     return "Success"
 
 
-@app.route("/dietitian/<int:dietitian_id>/<int:patient_id>/posts")
-def show_single_patient_posts(dietitian_id, patient_id):
-    """Show a dietitian's view of a single patient's posts."""
+@app.route("/patient/<int:patient_id>/posts")
+def show_single_patient_posts(patient_id):
+    """Show a patient's posts."""
 
-    if not check_dietitian_authorization(dietitian_id):
+    user_type = get_user_type_from_session()
+
+    if user_type == "dietitian":
+        dietitian = get_current_dietitian()
+        patients_list = dietitian.patients
+        patient = Patient.query.get(patient_id)
+
+        if not patient in patients_list:
+            return render_template("unauthorized.html")
+
+        patient_posts = patient.posts
+        patient_posts.reverse()
+
+        return render_template("dietitian-home-patient-posts.html",
+                                dietitian=dietitian,
+                                patients=patients_list,
+                                patient=patient,
+                                posts=patient_posts)
+
+    if not check_patient_authorization(patient_id):
         return render_template("unauthorized.html")
 
-    dietitian = get_current_dietitian()
-    patients_list = dietitian.patients
-    patient = Patient.query.get(patient_id)
+    patient = get_current_patient()
 
-    if not patient:
-        return redirect(f"/dietitian/{dietitian_id}")
+    posts = patient.posts
+    posts.reverse()
 
-    patient_posts = patient.posts
-    patient_posts.reverse()
-
-    return render_template("dietitian-home-patient-posts.html",
-                            dietitian=dietitian,
-                            patients=patients_list,
+    return render_template("patient-posts.html",
                             patient=patient,
-                            posts=patient_posts)
+                            posts=posts)
 
 
-@app.route("/dietitian/<int:dietitian_id>/<int:post_id>", methods=["POST"])
-def add_post_comment_dietitian_homepage(dietitian_id, post_id):
-    """Add a comment to a post on the dietitian's homepage."""
+@app.route("/post/<int:post_id>/add-comment", methods=["POST"])
+def add_post_comment(post_id):
+    """Add a comment to a post."""
 
     time_stamp = datetime.now()
     comment_body = request.form.get("comment")
+    current_page = request.form.get("current-page")
 
     new_comment = Comment(post_id=post_id,
                           time_stamp=time_stamp,
@@ -507,42 +561,38 @@ def add_post_comment_dietitian_homepage(dietitian_id, post_id):
     db.session.add(new_comment)
     db.session.commit()
 
-    return redirect(f"/dietitian/{dietitian_id}")
+    if current_page == "home":
+        dietitian_id = session.get("dietitian_id")
+        return redirect(f"/dietitian/{dietitian_id}")
+
+    post = Post.query.get(post_id)
+    patient_id = post.patient.patient_id
+    return redirect(f"/patient/{patient_id}/posts")
 
 
-@app.route("/dietitian/<int:dietitian_id>/edit-comment/<int:comment_id>", methods=["POST"])
-def edit_post_comment_dietitian_homepage(dietitian_id, comment_id):
-    """Update a comment to a post on the dietitian's homepage."""
+@app.route("/comment/<int:comment_id>/edit", methods=["POST"])
+def edit_post_comment(comment_id):
+    """Update a comment on a post."""
 
     comment = Comment.query.get(comment_id)
 
     comment_body = request.form.get("comment")
+    current_page = request.form.get("current-page")
 
     comment.comment_body = comment_body
 
     db.session.add(comment)
     db.session.commit()
 
-    return redirect(f"/dietitian/{dietitian_id}")
+    if current_page == "home":
+        dietitian_id = session.get("dietitian_id")
+        return redirect(f"/dietitian/{dietitian_id}")
+
+    patient_id = request.form.get("patient-id")
+    return redirect(f"/patient/{patient_id}/posts")
 
 
-@app.route("/dietitian/<int:dietitian_id>/<int:patient_id>/edit-comment/<int:comment_id>", methods=["POST"])
-def edit_post_comment_single_patient_posts(dietitian_id, patient_id, comment_id):
-    """Update a comment to a post on a single patient's page."""
-
-    comment = Comment.query.get(comment_id)
-
-    comment_body = request.form.get("comment")
-
-    comment.comment_body = comment_body
-
-    db.session.add(comment)
-    db.session.commit()
-
-    return redirect(f"/dietitian/{dietitian_id}/{patient_id}/posts")
-
-
-@app.route("/dietitian/delete/comment", methods=["POST"])
+@app.route("/delete-comment", methods=["POST"])
 def delete_comment():
     """Delete a comment."""
 
@@ -556,28 +606,15 @@ def delete_comment():
     return "Success"
 
 
-@app.route("/dietitian/<int:dietitian_id>/<int:patient_id>/posts/<int:post_id>", methods=["POST"])
-def add_post_comment_single_patient_page(dietitian_id, patient_id, post_id):
-    """Add a comment to a post on a single patient's page."""
-
-    time_stamp = datetime.now()
-    comment_body = request.form.get("comment")
-
-    new_comment = Comment(post_id=post_id,
-                          time_stamp=time_stamp,
-                          comment_body=comment_body)
-
-    db.session.add(new_comment)
-    db.session.commit()
-
-    return redirect(f"/dietitian/{dietitian_id}/{patient_id}/posts")
-
-
-########################   PATIENT ROUTES   ########################
-
 @app.route("/patient/<int:patient_id>")
 def show_patient_homepage(patient_id):
     """Show a patient's homepage."""
+
+    user_type = get_user_type_from_session()
+
+    # If user is a dietitian, redirect to patient's account information.
+    if user_type == "dietitian":
+        return redirect(f"/patient/{patient_id}/account")
 
     if not check_patient_authorization(patient_id):
         return render_template("unauthorized.html")
@@ -596,9 +633,9 @@ def show_patient_homepage(patient_id):
                             current_time=current_time)
 
 
-@app.route("/patient/<int:patient_id>/new-post", methods=["POST"])
-def add_new_patient_post(patient_id):
-    """Add a new patient post from patient's homepage."""
+@app.route("/post/new-post", methods=["POST"])
+def add_new_post():
+    """Add a new post."""
 
     img_path = save_image()
 
@@ -606,6 +643,7 @@ def add_new_patient_post(patient_id):
         flash("Only .png, .jpg, or .jpeg images are accepted.")
         return redirect(f"/patient/{patient_id}")
 
+    patient_id = request.form.get("patient-id")
     post_time = datetime.now()
     meal_time = request.form.get("meal-time")
     meal_setting = request.form.get("meal-setting")
@@ -645,43 +683,12 @@ def add_new_patient_post(patient_id):
     return redirect(f"/patient/{patient_id}")
 
 
-@app.route("/patient/<int:patient_id>/posts")
-def view_all_posts(patient_id):
-    """Show a patient all of their past posts."""
-
-    if not check_patient_authorization(patient_id):
-        return render_template("unauthorized.html")
-
-    patient = get_current_patient()
-
-    posts = patient.posts
-    posts.reverse()
-
-    return render_template("patient-posts.html",
-                            patient=patient,
-                            posts=posts)
-
-
-# @app.route("/patient/<int:patient_id>/edit/<int:post_id>")
-# def edit_post(patient_id, post_id):
-#     """Show form to edit a patient's post."""
-
-#     if not check_patient_authorization(patient_id):
-#         return render_template("unauthorized.html")
-
-#     patient = get_current_patient()
-#     post = Post.query.get(post_id)
-
-#     return render_template("edit-post.html",
-#                             patient=patient,
-#                             post=post)
-
-
-@app.route("/patient/<int:patient_id>/edit/<int:post_id>", methods=["POST"])
-def save_post_edit(patient_id, post_id):
+@app.route("/post/edit/<int:post_id>", methods=["POST"])
+def edit_post(post_id):
     """Save edits made to a patient's post."""
 
     post = Post.query.get(post_id)
+    patient_id = post.patient.patient_id
 
     img_path = save_image()
 
@@ -729,7 +736,7 @@ def save_post_edit(patient_id, post_id):
     return redirect(f"/patient/{patient_id}/posts")
 
 
-@app.route("/patient/delete/post", methods=["POST"])
+@app.route("/delete-post", methods=["POST"])
 def delete_post():
     """Delete a post."""
 
@@ -745,104 +752,6 @@ def delete_post():
     db.session.commit()
 
     return "Success"
-
-
-@app.route("/patient/<int:patient_id>/goals")
-def view_all_goals(patient_id):
-    """Show a patient all of their past goals."""
-
-    if not check_patient_authorization(patient_id):
-        return render_template("unauthorized.html")
-
-    patient = get_current_patient()
-
-    goals = patient.goals
-    goals.reverse()
-
-    return render_template("patient-goals.html",
-                            patient=patient,
-                            goals=goals)
-
-
-@app.route("/patient/<int:patient_id>/account")
-def show_patient_account(patient_id):
-    """Show a patient their account information"""
-
-    if not check_patient_authorization(patient_id):
-        return render_template("unauthorized.html")
-
-    patient = get_current_patient()
-
-    return render_template("patient-account.html",
-                            patient=patient)
-
-
-@app.route("/patient/<int:patient_id>/edit", methods=["GET"])
-def view_edit_patient_information(patient_id):
-    """Edit a patient's account information."""
-
-    if not check_patient_authorization(patient_id):
-        return render_template("unauthorized.html")
-
-    patient = get_current_patient()
-
-    return render_template("patient-account-edit.html",
-                            patient=patient)
-
-
-
-@app.route("/patient/<int:patient_id>/edit", methods=["POST"])
-def edit_patient_information(patient_id):
-    """Process edit of a patient's account information."""
-
-    patient = get_current_patient()
-
-    patient.fname = request.form.get("fname")
-    patient.lname = request.form.get("lname")
-    patient.email = request.form.get("email")
-    patient.street_address = request.form.get("street-address")
-    patient.city = request.form.get("city")
-    patient.state = request.form.get("state")
-    patient.zipcode = request.form.get("zipcode")
-    patient.phone = request.form.get("phone")
-    patient.birthdate = request.form.get("birthdate")
-
-    db.session.add(patient)
-    db.session.commit()
-
-    return redirect(f"/patient/{patient_id}/account")
-
-
-@app.route("/patient/<int:patient_id>/reset-password", methods=["GET"])
-def view_reset_patient_password_form(patient_id):
-    """Reset a patient's password."""
-
-    if not check_patient_authorization(patient_id):
-        return render_template("unauthorized.html")
-
-    patient = get_current_patient()
-
-    return render_template("patient-resetpw.html",
-                            patient=patient)
-
-
-@app.route("/patient/<int:patient_id>/reset-password", methods=["POST"])
-def reset_patient_password(patient_id):
-    """Process reset of a patient's password."""
-
-    patient = get_current_patient()
-
-    password = request.form.get("password")
-
-    patient.set_password(password)
-
-    db.session.add(patient)
-    db.session.commit()
-    
-    flash("Password successfully reset.")
-    return redirect(f"/patient/{patient_id}/account")
-
-
 
 
 ########################   HELPER FUNCTIONS   ########################
@@ -861,6 +770,16 @@ def get_current_patient():
 
     patient_id = session.get("patient_id")
     return Patient.query.get(patient_id)
+
+
+def get_user_type_from_session():
+    """Check to see if logged in user is a dietitian or a patient"""
+
+    if session.get("dietitian_id"):
+        return "dietitian"
+
+    if session.get("patient_id"):
+        return "patient"
 
 
 def check_dietitian_authorization(dietitian_id):
@@ -921,17 +840,14 @@ def save_image():
 # Add jinja datetime filters to format datetime object in posts and comments.
 def datetimeformat(value, format="%b %-d, %Y at %-I:%M %p"):
     return value.strftime(format)
-
 app.jinja_env.filters['datetime'] = datetimeformat
 
 def dateformat(value, format="%m-%d-%Y"):
     return value.strftime(format)
-
 app.jinja_env.filters['date'] = dateformat
 
 def htmldateformat(value, format="%Y-%m-%dT%H:%M"):
     return value.strftime(format)
-
 app.jinja_env.filters['htmldatetime'] = htmldateformat
 
 

@@ -16,12 +16,12 @@
     <div>
         <h3>Complete the form to register:</h3>
         <form action="/register" method="POST">
-            <input type="text" required name="fname" placeholder="First name">
-            <input type="text" required name="lname" placeholder="Last name">
-            <input type="email" required name="email" placeholder="Email address">
-            <input type="password" required name="password" placeholder="Password">
-            <input type="text" required name="street-address" placeholder="Street address">
-            <input type="text" required name="city" placeholder="City">
+            <input type="text" required name="fname" maxlength="50" placeholder="First name">
+            <input type="text" required name="lname" maxlength="50" placeholder="Last name">
+            <input type="email" required name="email" maxlength="120" placeholder="Email address">
+            <input type="password" required maxlength="50" name="password" placeholder="Password">
+            <input type="text" required maxlength="100" name="street-address" placeholder="Street address">
+            <input type="text" required name="city" maxlength="40" placeholder="City">
             <select required name="state">
                 <option value="AL">Alabama</option>
                 <option value="AK">Alaska</option>
@@ -75,7 +75,7 @@
                 <option value="WI">Wisconsin</option>
                 <option value="WY">Wyoming</option>
             </select>
-            <input type="text" required name="zipcode" placeholder="Zipcode">
+            <input type="text" required name="zipcode" maxlength="11" placeholder="Zipcode">
             <input type="submit" value="Register Now">
         </form>
     </div>

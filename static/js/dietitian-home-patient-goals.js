@@ -24,7 +24,7 @@ $(".delete-goal-btn").on("click", (evt) => {
 
     if (result) {
         const goalId = evt.target.dataset.goalId;
-        $.post("/dietitian/delete/goal", { goal: goalId }, () => {
+        $.post("/delete-goal", { goal: goalId }, () => {
             location.reload(true);
         });
     };
