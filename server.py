@@ -143,6 +143,7 @@ def show_dietitian_homepage(dietitian_id):
 
     dietitian = get_current_dietitian()
     patients_list = dietitian.patients
+    sorted_patients = sorted(patients_list, key=lambda x: x.lname)
     posts = (Post.query.filter(Patient.dietitian_id == dietitian.dietitian_id)
             .join(Patient)
             .join(Dietitian)
@@ -151,7 +152,7 @@ def show_dietitian_homepage(dietitian_id):
 
     return render_template("dietitian-home-posts.html",
                             dietitian=dietitian,
-                            patients=patients_list,
+                            patients=sorted_patients,
                             posts=posts)
 
 
@@ -164,10 +165,11 @@ def show_dietitian_account(dietitian_id):
 
     dietitian = get_current_dietitian()
     patients_list = dietitian.patients
+    sorted_patients = sorted(patients_list, key=lambda x: x.lname)
 
     return render_template("dietitian-account.html",
                             dietitian=dietitian,
-                            patients=patients_list)
+                            patients=sorted_patients)
 
 
 @app.route("/dietitian/<int:dietitian_id>/account/edit", methods=["GET"])
@@ -179,10 +181,11 @@ def view_edit_dietitian_information(dietitian_id):
 
     dietitian = get_current_dietitian()
     patients_list = dietitian.patients
+    sorted_patients = sorted(patients_list, key=lambda x: x.lname)
 
     return render_template("dietitian-account-edit.html",
                             dietitian=dietitian,
-                            patients=patients_list)
+                            patients=sorted_patients)
 
 
 @app.route("/dietitian/<int:dietitian_id>/account/edit", methods=["POST"])
@@ -215,10 +218,11 @@ def view_reset_dietitian_password_form(dietitian_id):
 
     dietitian = get_current_dietitian()
     patients_list = dietitian.patients
+    sorted_patients = sorted(patients_list, key=lambda x: x.lname)
 
     return render_template("dietitian-resetpw.html",
                             dietitian=dietitian,
-                            patients=patients_list)
+                            patients=sorted_patients)
 
 
 @app.route("/dietitian/<int:dietitian_id>/account/reset-password", methods=["POST"])
@@ -249,10 +253,11 @@ def show_patient_registration_form():
 
     dietitian = get_current_dietitian()
     patients_list = dietitian.patients
+    sorted_patients = sorted(patients_list, key=lambda x: x.lname)
 
     return render_template("patient-registration.html",
                             dietitian=dietitian,
-                            patients=patients_list)
+                            patients=sorted_patients)
 
 
 @app.route("/patient/new-patient", methods=["POST"])
@@ -302,6 +307,7 @@ def show_single_patient_overview(patient_id):
     if user_type == "dietitian":
         dietitian = get_current_dietitian()
         patients_list = dietitian.patients
+        sorted_patients = sorted(patients_list, key=lambda x: x.lname)
         patient = Patient.query.get(patient_id)
 
         if not patient in patients_list:
@@ -309,7 +315,7 @@ def show_single_patient_overview(patient_id):
 
         return render_template("dietitian-home-patient-overview.html",
                             dietitian=dietitian,
-                            patients=patients_list,
+                            patients=sorted_patients,
                             patient=patient)
 
 
@@ -331,6 +337,7 @@ def view_edit_patient_information_form(patient_id):
     if user_type == "dietitian":
         dietitian = get_current_dietitian()
         patients_list = dietitian.patients
+        sorted_patients = sorted(patients_list, key=lambda x: x.lname)
         patient = Patient.query.get(patient_id)
 
         if not patient in patients_list:
@@ -338,7 +345,7 @@ def view_edit_patient_information_form(patient_id):
 
         return render_template("dietitian-home-patient-edit.html",
                                 dietitian=dietitian,
-                                patients=patients_list,
+                                patients=sorted_patients,
                                 patient=patient)
 
     if not check_patient_authorization(patient_id):
@@ -382,6 +389,7 @@ def view_reset_patient_password_form(patient_id):
     if user_type == "dietitian":
         dietitian = get_current_dietitian()
         patients_list = dietitian.patients
+        sorted_patients = sorted(patients_list, key=lambda x: x.lname)
         patient = Patient.query.get(patient_id)
 
         if not patient in patients_list:
@@ -389,7 +397,7 @@ def view_reset_patient_password_form(patient_id):
 
         return render_template("dietitian-home-patient-resetpw.html",
                                 dietitian=dietitian,
-                                patients=patients_list,
+                                patients=sorted_patients,
                                 patient=patient)
 
 
@@ -430,11 +438,12 @@ def customize_patient_post_form(patient_id):
         return render_template("unauthorized.html")
 
     patients_list = dietitian.patients
+    sorted_patients = sorted(patients_list, key=lambda x: x.lname)
     patient = Patient.query.get(patient_id)
 
     return render_template("dietitian-customize-post-form.html",
                             dietitian=dietitian,
-                            patients=patients_list,
+                            patients=sorted_patients,
                             patient=patient)
 
 @app.route("/patient/<int:patient_id>/account/customize-posts", methods = ["POST"])
@@ -478,6 +487,7 @@ def show_patient_goals(patient_id):
     if user_type == "dietitian":
         dietitian = get_current_dietitian()
         patients_list = dietitian.patients
+        sorted_patients = sorted(patients_list, key=lambda x: x.lname)
         patient = Patient.query.get(patient_id)
 
         if not patient in patients_list:
@@ -494,7 +504,7 @@ def show_patient_goals(patient_id):
 
         return render_template("dietitian-home-patient-goals.html",
                                 dietitian=dietitian,
-                                patients=patients_list,
+                                patients=sorted_patients,
                                 patient=patient,
                                 current_goal=current_patient_goal,
                                 past_goals=past_goals)
@@ -571,6 +581,7 @@ def show_single_patient_posts(patient_id):
     if user_type == "dietitian":
         dietitian = get_current_dietitian()
         patients_list = dietitian.patients
+        sorted_patients = sorted(patients_list, key=lambda x: x.lname)
         patient = Patient.query.get(patient_id)
 
         if not patient in patients_list:
@@ -581,7 +592,7 @@ def show_single_patient_posts(patient_id):
 
         return render_template("dietitian-home-patient-posts.html",
                                 dietitian=dietitian,
-                                patients=patients_list,
+                                patients=sorted_patients,
                                 patient=patient,
                                 posts=patient_posts)
 

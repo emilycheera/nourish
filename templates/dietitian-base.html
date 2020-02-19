@@ -14,19 +14,36 @@
             Register a New Patient</a>
         </p>
         <h2>All Patients</h2>
+            <select id="patient" class="patient-search" style="width: 20%">
+                {% for patient in patients %}
+                    <option value ="/patient/{{ patient.patient_id }}">
+                    {{ patient.fname }} {{ patient.lname }}</option>
+                {% endfor %}
+            </select>
         {% if not patients %}
             <p>No patients to display.</p>
         {% endif %}
-        {% for patient in patients %}
-            <p>
-                <a href="/patient/{{ patient.patient_id }}">
-                {{ patient.fname }} {{ patient.lname }}</a>
-            </p>
-        {% endfor %}
     </div>
     <h1>{{ dietitian.fname }} {{ dietitian.lname }}</h1>
     <div>
         {% block flash %} {{ super() }} {% endblock %}
     </div>
     <div>{% block dashboard_content %}{% endblock %}</div>
+
+<script>
+    $(document).ready(function() {
+    $(".patient-search").select2();
+    });
+</script>
+
+    <script>
+        $(document).ready(function() {
+            $(".patient-search").select2();
+            $("#patient").on("select2:select", function (e) {
+                window.location.replace(e.params.data.id);
+            });
+        });
+    </script>
 {% endblock %}
+
+    
