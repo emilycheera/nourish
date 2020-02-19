@@ -419,6 +419,56 @@ def reset_patient_password(patient_id):
     return redirect(f"/patient/{patient_id}/account")
 
 
+@app.route("/patient/<int:patient_id>/account/customize-posts")
+def customize_patient_post_form(patient_id):
+    """Allow dietitian to select form fields available on a patient's post."""
+
+    dietitian = get_current_dietitian()
+    dietitian_id = dietitian.dietitian_id
+
+    if not check_dietitian_authorization(dietitian_id):
+        return render_template("unauthorized.html")
+
+    patients_list = dietitian.patients
+    patient = Patient.query.get(patient_id)
+
+    return render_template("dietitian-customize-post-form.html",
+                            dietitian=dietitian,
+                            patients=patients_list,
+                            patient=patient)
+
+@app.route("/patient/<int:patient_id>/account/customize-posts", methods = ["POST"])
+def save_customized_patient_post_form(patient_id):
+    """Save which form fields the dietitian selected for a specific patient."""
+
+    hunger_visible = request.form.get("hunger-visible")
+    fullness_visible = request.form.get("fullness-visible")
+    satisfaction_visible = request.form.get("satisfaction-visible")
+
+    patient = Patient.query.get(patient_id)
+
+    if hunger_visible:
+        patient.hunger_visible = True
+    else:
+        patient.hunger_visible = False
+
+    if fullness_visible:
+        patient.fullness_visible = True
+    else:
+        patient.fullness_visible = False
+
+    if satisfaction_visible:
+        patient.satisfaction_visible = True
+    else:
+        patient.satisfaction_visible = False
+
+    db.session.add(patient)
+    db.session.commit()
+
+    flash("Form customization saved.")
+    return redirect(f"/patient/{patient_id}/account")
+
+
 @app.route("/patient/<int:patient_id>/goals", methods=["GET"])
 def show_patient_goals(patient_id):
     """Show goals for a patient and allow dietitian to update goals."""

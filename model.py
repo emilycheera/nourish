@@ -49,6 +49,10 @@ class Patient(db.Model):
     zipcode = db.Column(db.String(11))
     phone = db.Column(db.String(15))
     birthdate = db.Column(db.DateTime)
+    hunger_visible = db.Column(db.Boolean, default=False, nullable=False)
+    fullness_visible = db.Column(db.Boolean, default=False, nullable=False)
+    satisfaction_visible = db.Column(db.Boolean, default=False, nullable=False)
+
 
     # Define relationship to dietitian
     dietitian = db.relationship("Dietitian", backref=db.backref("patients"))

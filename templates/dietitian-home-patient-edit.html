@@ -1,7 +1,7 @@
 {% extends "dietitian-single-patient-base.html" %}
 {% block patient_content %}
     <div>
-        <h3>Account Information</h3>
+        <h3>Account Details</h3>
         <p>Edit the information below. Click the button to save your changes.</p>
         <form action="/patient/{{ patient.patient_id }}/account/edit" method="POST">
             <input type="text" required name="fname" maxlength="50" value="{{ patient.fname }}">

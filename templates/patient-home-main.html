@@ -45,23 +45,30 @@
                         <textarea name="TEB" required></textarea>
                     </label>
                 </p>
+                {% if patient.hunger_visible %}
                 <p>
                     <label for="hunger">
                         <span>Hunger rating: </span>
                         <input type="number" name="hunger" min="0" max="10" step="1">
                     </label>
                 </p>
+                {% endif %}
+                {% if patient.fullness_visible %}
                 <p>
                     <label for="fullness">
                         <span>Fullness rating: </span>
                         <input type="number" name="fullness" min="0" max="10" step="1">
                     </label>
                 </p>
+                {% endif %}
+                {% if patient.satisfaction_visible %}
                 <p>
                     <label for="satisfaction">
                         <span>Satisfaction rating: </span>
                         <input type="number" name="satisfaction" min="0" max="10" step="1">
                     </label>
+                </p>
+                {% endif %}
                 <p>
                     <label for="meal-notes">
                         <span>Anything else you'd like to share: </span>

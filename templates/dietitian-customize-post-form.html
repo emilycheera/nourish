@@ -1,0 +1,40 @@
+{% extends "dietitian-single-patient-base.html" %}
+{% block patient_content %}
+    <div>
+        <h3>Customize Posts</h3>
+        <p>
+            Depending on your patient and your work together, 
+            you may want to customize which fields are available 
+            to them when they're creating a new meal/snack post.
+        </p>
+        <p>
+            You can choose to hide or display hunger rating, fullness 
+            rating, and satisfaction rating. All three ratings are 
+            based on a 10-point scale.
+        </p>
+        <p>
+            Check the field(s) you want made available to this patient:
+        </p>
+        <form action="/patient/{{ patient.patient_id }}/account/customize-posts" method="POST">
+            <div>
+                <input type="checkbox" id="hunger-visible" name="hunger-visible" 
+                 {% if patient.hunger_visible %} checked {% endif %}>
+                <label for="hunger-visible">Hunger rating</label>
+              </div>
+              <div>
+                <input type="checkbox" id="fullness-visible" name="fullness-visible" 
+                 {% if patient.fullness_visible %} checked {% endif %}>
+                <label for="fullness-visible">Fullness rating</label>
+              </div>
+              <div>
+                <input type="checkbox" id="satisfaction-visible" name="satisfaction-visible"
+                {% if patient.satisfaction_visible %} checked {% endif %}>
+                <label for="satisfaction-visible">Satisfaction rating</label>
+              </div>
+              <div>
+                <button type="submit">Save</button>
+              </div>
+        </form>
+        <a href="/patient/{{ patient.patient_id }}/account">Cancel</a>
+    </div>
+{% endblock %}
