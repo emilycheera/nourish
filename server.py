@@ -489,6 +489,8 @@ def edit_patient_goal(patient_id, goal_id):
     goal_body = request.form.get("goal-body")
 
     goal.goal_body = goal_body
+    goal.last_mod_date = datetime.now()
+
 
     db.session.add(goal)
     db.session.commit()
@@ -565,9 +567,13 @@ def add_post_comment(post_id):
         dietitian_id = session.get("dietitian_id")
         return redirect(f"/dietitian/{dietitian_id}")
 
-    post = Post.query.get(post_id)
-    patient_id = post.patient.patient_id
-    return redirect(f"/patient/{patient_id}/posts")
+    elif current_page == "patient":
+        post = Post.query.get(post_id)
+        patient_id = post.patient.patient_id
+        return redirect(f"/patient/{patient_id}/posts")
+
+    else:
+        return redirect("/")
 
 
 @app.route("/comment/<int:comment_id>/edit", methods=["POST"])
@@ -580,6 +586,8 @@ def edit_post_comment(comment_id):
     current_page = request.form.get("current-page")
 
     comment.comment_body = comment_body
+    comment.last_mod_date = datetime.now()
+
 
     db.session.add(comment)
     db.session.commit()
@@ -588,8 +596,13 @@ def edit_post_comment(comment_id):
         dietitian_id = session.get("dietitian_id")
         return redirect(f"/dietitian/{dietitian_id}")
 
-    patient_id = request.form.get("patient-id")
-    return redirect(f"/patient/{patient_id}/posts")
+    elif current_page == "patient":
+        post = Post.query.get(post_id)
+        patient_id = post.patient.patient_id
+        return redirect(f"/patient/{patient_id}/posts")
+
+    else:
+        return redirect("/")
 
 
 @app.route("/delete-comment", methods=["POST"])
@@ -704,29 +717,33 @@ def edit_post(post_id):
     satisfaction = request.form.get("satisfaction")
     meal_notes = request.form.get("meal-notes")
 
-    if meal_time:
-        post.meal_time = meal_time
+    post.meal_time = meal_time
+    post.meal_setting = meal_setting
+    post.TEB = TEB
+    post.last_mod_date = datetime.now()
 
     if img_path:
         post.img_path = img_path
 
-    if meal_setting:
-        post.meal_setting = meal_setting
-
-    if TEB:
-        post.TEB = TEB
-
     if hunger:
         post.hunger = hunger
+    else:
+        post.hunger = None
 
     if fullness:
         post.fullness = fullness
+    else:
+        post.fullness = None
 
     if satisfaction:
         post.satisfaction = satisfaction
+    else:
+        post.satisfaction = None
 
     if meal_notes:
         post.meal_notes = meal_notes
+    else:
+        post.meal_notes = None
 
     
     db.session.add(post)

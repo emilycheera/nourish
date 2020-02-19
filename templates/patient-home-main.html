@@ -7,7 +7,12 @@
                 <p>No goal to display.</p>
             {% endif %}
             {% if goal %}
-                <p>{{ goal.time_stamp|datetime }}</p>
+                {% if not goal.last_mod_date %}
+                    <p>{{ goal.time_stamp|datetime }}</p>
+                {% endif %}
+                {% if goal.last_mod_date %}
+                    <p>{{ goal.last_mod_date|datetime }} (edited)</p>
+                {% endif %}
                 <p>{{ goal.goal_body }}</p>
             {% endif %}
         </div>

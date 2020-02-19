@@ -8,7 +8,12 @@
         {% if posts %}
             {% for post in posts %}
                 <p>{{ post.patient.fname }} {{ post.patient.lname }}</p>
-                <p>{{ post.post_time|datetime }}</p>
+                {% if not post.last_mod_date %}
+                    <p>{{ post.post_time|datetime }}</p>
+                {% endif %}
+                {% if post.last_mod_date %}
+                    <p>{{ post.last_mod_date|datetime }} (edited)</p>
+                {% endif %}
                 {% if post.img_path %}
                     <img src="{{post.img_path}}" width="400">
                 {% endif %}
@@ -30,17 +35,22 @@
                     <p>Additional Notes: {{ post.hunger }}</p>
                 {% endif %}
                 <div>
-                <form action="/post/{{ post.post_id }}/add-comment" method="POST">
-                    <input type="hidden" name="current-page" value="patient">
-                    <textarea required name="comment" placeholder="Write a comment..."></textarea>
-                    <input type="submit" value="Add Comment">
-                </form>
+                    <form action="/post/{{ post.post_id }}/add-comment" method="POST">
+                        <input type="hidden" name="current-page" value="patient">
+                        <textarea required name="comment" placeholder="Write a comment..."></textarea>
+                        <input type="submit" value="Add Comment">
+                    </form>
                     {% if post.comments %}
                         <h4>Comments</h4>
                         {% for comment in post.comments %}
                             <div id="comment-{{ comment.comment_id }}">
-                                <p>{{ dietitian.fname }} {{ dietitian.lname }} 
-                                {{ comment.time_stamp|datetime }}</p>
+                                <p>{{ dietitian.fname }} {{ dietitian.lname }} | 
+                                {% if not comment.last_mod_date %}
+                                    {{ comment.time_stamp|datetime }}</p>
+                                {% endif %}
+                                {% if comment.last_mod_date %}
+                                    {{ comment.last_mod_date|datetime }} (edited)</p>
+                                {% endif %}
                                 <p>{{ comment.comment_body }}</p>
                                 <button class="edit-comment-btn" data-comment-id="{{ comment.comment_id }}">Edit</button>
                                 <button class="delete-comment-btn" data-comment-id="{{ comment.comment_id }}">Delete</button>
