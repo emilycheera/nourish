@@ -32,7 +32,7 @@
                     <p>Satisfaction: {{ post.satisfaction }}</p>
                 {% endif %}
                 {% if post.meal_notes %}
-                    <p>Additional Notes: {{ post.hunger }}</p>
+                    <p>Additional Notes: {{ post.meal_notes }}</p>
                 {% endif %}
                 <div>
                     <form action="/post/{{ post.post_id }}/add-comment" method="POST">

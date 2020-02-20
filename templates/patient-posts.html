@@ -39,7 +39,7 @@
                     <p>Satisfaction: {{ post.satisfaction }}</p>
                 {% endif %}
                 {% if post.meal_notes %}
-                    <p>Additional Notes: {{ post.hunger }}</p>
+                    <p>Additional Notes: {{ post.meal_notes }}</p>
                 {% endif %}
                 <button class="edit-post-btn" data-post-id="{{ post.post_id }}">Edit</button>
                 <button class="delete-post-btn" data-post-id="{{ post.post_id }}">Delete</button>

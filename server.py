@@ -1,30 +1,35 @@
-from jinja2 import StrictUndefined
-
-from flask import (Flask, render_template, request,
-                   flash, redirect, session, jsonify)
-
-from werkzeug.utils import secure_filename
-from sqlalchemy import desc
 
 from datetime import datetime
 import os
 
+from flask import (Flask, render_template, request, flash, redirect,
+    session, jsonify)
+from jinja2 import StrictUndefined
+from sqlalchemy import desc
+from werkzeug.utils import secure_filename
+
 from flask_debugtoolbar import DebugToolbarExtension
 
+from helpers import (get_current_dietitian, get_current_patient,
+    get_user_type_from_session, check_dietitian_authorization,
+    check_patient_authorization)
+from jinja_filters import datetimeformat, dateformat, htmldateformat
 from model import connect_to_db, db, Dietitian, Patient, Goal, Post, Comment
 
 
 app = Flask(__name__)
 app.secret_key = "b_xd3xf9095~xa68x90E^O1xd3R"
 
+app.jinja_env.filters['datetime'] = datetimeformat
+app.jinja_env.filters['date'] = dateformat
+app.jinja_env.filters['htmldatetime'] = htmldateformat
+app.jinja_env.undefined = StrictUndefined
+
 UPLOAD_FOLDER = "static/images/uploads/"
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024
-
-app.jinja_env.undefined = StrictUndefined
-
 
 
 @app.route("/", methods=["GET"])
@@ -45,7 +50,7 @@ def index():
 
 @app.route("/patient-login", methods=["POST"])
 def handle_patient_login():
-    """Login a patient user."""
+    """Log in a patient user."""
 
     email = request.form.get("email")
     password = request.form.get("password")
@@ -68,7 +73,7 @@ def handle_patient_login():
 
 @app.route("/dietitian-login", methods=["POST"])
 def handle_dietitian_login():
-    """Login a dietitian user."""
+    """Log in a dietitian user."""
 
     email = request.form.get("email")
     password = request.form.get("password")
@@ -609,7 +614,7 @@ def show_single_patient_posts(patient_id):
                                 patients=sorted_patients,
                                 patient=patient,
                                 posts=patient_posts)
-
+    
     if not check_patient_authorization(patient_id):
         return render_template("unauthorized.html")
 
@@ -744,26 +749,15 @@ def add_new_post():
     new_post = Post(patient_id=patient_id,
                     post_time=post_time,
                     meal_time=meal_time,
+                    img_path=img_path,
+                    meal_setting=meal_setting,
                     TEB=TEB,
-                    meal_setting=meal_setting)
+                    meal_notes=meal_notes)
 
-    # Save optional fields if completed in form.
-    if img_path:
-        new_post.img_path = img_path
+    new_post.hunger = hunger if hunger else None
+    new_post.fullness = fullness if fullness else None
+    new_post.satisfaction = satisfaction if satisfaction else None
 
-    if hunger:
-        new_post.hunger = hunger
-
-    if fullness:
-        new_post.fullness = fullness
-
-    if satisfaction:
-        new_post.satisfaction = satisfaction
-
-    if meal_notes:
-        new_post.meal_notes = meal_notes
-
-    
     db.session.add(new_post)
     db.session.commit()
 
@@ -784,42 +778,21 @@ def edit_post(post_id):
         flash("Only .png, .jpg, or .jpeg images are accepted.")
         return redirect(f"/patient/{patient_id}/posts")
 
-    meal_time = request.form.get("meal-time")
-    meal_setting = request.form.get("meal-setting")
-    TEB = request.form.get("TEB")
-    hunger = request.form.get("hunger")
-    fullness = request.form.get("fullness")
-    satisfaction = request.form.get("satisfaction")
-    meal_notes = request.form.get("meal-notes")
-
-    post.meal_time = meal_time
-    post.meal_setting = meal_setting
-    post.TEB = TEB
-    post.last_mod_date = datetime.now()
-
     if img_path:
         post.img_path = img_path
 
-    if hunger:
-        post.hunger = hunger
-    else:
-        post.hunger = None
+    hunger = request.form.get("hunger")
+    fullness = request.form.get("fullness")
+    satisfaction = request.form.get("satisfaction")
 
-    if fullness:
-        post.fullness = fullness
-    else:
-        post.fullness = None
-
-    if satisfaction:
-        post.satisfaction = satisfaction
-    else:
-        post.satisfaction = None
-
-    if meal_notes:
-        post.meal_notes = meal_notes
-    else:
-        post.meal_notes = None
-
+    post.meal_time = request.form.get("meal-time")
+    post.meal_setting = request.form.get("meal-setting")
+    post.TEB = request.form.get("TEB")
+    post.last_mod_date = datetime.now()
+    post.meal_notes = request.form.get("meal-notes")
+    post.hunger = hunger if hunger else None
+    post.fullness = fullness if fullness else None
+    post.satisfaction = satisfaction if satisfaction else None
     
     db.session.add(post)
     db.session.commit()
@@ -846,60 +819,6 @@ def delete_post():
     return "Success"
 
 
-########################   HELPER FUNCTIONS   ########################
-
-
-def get_current_dietitian():
-    """Returns dietitian object for current dietitian_id."""
-
-    dietitian_id = session.get("dietitian_id")
-
-    return Dietitian.query.get(dietitian_id)
-
-
-def get_current_patient():
-    """Returns patient object for current patient_id."""
-
-    patient_id = session.get("patient_id")
-    return Patient.query.get(patient_id)
-
-
-def get_user_type_from_session():
-    """Check to see if logged in user is a dietitian or a patient"""
-
-    if session.get("dietitian_id"):
-        return "dietitian"
-
-    if session.get("patient_id"):
-        return "patient"
-
-
-def check_dietitian_authorization(dietitian_id):
-    """Check to see if the logged in dietitian is authorized to view page."""
-
-    # Get the current user's dietitian_id.
-    user_id = session.get("dietitian_id")
-
-    # If correct dietitian is not logged in, show unauthorized template.
-    if user_id != dietitian_id:
-        return False
-
-    return True
-
-
-def check_patient_authorization(patient_id):
-    """Check to see if the logged in patient is authorized to view page."""
-
-    # Get the current user's patient_id.
-    user_id = session.get("patient_id")
-
-    # If correct patient is not logged in, show unauthorized template.
-    if user_id != patient_id:
-        return False
-
-    return True
-
-
 def allowed_image(filename):
     """Check if image file has one of the allowed extensions."""
 
@@ -908,6 +827,7 @@ def allowed_image(filename):
 
 
 def save_image():
+    """Save uploaded image to upload folder and return filepath."""
 
     if not request.files:
         return None
@@ -927,21 +847,6 @@ def save_image():
         img_path = f"/static/images/uploads/{filename}"
 
     return img_path
-
-
-# Add jinja datetime filters to format datetime object in posts and comments.
-def datetimeformat(value, format="%b %-d, %Y at %-I:%M %p"):
-    return value.strftime(format)
-app.jinja_env.filters['datetime'] = datetimeformat
-
-def dateformat(value, format="%m-%d-%Y"):
-    return value.strftime(format)
-app.jinja_env.filters['date'] = dateformat
-
-def htmldateformat(value, format="%Y-%m-%dT%H:%M"):
-    return value.strftime(format)
-app.jinja_env.filters['htmldatetime'] = htmldateformat
-
 
 
 if __name__ == "__main__":
