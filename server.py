@@ -1,6 +1,8 @@
 from jinja2 import StrictUndefined
 
-from flask import Flask, render_template, request, flash, redirect, session, jsonify
+from flask import (Flask, render_template, request,
+                   flash, redirect, session, jsonify)
+
 from werkzeug.utils import secure_filename
 from sqlalchemy import desc
 
@@ -41,40 +43,50 @@ def index():
     return render_template("homepage.html")
 
 
-@app.route("/", methods=["POST"])
-def handle_login():
-    """Login a dietitian or patient user."""
+@app.route("/patient-login", methods=["POST"])
+def handle_patient_login():
+    """Login a patient user."""
 
     email = request.form.get("email")
     password = request.form.get("password")
-    user_type = request.form.get("user-type")
 
-    if user_type == "patient":
-        user = Patient.query.filter_by(email=email).first()
-    else:
-        user = Dietitian.query.filter_by(email=email).first()
+    patient = Patient.query.filter_by(email=email).first()
 
-    if not user:
-        if user_type == "dietitian":
-            flash(f"No account with {email}. Please register a new dietitian account.")
-            return redirect("/")
-        elif user_type == "patient":
-            flash(f"No account with {email}. Contact your dietitian to create or update your account.")
-            return redirect("/")
+    if not patient: 
+        flash(f"""No account with {email}. Contact your dietitian 
+                  to create or update your account.""")
+        return redirect("/")
 
-    if not user.check_password(password):
+    if not patient.check_password(password):
         flash("Incorrect password.")
         return redirect("/")
 
-    if user_type == "dietitian":
-        session["dietitian_id"] = user.dietitian_id
-        flash("Login successful.")
-        return redirect(f"/dietitian/{user.dietitian_id}")
+    session["patient_id"] = patient.patient_id
+    flash("Login successful.")
+    return redirect(f"/patient/{patient.patient_id}")
 
-    if user_type == "patient":
-        session["patient_id"] = user.patient_id
-        flash("Login successful.")
-        return redirect(f"/patient/{user.patient_id}")
+
+@app.route("/dietitian-login", methods=["POST"])
+def handle_dietitian_login():
+    """Login a dietitian user."""
+
+    email = request.form.get("email")
+    password = request.form.get("password")
+
+    dietitian = Dietitian.query.filter_by(email=email).first()
+
+    if not dietitian:
+        flash(f"""No account with {email}. Please register 
+                  a new dietitian account.""")
+        return redirect("/")
+
+    if not dietitian.check_password(password):
+        flash("Incorrect password.")
+        return redirect("/")
+
+    session["dietitian_id"] = dietitian.dietitian_id
+    flash("Login successful.")
+    return redirect(f"/dietitian/{dietitian.dietitian_id}")
 
 
 @app.route("/logout")

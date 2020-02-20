@@ -12,6 +12,7 @@
         </p>
         <h2>All Patients</h2>
             <select id="patient" class="patient-search" style="width: 15%">
+                <option></option>
                 {% for patient in patients %}
                     <option value ="/patient/{{ patient.patient_id }}">
                     {{ patient.fname }} {{ patient.lname }}</option>

@@ -14,19 +14,26 @@
         <div>
             {% block flash %} {{ super() }} {% endblock %}
         </div>
-        <h3>Sign In:</h3>
-        <form action="/" method="POST">
-            <input type="email" required name="email" placeholder="Email address">
-            <input type="password" required name="password" placeholder="Password">
-            
-            <label for="user-type">I'm a: </label>
-            <input type="radio" required name="user-type" value="patient">
-            <label>patient</label>
-            <input type="radio" required name="user-type" value="dietitian">
-            <label>dietitian</label>
-            
-            <input type="submit" value="Log In">
-        </form>
-     <a href="/register">Create a new dietitian account</a>
+        <h3>What type of user are you?</h3>
+        <button id="patient-login-btn">Patient</button>
+        <button id="dietitian-login-btn">Dietitian</button>
+        <div id="patient-login" hidden>
+            <form action="/patient-login" method="POST">
+                <input type="email" required name="email" placeholder="Email address">
+                <input type="password" required name="password" placeholder="Password">
+                <input type="submit" value="Log In">
+            </form>
+        </div>
+        <div id="dietitian-login" hidden>
+            <form action="/dietitian-login" method="POST">
+                <input type="email" required name="email" placeholder="Email address">
+                <input type="password" required name="password" placeholder="Password">
+                <input type="submit" value="Log In">
+            </form>
+            <a href="/register">Create a Dietitian Account</a>
+        </div>
     </div>
+{% endblock %}
+{% block script %}
+    <script src="/static/js/homepage.js"></script>
 {% endblock %}
