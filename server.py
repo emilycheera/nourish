@@ -465,20 +465,9 @@ def save_customized_patient_post_form(patient_id):
 
     patient = Patient.query.get(patient_id)
 
-    if hunger_visible:
-        patient.hunger_visible = True
-    else:
-        patient.hunger_visible = False
-
-    if fullness_visible:
-        patient.fullness_visible = True
-    else:
-        patient.fullness_visible = False
-
-    if satisfaction_visible:
-        patient.satisfaction_visible = True
-    else:
-        patient.satisfaction_visible = False
+    patient.hunger_visible = True if hunger_visible else False
+    patient.fullness_visible = True if fullness_visible else False
+    patient.satisfaction_visible = True if satisfaction_visible else False
 
     db.session.add(patient)
     db.session.commit()
@@ -743,26 +732,14 @@ def add_new_post():
     new_post = Post(patient_id=patient_id,
                     post_time=post_time,
                     meal_time=meal_time,
+                    img_path=img_path,
+                    meal_setting=meal_setting,
                     TEB=TEB,
-                    meal_setting=meal_setting)
+                    hunger=hunger,
+                    fullness=fullness,
+                    satisfaction=satisfaction,
+                    meal_notes=meal_notes)
 
-    # Save optional fields if completed in form.
-    if img_path:
-        new_post.img_path = img_path
-
-    if hunger:
-        new_post.hunger = hunger
-
-    if fullness:
-        new_post.fullness = fullness
-
-    if satisfaction:
-        new_post.satisfaction = satisfaction
-
-    if meal_notes:
-        new_post.meal_notes = meal_notes
-
-    
     db.session.add(new_post)
     db.session.commit()
 
@@ -791,35 +768,16 @@ def edit_post(post_id):
     satisfaction = request.form.get("satisfaction")
     meal_notes = request.form.get("meal-notes")
 
+    post.last_mod_date = datetime.now()
     post.meal_time = meal_time
+    post.img_path = img_path
     post.meal_setting = meal_setting
     post.TEB = TEB
-    post.last_mod_date = datetime.now()
-
-    if img_path:
-        post.img_path = img_path
-
-    if hunger:
-        post.hunger = hunger
-    else:
-        post.hunger = None
-
-    if fullness:
-        post.fullness = fullness
-    else:
-        post.fullness = None
-
-    if satisfaction:
-        post.satisfaction = satisfaction
-    else:
-        post.satisfaction = None
-
-    if meal_notes:
-        post.meal_notes = meal_notes
-    else:
-        post.meal_notes = None
-
-    
+    post.hunger = hunger
+    post.fullness = fullness
+    post.satisfaction = satisfaction
+    post.meal_notes = meal_notes
+        
     db.session.add(post)
     db.session.commit()
 
