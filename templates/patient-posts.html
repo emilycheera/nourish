@@ -87,23 +87,30 @@
                         </label>
                     </p>
                     <p>
+                    {% if patient.hunger_visible %}
                         <label for="hunger">
                             <span>Hunger rating: </span>
                             <input type="number" name="hunger" min="0" max="10" step="1" {% if post.hunger %} value={{ post.hunger }} {% endif %}>
                         </label>
                     </p>
+                    {% endif %}
+                    {% if patient.fullness_visible %}
                     <p>
                         <label for="fullness">
                             <span>Fullness rating: </span>
                             <input type="number" name="fullness" min="0" max="10" step="1" {% if post.fullness %} value={{ post.fullness }} {% endif %}>
                         </label>
                     </p>
+                    {% endif %}
+                    {% if patient.satisfaction_visible %}
                     <p>
                         <label for="satisfaction">
                             <span>Satisfaction rating: </span>
                             <input type="number" name="satisfaction" min="0" max="10" step="1" {% if post.satisfaction %} value={{ post.satisfaction }} {% endif %}>
                         </label>
-                    <p>
+                    </p>
+                    {% endif %}
+                    <p>   
                         <label for="meal-notes">
                             <span>Anything else you'd like to share: </span>
                             <textarea name="meal-notes">{% if post.meal_notes %}{{ post.meal_notes }}{% endif %}</textarea>
