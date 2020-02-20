@@ -2,9 +2,6 @@
 
 {% block patient_content %}
     <div>
-        {% block flash %} {{ super() }} {% endblock %}
-    </div>
-    <div>
         <h3>Add a new goal for {{ patient.fname }} {{ patient.lname }}:</h3>
         <form action="/patient/{{ patient.patient_id }}/add-goal" method="POST">
             <textarea name="goal-body" required rows="4" cols="48"></textarea>
@@ -34,7 +31,7 @@
                         <textarea name="goal-body" required rows="4" cols="48">{{ current_goal.goal_body }}</textarea>
                         <div>
                             <button class="cancel-edit-btn" data-goal-id="{{ current_goal.goal_id }}">Cancel</button>
-                            <button id="save-edit-btn" type="submit">Update Goal</button>
+                            <button type="submit">Update Goal</button>
                         </div>
                     </form>
                 </div>
@@ -43,7 +40,12 @@
             <h3>Past Goals</h3>
             {% for goal in past_goals %}
                 <div id="goal-{{ goal.goal_id }}">
-                    <p>{{ goal.time_stamp|datetime }}</p>
+                    {% if not current_goal.last_mod_date %}
+                        <p>{{ current_goal.time_stamp|datetime }}</p>
+                    {% endif %}
+                    {% if current_goal.last_mod_date %}
+                        <p>{{ current_goal.last_mod_date|datetime }} (edited)</p>
+                    {% endif %}
                     <p>{{ goal.goal_body }}</p>
                     <button class="delete-goal-btn" data-goal-id="{{ goal.goal_id }}">Delete</button>
                 </div>

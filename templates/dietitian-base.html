@@ -2,6 +2,7 @@
 {% block title %}Dietitian Dashboard{% endblock %}
 {% block head %}
     {{ super() }}
+    <script src="/static/js/patient-search.js"></script>
 {% endblock %}
 {% block content %}
     <div id="sidebar">
@@ -14,7 +15,7 @@
             Register a New Patient</a>
         </p>
         <h2>All Patients</h2>
-            <select id="patient" class="patient-search" style="width: 20%">
+            <select id="patient" class="patient-search" style="width: 15%">
                 {% for patient in patients %}
                     <option value ="/patient/{{ patient.patient_id }}">
                     {{ patient.fname }} {{ patient.lname }}</option>
@@ -29,21 +30,6 @@
         {% block flash %} {{ super() }} {% endblock %}
     </div>
     <div>{% block dashboard_content %}{% endblock %}</div>
-
-<script>
-    $(document).ready(function() {
-    $(".patient-search").select2();
-    });
-</script>
-
-    <script>
-        $(document).ready(function() {
-            $(".patient-search").select2();
-            $("#patient").on("select2:select", function (e) {
-                window.location.replace(e.params.data.id);
-            });
-        });
-    </script>
 {% endblock %}
 
     

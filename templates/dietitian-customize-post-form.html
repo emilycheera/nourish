@@ -4,16 +4,17 @@
         <h3>Customize Posts</h3>
         <p>
             Depending on your patient and your work together, 
-            you may want to customize which fields are available 
-            to them when they're creating a new meal/snack post.
+            you may want to customize what they can track in each 
+            meal/snack post.
         </p>
         <p>
-            You can choose to hide or display hunger rating, fullness 
-            rating, and satisfaction rating. All three ratings are 
+            By default, patients cannot track hunger, fullness, 
+            nor satisfaction ratings. Place a check next to the fields 
+            you would like to enable. Note that all three ratings are 
             based on a 10-point scale.
         </p>
         <p>
-            Check the field(s) you want made available to this patient:
+            Check the field(s) you would like to enable for this patient:
         </p>
         <form action="/patient/{{ patient.patient_id }}/account/customize-posts" method="POST">
             <div>

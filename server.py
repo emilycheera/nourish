@@ -1,6 +1,6 @@
 from jinja2 import StrictUndefined
 
-from flask import Flask, render_template, request, flash, redirect, session
+from flask import Flask, render_template, request, flash, redirect, session, jsonify
 from werkzeug.utils import secure_filename
 from sqlalchemy import desc
 
@@ -111,6 +111,10 @@ def process_dietitian_registration():
     city = request.form.get("city")
     state = request.form.get("state")
     zipcode = request.form.get("zipcode")
+
+    if Dietitian.query.filter_by(email=email):
+        flash("An account with this email address already exists.")
+        return redirect("/register")
 
     new_dietitian = Dietitian(fname=fname,
                               lname=lname,
@@ -275,6 +279,10 @@ def process_patient_registration():
     zipcode = request.form.get("zipcode")
     phone = request.form.get("phone")
     birthdate = request.form.get("birthdate")
+
+    if Patient.query.filter_by(email=email):
+        flash("An account with this email address already exists.")
+        return redirect("/patient/new-patient")
 
     new_patient = Patient(dietitian_id=dietitian_id,
                           fname=fname,
@@ -446,6 +454,7 @@ def customize_patient_post_form(patient_id):
                             patients=sorted_patients,
                             patient=patient)
 
+
 @app.route("/patient/<int:patient_id>/account/customize-posts", methods = ["POST"])
 def save_customized_patient_post_form(patient_id):
     """Save which form fields the dietitian selected for a specific patient."""
@@ -529,12 +538,16 @@ def add_new_patient_goal(patient_id):
     time_stamp = datetime.now()
     goal_body = request.form.get("goal-body")
 
+
     new_goal = Goal(patient_id=patient_id,
                     time_stamp=time_stamp,
                     goal_body=goal_body)
 
     db.session.add(new_goal)
     db.session.commit()
+
+    new_past_goal_id = request.form.get("current-goal")
+    new_past_goal = Goal.query.get(new_past_goal_id)
 
     flash("Successfully added goal.")
     return redirect(f"/patient/{patient_id}/goals")

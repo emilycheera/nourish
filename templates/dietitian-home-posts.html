@@ -61,7 +61,7 @@
                                 <input type="hidden" name="patient-id" value={{ post.patient.patient_id }}>
                                 <textarea id="comment-body-{{ comment.comment_id }}" required name="comment" placeholder="Write a comment...">{{ comment.comment_body }}</textarea>
                                 <button class="cancel-edit-btn" data-comment-id="{{ comment.comment_id }}">Cancel</button>
-                                <button id="save-edit-btn" type="submit">Update Comment</button>
+                                <button type="submit">Update Comment</button>
                             </form>
                         </div>
                         {% endfor %}
