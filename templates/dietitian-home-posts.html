@@ -1,6 +1,6 @@
 {% extends "dietitian-base.html" %}
 {% block dashboard_content %}
-    <div>
+    <div class="all-patient-posts">
         {% if not posts %}
             <p>No posts to display.</p>
         {% endif %}
@@ -35,37 +35,40 @@
                     <p>Additional Notes: {{ post.meal_notes }}</p>
                 {% endif %}
                 <div>
-                    <form action="/post/{{ post.post_id }}/add-comment" method="POST">
+                    <form class="add-comment-form" id="add-comment-form-{{ post.post_id }}" data-post-id="{{ post.post_id }}" action="/post/{{ post.post_id }}/add-comment" method="POST">
                         <input type="hidden" name="current-page" value="home">
                         <textarea required name="comment" placeholder="Write a comment..."></textarea>
                         <input type="submit" value="Add Comment">
                     </form>
-                    {% if post.comments %}
-                        <h4>Comments</h4>
-                        {% for comment in post.comments %}
-                            <div id="comment-{{ comment.comment_id }}">
-                                <p>{{ dietitian.fname }} {{ dietitian.lname }} | 
-                                {% if not comment.last_mod_date %}
-                                    {{ comment.time_stamp|datetime }}</p>
-                                {% endif %}
-                                {% if comment.last_mod_date %}
-                                    {{ comment.last_mod_date|datetime }} (edited)</p>
-                                {% endif %}
-                                <p>{{ comment.comment_body }}</p>
-                                <button class="edit-comment-btn" data-comment-id="{{ comment.comment_id }}">Edit</button>
-                                <button class="delete-comment-btn" data-comment-id="{{ comment.comment_id }}">Delete</button>
-                            </div>
-                            <div id="editable-comment-{{ comment.comment_id }}" hidden>
-                            <form action="/comment/{{ comment.comment_id }}/edit" method="POST">
-                                <input type="hidden" name="current-page" value="home">
-                                <input type="hidden" name="patient-id" value={{ post.patient.patient_id }}>
-                                <textarea id="comment-body-{{ comment.comment_id }}" required name="comment" placeholder="Write a comment...">{{ comment.comment_body }}</textarea>
-                                <button class="cancel-edit-btn" data-comment-id="{{ comment.comment_id }}">Cancel</button>
-                                <button type="submit">Update Comment</button>
-                            </form>
-                        </div>
-                        {% endfor %}
-                    {% endif %}
+                    <div id="comments-for-{{ post.post_id }}">
+                        {% if post.comments %}
+                            <h4>Comments</h4>
+                            {% for comment in post.comments %}
+                                <div id="comment-and-edit-form-{{ comment.comment_id }}">
+                                    <div id="comment-{{ comment.comment_id }}">
+                                        <p>{{ dietitian.fname }} {{ dietitian.lname }} | 
+                                        {% if not comment.last_mod_date %}
+                                            {{ comment.time_stamp|datetime }}</p>
+                                        {% endif %}
+                                        {% if comment.last_mod_date %}
+                                            {{ comment.last_mod_date|datetime }} (edited)</p>
+                                        {% endif %}
+                                        <p>{{ comment.comment_body }}</p>
+                                        <button class="edit-comment-btn" data-comment-id="{{ comment.comment_id }}">Edit</button>
+                                        <button class="delete-comment-btn" data-comment-id="{{ comment.comment_id }}">Delete</button>
+                                    </div>
+                                    <div id="editable-comment-{{ comment.comment_id }}" hidden>
+                                        <form class="edit-comment-form" id="edit-comment-form-{{ comment.comment_id }}" data-comment-id="{{ comment.comment_id }}" action="/comment/{{ comment.comment_id }}/edit" method="POST">
+                                            <input type="hidden" name="current-page" value="home">
+                                            <textarea required name="comment">{{ comment.comment_body }}</textarea>
+                                            <button class="cancel-edit-btn" data-comment-id="{{ comment.comment_id }}">Cancel</button>
+                                            <button type="submit">Update Comment</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
                 </div>
             {% endfor %}
         {% endif %}
