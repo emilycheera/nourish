@@ -3,7 +3,7 @@ from datetime import datetime
 import os
 
 from flask import (Flask, render_template, request, flash, redirect,
-    session, jsonify)
+    session, jsonify, Markup)
 from jinja2 import StrictUndefined
 from sqlalchemy import desc
 from werkzeug.utils import secure_filename
@@ -632,10 +632,9 @@ def show_single_patient_posts(patient_id):
 def add_post_comment(post_id):
     """Add a comment to a post."""
 
-    time_stamp = datetime.now()
+    time_stamp = datetime.now().isoformat()
     comment_body = request.form.get("comment")
     current_page = request.form.get("current-page")
-    print(f"this is the {comment_body}")
 
     new_comment = Comment(post_id=post_id,
                           time_stamp=time_stamp,
@@ -654,31 +653,18 @@ def add_post_comment(post_id):
 
     return jsonify(comment)
 
-    # if current_page == "home":
-    #     dietitian_id = session.get("dietitian_id")
-    #     return redirect(f"/dietitian/{dietitian_id}")
-
-    # elif current_page == "patient":
-    #     post = Post.query.get(post_id)
-    #     patient_id = post.patient.patient_id
-    #     return redirect(f"/patient/{patient_id}/posts")
-
-    # else:
-    #     return redirect("/")
-
 
 @app.route("/comment/<int:comment_id>/edit", methods=["POST"])
 def edit_post_comment(comment_id):
     """Update a comment on a post."""
 
     comment = Comment.query.get(comment_id)
-
+    time_stamp = datetime.now().isoformat()
     comment_body = request.form.get("comment")
     current_page = request.form.get("current-page")
 
     comment.comment_body = comment_body
-    comment.last_mod_date = datetime.now()
-
+    comment.last_mod_date = time_stamp
 
     db.session.add(comment)
     db.session.commit()
@@ -687,23 +673,11 @@ def edit_post_comment(comment_id):
 
     comment = {"dietitian": {"fname": dietitian.fname,
                              "lname": dietitian.lname},
-                 "comment": {"last_mod_date": comment.last_mod_date,
+                 "comment": {"last_mod_date": time_stamp,
                              "comment_body": comment_body,
                              "comment_id": comment.comment_id}}
 
     return jsonify(comment)
-
-    # if current_page == "home":
-    #     dietitian_id = session.get("dietitian_id")
-    #     return redirect(f"/dietitian/{dietitian_id}")
-
-    # elif current_page == "patient":
-    #     post = comment.post
-    #     patient_id = post.patient.patient_id
-    #     return redirect(f"/patient/{patient_id}/posts")
-
-    # else:
-    #     return redirect("/")
 
 
 @app.route("/delete-comment", methods=["POST"])
@@ -782,7 +756,7 @@ def add_new_post():
     db.session.add(new_post)
     db.session.commit()
 
-    flash("Post added successfully.")
+    flash(Markup(f"Post added successfully. <a href='/patient/{patient_id}/posts'>Click here to see it.</a>"))
     return redirect(f"/patient/{patient_id}")
 
 
