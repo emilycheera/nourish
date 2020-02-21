@@ -47,7 +47,6 @@ $(".add-comment-form").on("submit", (evt) => {
                                 </div>
                                 <div id="editable-comment-${res.comment.comment_id}" hidden>
                                     <form class="edit-comment-form" id="edit-comment-form-${res.comment.comment_id}" data-comment-id="${res.comment.comment_id}" action="/comment/${res.comment.comment_id}/edit" method="POST">
-                                        <input type="hidden" name="current-page" value="home">
                                         <textarea required name="comment">${res.comment.comment_body}</textarea>
                                         <button class="cancel-edit-btn" data-comment-id="${res.comment.comment_id}">Cancel</button>
                                         <button type="submit">Update Comment</button>
@@ -73,7 +72,6 @@ $("body").on("submit", "form.edit-comment-form", (evt) => {
                                 </div>
                                 <div id="editable-comment-${res.comment.comment_id}" hidden>
                                     <form class="edit-comment-form" id="edit-comment-form-${res.comment.comment_id}" data-comment-id="${res.comment.comment_id}" action="/comment/${res.comment.comment_id}/edit" method="POST">
-                                        <input type="hidden" name="current-page" value="home">
                                         <textarea required name="comment">${res.comment.comment_body}</textarea>
                                         <button class="cancel-edit-btn" data-comment-id="${res.comment.comment_id}">Cancel</button>
                                         <button type="submit">Update Comment</button>

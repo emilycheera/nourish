@@ -36,7 +36,6 @@
                 {% endif %}
                 <div>
                     <form class="add-comment-form" id="add-comment-form-{{ post.post_id }}" data-post-id="{{ post.post_id }}" action="/post/{{ post.post_id }}/add-comment" method="POST">
-                        <input type="hidden" name="current-page" value="home">
                         <textarea required name="comment" placeholder="Write a comment..."></textarea>
                         <input type="submit" value="Add Comment">
                     </form>
@@ -59,7 +58,6 @@
                                     </div>
                                     <div id="editable-comment-{{ comment.comment_id }}" hidden>
                                         <form class="edit-comment-form" id="edit-comment-form-{{ comment.comment_id }}" data-comment-id="{{ comment.comment_id }}" action="/comment/{{ comment.comment_id }}/edit" method="POST">
-                                            <input type="hidden" name="current-page" value="home">
                                             <textarea required name="comment">{{ comment.comment_body }}</textarea>
                                             <button class="cancel-edit-btn" data-comment-id="{{ comment.comment_id }}">Cancel</button>
                                             <button type="submit">Update Comment</button>
@@ -75,5 +73,5 @@
     </div>
 {% endblock %}
 {% block script %}
-    <script src="/static/js/dietitian-home-posts.js"></script>
+    <script src="/static/js/dietitian-posts.js"></script>
 {% endblock %}
