@@ -647,9 +647,11 @@ def add_post_comment(post_id):
     db.session.add(new_comment)
     db.session.commit()
 
+    isoformat_time_stamp = time_stamp.isoformat()
+
     comment = {"user": {"fname": fname,
                         "lname": lname},
-               "comment": {"time_stamp": new_comment.time_stamp,
+               "comment": {"time_stamp": isoformat_time_stamp,
                            "comment_body": comment_body,
                            "edited": "",
                            "comment_id": new_comment.comment_id}}
@@ -681,9 +683,11 @@ def edit_post_comment(comment_id):
         fname = dietitian.fname
         lname = dietitian.lname
 
+    isoformat_time_stamp = time_stamp.isoformat()
+
     comment = {"user": {"fname": fname,
                         "lname": lname},
-               "comment": {"time_stamp": comment.time_stamp,
+               "comment": {"time_stamp": isoformat_time_stamp,
                            "comment_body": comment_body,
                            "edited": " (edited)",
                            "comment_id": comment.comment_id}}
