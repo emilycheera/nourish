@@ -9,12 +9,7 @@
         {% endif %}
         {% if goals %}
             {% for goal in goals %}
-                {% if not goal.last_mod_date %}
-                    <p>{{ goal.time_stamp|datetime }}</p>
-                {% endif %}
-                {% if goal.last_mod_date %}
-                    <p>{{ goal.last_mod_date|datetime }} (edited)</p>
-                {% endif %}
+                <p>{{ goal.time_stamp|datetime }} {% if goal.edited %}(edited){% endif %}</p>
                 <p>{{ goal.goal_body }}</p>
             {% endfor %}
         {% endif %}

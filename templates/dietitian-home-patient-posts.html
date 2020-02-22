@@ -8,12 +8,7 @@
         {% if posts %}
             {% for post in posts %}
                 <p>{{ post.patient.fname }} {{ post.patient.lname }}</p>
-                {% if not post.last_mod_date %}
-                    <p>{{ post.post_time|datetime }}</p>
-                {% endif %}
-                {% if post.last_mod_date %}
-                    <p>{{ post.last_mod_date|datetime }} (edited)</p>
-                {% endif %}
+                <p>{{ post.post_time|datetime }} {% if post.edited %}(edited){% endif %}</p>
                 {% if post.img_path %}
                     <img src="{{post.img_path}}" width="400">
                 {% endif %}
@@ -35,29 +30,27 @@
                     <p>Additional Notes: {{ post.meal_notes }}</p>
                 {% endif %}
                 <div>
-                    <form class="add-comment-form" id="add-comment-form-{{ post.post_id }}" data-post-id="{{ post.post_id }}" action="/post/{{ post.post_id }}/add-comment" method="POST">
-                        <textarea required name="comment" placeholder="Write a comment..."></textarea>
-                        <input type="submit" value="Add Comment">
-                    </form>
                     <div id="comments-for-{{ post.post_id }}">
                         {% if post.comments %}
-                            <h4>Comments</h4>
                             {% for comment in post.comments %}
                                 <div id="comment-and-edit-form-{{ comment.comment_id }}">
                                     <div id="comment-{{ comment.comment_id }}">
-                                        <p>{{ dietitian.fname }} {{ dietitian.lname }} | 
-                                        {% if not comment.last_mod_date %}
-                                            {{ comment.time_stamp|datetime }}</p>
-                                        {% endif %}
-                                        {% if comment.last_mod_date %}
-                                            {{ comment.last_mod_date|datetime }} (edited)</p>
-                                        {% endif %}
+                                        <p>{% if not comment.patient_author %}
+                                                {{ dietitian.fname }} {{ dietitian.lname }}
+                                            {% endif %}
+                                            {% if comment.patient_author %}
+                                                {{ post.patient.fname }} {{ post.patient.lname }}
+                                            {% endif %} | 
+                                           {{ comment.time_stamp|datetime }} {% if comment.edited %}(edited){% endif %}
+                                       </p>
                                         <p>{{ comment.comment_body }}</p>
-                                        <button class="edit-comment-btn" data-comment-id="{{ comment.comment_id }}">Edit</button>
-                                        <button class="delete-comment-btn" data-comment-id="{{ comment.comment_id }}">Delete</button>
+                                        {% if not comment.patient_author %}
+                                            <button class="edit-comment-btn" data-comment-id="{{ comment.comment_id }}">Edit</button>
+                                            <button class="delete-comment-btn" data-comment-id="{{ comment.comment_id }}">Delete</button>
+                                        {% endif %}
                                     </div>
                                     <div id="editable-comment-{{ comment.comment_id }}" hidden>
-                                        <form class="edit-comment-form" id="edit-comment-form-{{ comment.comment_id }}" data-comment-id="{{ comment.comment_id }}" action="/comment/{{ comment.comment_id }}/edit" method="POST">
+                                        <form class="edit-comment-form" id="edit-comment-form-{{ comment.comment_id }}" data-comment-id="{{ comment.comment_id }}" method="POST">
                                             <textarea required name="comment">{{ comment.comment_body }}</textarea>
                                             <button class="cancel-edit-btn" data-comment-id="{{ comment.comment_id }}">Cancel</button>
                                             <button type="submit">Update Comment</button>
@@ -67,11 +60,15 @@
                             {% endfor %}
                         {% endif %}
                     </div>
+                    <form class="add-comment-form" id="add-comment-form-{{ post.post_id }}" data-post-id="{{ post.post_id }}" action="/post/{{ post.post_id }}/add-comment" method="POST">
+                        <textarea required name="comment" placeholder="Write a comment..."></textarea>
+                        <input type="submit" value="Add Comment">
+                    </form>
                 </div>
             {% endfor %}
         {% endif %}
     </div>
 {% endblock %}
 {% block script %}
-    <script src="/static/js/dietitian-posts.js"></script>
+    <script src="/static/js/comments.js"></script>
 {% endblock %}

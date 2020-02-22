@@ -497,21 +497,25 @@ def save_customized_patient_post_form(patient_id):
 def show_patient_goals(patient_id):
     """Show goals for a patient and allow dietitian to update goals."""
 
+    patient = Patient.query.get(patient_id)
+    goals_list = patient.goals
+    sorted_goals = sorted(goals_list,
+                          key=lambda x: x.time_stamp,
+                          reverse=True)
+
     user_type = get_user_type_from_session()
 
     if user_type == "dietitian":
         dietitian = get_current_dietitian()
         patients_list = dietitian.patients
         sorted_patients = sorted(patients_list, key=lambda x: x.lname)
-        patient = Patient.query.get(patient_id)
 
         if not patient in patients_list:
             return render_template("unauthorized.html")
 
-        if patient.goals:
-            current_patient_goal = patient.goals[-1]
-            past_goals = patient.goals[:-1]
-            past_goals.reverse()
+        if sorted_goals:
+            current_patient_goal = sorted_goals[0]
+            past_goals = sorted_goals[1:]
         
         else: 
             current_patient_goal = None
@@ -527,14 +531,9 @@ def show_patient_goals(patient_id):
     if not check_patient_authorization(patient_id):
         return render_template("unauthorized.html")
 
-    patient = get_current_patient()
-
-    goals = patient.goals
-    goals.reverse()
-
     return render_template("patient-goals.html",
                             patient=patient,
-                            goals=goals)
+                            goals=sorted_goals)
 
 
 @app.route("/patient/<int:patient_id>/add-goal", methods=["POST"])
@@ -552,9 +551,6 @@ def add_new_patient_goal(patient_id):
     db.session.add(new_goal)
     db.session.commit()
 
-    new_past_goal_id = request.form.get("current-goal")
-    new_past_goal = Goal.query.get(new_past_goal_id)
-
     flash("Successfully added goal.")
     return redirect(f"/patient/{patient_id}/goals")
 
@@ -568,8 +564,7 @@ def edit_patient_goal(patient_id, goal_id):
     goal_body = request.form.get("goal-body")
 
     goal.goal_body = goal_body
-    goal.last_mod_date = datetime.now()
-
+    goal.edited = True
 
     db.session.add(goal)
     db.session.commit()
@@ -595,61 +590,69 @@ def delete_goal():
 def show_single_patient_posts(patient_id):
     """Show a patient's posts."""
 
+    patient = Patient.query.get(patient_id)
+    posts_list = patient.posts
+    sorted_posts = sorted(posts_list, key=lambda x: x.post_time, reverse=True)
+
     user_type = get_user_type_from_session()
 
     if user_type == "dietitian":
         dietitian = get_current_dietitian()
         patients_list = dietitian.patients
         sorted_patients = sorted(patients_list, key=lambda x: x.lname)
-        patient = Patient.query.get(patient_id)
 
         if not patient in patients_list:
             return render_template("unauthorized.html")
-
-        patient_posts = patient.posts
-        patient_posts.reverse()
 
         return render_template("dietitian-home-patient-posts.html",
                                 dietitian=dietitian,
                                 patients=sorted_patients,
                                 patient=patient,
-                                posts=patient_posts)
+                                posts=sorted_posts)
     
     if not check_patient_authorization(patient_id):
         return render_template("unauthorized.html")
 
-    patient = get_current_patient()
-
-    posts = patient.posts
-    posts.reverse()
-
     return render_template("patient-posts.html",
                             patient=patient,
-                            posts=posts)
+                            posts=sorted_posts)
 
 
 @app.route("/post/<int:post_id>/add-comment", methods=["POST"])
 def add_post_comment(post_id):
     """Add a comment to a post."""
 
-    time_stamp = datetime.now().isoformat()
+    time_stamp = datetime.now()
     comment_body = request.form.get("comment")
-    current_page = request.form.get("current-page")
+
+    user_type = get_user_type_from_session()
+
+    if user_type == "patient":
+        patient_author = True
+        patient = get_current_patient()
+        fname = patient.fname
+        lname = patient.lname
+
+    else:
+        patient_author = False
+        dietitian = get_current_dietitian()
+        fname = dietitian.fname
+        lname = dietitian.lname
 
     new_comment = Comment(post_id=post_id,
+                          patient_author=patient_author,
                           time_stamp=time_stamp,
                           comment_body=comment_body)
 
     db.session.add(new_comment)
     db.session.commit()
 
-    dietitian = get_current_dietitian()
-
-    comment = {"dietitian": {"fname": dietitian.fname,
-                             "lname": dietitian.lname},
-                 "comment": {"time_stamp": time_stamp,
-                             "comment_body": comment_body,
-                             "comment_id": new_comment.comment_id}}
+    comment = {"user": {"fname": fname,
+                        "lname": lname},
+               "comment": {"time_stamp": new_comment.time_stamp,
+                           "comment_body": comment_body,
+                           "edited": "",
+                           "comment_id": new_comment.comment_id}}
 
     return jsonify(comment)
 
@@ -659,23 +662,31 @@ def edit_post_comment(comment_id):
     """Update a comment on a post."""
 
     comment = Comment.query.get(comment_id)
-    time_stamp = datetime.now().isoformat()
     comment_body = request.form.get("comment")
-    current_page = request.form.get("current-page")
 
     comment.comment_body = comment_body
-    comment.last_mod_date = time_stamp
+    comment.edited = True
 
     db.session.add(comment)
     db.session.commit()
 
-    dietitian = get_current_dietitian()
+    patient = comment.post.patient
 
-    comment = {"dietitian": {"fname": dietitian.fname,
-                             "lname": dietitian.lname},
-                 "comment": {"last_mod_date": time_stamp,
-                             "comment_body": comment_body,
-                             "comment_id": comment.comment_id}}
+    if comment.patient_author == True:
+        fname = patient.fname
+        lname = patient.lname
+
+    else:
+        dietitian = patient.dietitian
+        fname = dietitian.fname
+        lname = dietitian.lname
+
+    comment = {"user": {"fname": fname,
+                        "lname": lname},
+               "comment": {"time_stamp": comment.time_stamp,
+                           "comment_body": comment_body,
+                           "edited": " (edited)",
+                           "comment_id": comment.comment_id}}
 
     return jsonify(comment)
 
@@ -711,7 +722,11 @@ def show_patient_homepage(patient_id):
     current_time = datetime.now().strftime("%Y-%m-%dT%H:%M")
 
     if patient.goals:
-        current_goal = patient.goals[-1]
+        goals_list = patient.goals
+        sorted_goals = sorted(goals_list,
+                              key=lambda x: x.time_stamp,
+                              reverse=True)
+        current_goal = sorted_goals[0]
     else: 
         current_goal = None
 
@@ -724,14 +739,13 @@ def show_patient_homepage(patient_id):
 @app.route("/post/new-post", methods=["POST"])
 def add_new_post():
     """Add a new post."""
-
-    img_path = save_image()
+    
+    patient_id = session.get("patient_id")
 
     if img_path == "Bad Extension":
         flash("Only .png, .jpg, or .jpeg images are accepted.")
         return redirect(f"/patient/{patient_id}")
 
-    patient_id = request.form.get("patient-id")
     post_time = datetime.now()
     meal_time = request.form.get("meal-time")
     meal_setting = request.form.get("meal-setting")
@@ -783,7 +797,7 @@ def edit_post(post_id):
     post.meal_time = request.form.get("meal-time")
     post.meal_setting = request.form.get("meal-setting")
     post.TEB = request.form.get("TEB")
-    post.last_mod_date = datetime.now()
+    post.edited = True
     post.meal_notes = request.form.get("meal-notes")
     post.hunger = hunger if hunger else None
     post.fullness = fullness if fullness else None

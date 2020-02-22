@@ -15,12 +15,7 @@
         {% if current_goal %}
             <h3>Current Goal</h3>
                 <div id="goal-{{ current_goal.goal_id }}">
-                    {% if not current_goal.last_mod_date %}
-                        <p>{{ current_goal.time_stamp|datetime }}</p>
-                    {% endif %}
-                    {% if current_goal.last_mod_date %}
-                        <p>{{ current_goal.last_mod_date|datetime }} (edited)</p>
-                    {% endif %}
+                    <p>{{ current_goal.time_stamp|datetime }} {% if current_goal.edited %}(edited){% endif %}</p>
                     <p>{{ current_goal.goal_body }}</p>
                     <button class="edit-goal-btn" data-goal-id="{{ current_goal.goal_id }}">Edit</button>
                     <button class="delete-goal-btn" data-goal-id="{{ current_goal.goal_id }}">Delete</button>
@@ -39,12 +34,7 @@
             <h3>Past Goals</h3>
             {% for goal in past_goals %}
                 <div id="goal-{{ goal.goal_id }}">
-                    {% if not current_goal.last_mod_date %}
-                        <p>{{ current_goal.time_stamp|datetime }}</p>
-                    {% endif %}
-                    {% if current_goal.last_mod_date %}
-                        <p>{{ current_goal.last_mod_date|datetime }} (edited)</p>
-                    {% endif %}
+                    <p>{{ goal.time_stamp|datetime }} {% if goal.edited %}(edited){% endif %}</p>
                     <p>{{ goal.goal_body }}</p>
                     <button class="delete-goal-btn" data-goal-id="{{ goal.goal_id }}">Delete</button>
                 </div>

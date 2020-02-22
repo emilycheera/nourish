@@ -89,9 +89,12 @@ def load_comments(comment_filename):
 
     for row in open(comment_filename):
         row = row.rstrip()
-        post_id, time_stamp, comment_body = row.split("|")
+        post_id, patient_author, time_stamp, comment_body = row.split("|")
+
+        patient_author = True if patient_author == "True" else False
 
         comment = Comment(post_id=post_id,
+                          patient_author=patient_author,
                           time_stamp=time_stamp,
                           comment_body=comment_body)
 

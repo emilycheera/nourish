@@ -77,7 +77,7 @@ class Goal(db.Model):
     patient_id = db.Column(db.Integer, 
                            db.ForeignKey("patients.patient_id"))
     time_stamp = db.Column(db.DateTime, nullable=False)
-    last_mod_date = db.Column(db.DateTime)
+    edited = db.Column(db.Boolean, default=False, nullable=False)
     goal_body = db.Column(db.Text, nullable=False)
 
     # Define relationship to patient
@@ -97,7 +97,7 @@ class Post(db.Model):
     patient_id = db.Column(db.Integer, 
                            db.ForeignKey("patients.patient_id"))
     post_time = db.Column(db.DateTime, nullable=False)
-    last_mod_date = db.Column(db.DateTime)
+    edited = db.Column(db.Boolean, default=False, nullable=False)
     meal_time = db.Column(db.DateTime, nullable=False)
     img_path = db.Column(db.String)
     meal_setting = db.Column(db.String(200))
@@ -122,8 +122,9 @@ class Comment(db.Model):
 
     comment_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     post_id = db.Column(db.Integer, db.ForeignKey("posts.post_id"))
+    patient_author = db.Column(db.Boolean, nullable=False)
     time_stamp = db.Column(db.DateTime, nullable=False)
-    last_mod_date = db.Column(db.DateTime)
+    edited = db.Column(db.Boolean, default=False, nullable=False)
     comment_body = db.Column(db.Text, nullable=False)
 
     # Define relationship to post
