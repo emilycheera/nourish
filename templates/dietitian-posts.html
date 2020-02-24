@@ -1,0 +1,79 @@
+<div>
+    {% if not posts %}
+        <p>No posts to display.</p>
+    {% endif %}
+
+    {% if posts %}
+        {% for post in posts %}
+            <div class="post-container">
+                <div class="post-content">
+                    <a href="/patient/{{ post.patient.patient_id }}/account" class="post-author">{{ post.patient.fname }} {{ post.patient.lname }}</a>
+                    <p class="post-time">{{ post.post_time|datetime }} {% if post.edited %}(edited){% endif %}</p>
+                </div>
+                {% if post.img_path %}
+                    <img src="{{post.img_path}}" class="post-image">
+                {% endif %}
+                <div class="post-content">
+                    <p>Meal time: {{ post.meal_time|datetime }}</p>
+                    <p>Setting: {{ post.meal_setting }}</p>
+                    {% if post.TEB %}
+                        <p>Thoughts, emotions, behaviors: {{ post.TEB }}</p>
+                    {% endif %}
+                    {% if post.hunger %}
+                        <p>Hunger: {{ post.hunger }}</p>
+                    {% endif %}
+                    {% if post.fullness %}
+                        <p>Fullness: {{ post.fullness }}</p>
+                    {% endif %}
+                    {% if post.satisfaction %}
+                        <p>Satisfaction: {{ post.satisfaction }}</p>
+                    {% endif %}
+                    {% if post.meal_notes %}
+                        <p>Additional Notes: {{ post.meal_notes }}</p>
+                    {% endif %}
+                    <div>
+                        <div id="comments-for-{{ post.post_id }}">
+                            {% if post.comments %}
+                            <div class="border-top">
+                            </div>
+                                {% for comment in post.comments %}
+                                    <div id="comment-and-edit-form-{{ comment.comment_id }}">
+                                        <div id="comment-{{ comment.comment_id }}">
+                                            <p class="comment-body">
+                                                <b>{% if comment.author_type == "diet" %}
+                                                        {{ dietitian.fname }} {{ dietitian.lname }}
+                                                    {% endif %}
+                                                    {% if comment.author_type == "pat" %}
+                                                        {{ post.patient.fname }} {{ post.patient.lname }}
+                                                    {% endif %}</b>
+                                                {{ comment.comment_body }}
+                                            </p>
+                                            <p class="comment-time">
+                                                {{ comment.time_stamp|datetime }} {% if comment.edited %}(edited){% endif %}
+                                            </p>
+                                            {% if comment.author_type == "diet" and comment.author_id == dietitian.dietitian_id %}
+                                                <button class="edit-comment-btn" data-comment-id="{{ comment.comment_id }}">Edit</button>
+                                                <button class="delete-comment-btn" data-comment-id="{{ comment.comment_id }}">Delete</button>
+                                            {% endif %}
+                                        </div>
+                                        <div class="hidden-form" id="editable-comment-{{ comment.comment_id }}">
+                                            <form class="edit-comment-form" id="edit-comment-form-{{ comment.comment_id }}" data-comment-id="{{ comment.comment_id }}" method="POST">
+                                                <textarea required name="comment">{{ comment.comment_body }}</textarea>
+                                                <button class="cancel-edit-btn" data-comment-id="{{ comment.comment_id }}">Cancel</button>
+                                                <button type="submit">Update Comment</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <form class="add-comment-form" id="add-comment-form-{{ post.post_id }}" data-post-id="{{ post.post_id }}" method="POST">
+                            <textarea required name="comment" placeholder="Write a comment..."></textarea>
+                            <input type="submit" value="Add Comment">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>

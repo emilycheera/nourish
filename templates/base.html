@@ -2,31 +2,44 @@
 <html lang="en">
 <head>
     <title>{% block title %}{% endblock %} | Nourish</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="/style.css" />
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.11/css/all.css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto|Palanquin+Dark&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css" />
     <script src="https://code.jquery.com/jquery-3.4.1.js"
         integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
         crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
-    <script src="/static/js/patient-search.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js" integrity="sha256-4iQZ6BVL4qNKlQ27TExEhBN1HFPvAvAMbFavKKosSWQ=" crossorigin="anonymous"></script>
+    <script src="/static/js/patient-search.js"></script>
 </head>
 <body>
-    <nav>
-        <div>
-            {% if session.get("patient_id") %}
-                <p>
-                    <a href="/patient/{{ session.get('patient_id') }}/account">
-                    Account</a>
-                <p><a href="/logout">Sign out</a></p>
-            {% endif %}
-            {% if session.get("dietitian_id") %}
-                <p>
-                    <a href="/dietitian/{{ session.get('dietitian_id') }}/account">
-                    Account</a>
-                <p><a href="/logout">Sign out</a></p>
-            {% endif %}
-        </div>
+    <nav class="navbar fixed-top navbar-expand navbar-dark bg-dark">
+      <a class="navbar-brand" href="/">Nourish</a>
+      <div class="collapse navbar-collapse">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i class="fas fa-user"></i> Profile
+            </a>
+            <div class="dropdown-menu dropdown-menu-right dropdown-info" aria-labelledby="navbarDropdownMenuLink-4">
+              {% if session.get("patient_id") %}
+                <a class="dropdown-item" href="/patient/{{ session.get('patient_id') }}/account">My account</a>
+              {% endif %}
+              {% if session.get("dietitian_id") %}
+                <a class="dropdown-item" href="/dietitian/{{ session.get('dietitian_id') }}/account">My account</a>
+              {% endif %}
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item" href="/logout">Log out</a>
+            </div>
+          </li>
+        </ul>
+      </div>
     </nav>
     <div id="content">
         {% block content %}

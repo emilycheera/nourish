@@ -1,4 +1,5 @@
-from model import connect_to_db, db, Dietitian, Patient, Goal, Post, Comment
+from model import (connect_to_db, db, Dietitian, Patient,
+                   Goal, Post, UserType, Comment)
 from server import app
 
 
@@ -84,17 +85,30 @@ def load_posts(post_filename):
     db.session.commit()
 
 
+def load_user_types(user_type_filename):
+    """Load user types from u.usertype into database."""
+
+    for row in open(user_type_filename):
+        row = row.rstrip()
+        type_code, user_type_name = row.split("|")
+
+        user_type = UserType(type_code=type_code, user_type_name=user_type_name)
+
+        db.session.add(user_type)
+
+    db.session.commit()
+
+
 def load_comments(comment_filename):
     """Load comments from u.comment into database."""
 
     for row in open(comment_filename):
         row = row.rstrip()
-        post_id, patient_author, time_stamp, comment_body = row.split("|")
-
-        patient_author = True if patient_author == "True" else False
+        post_id, author_id, author_type, time_stamp, comment_body = row.split("|")
 
         comment = Comment(post_id=post_id,
-                          patient_author=patient_author,
+                          author_id=author_id,
+                          author_type=author_type,
                           time_stamp=time_stamp,
                           comment_body=comment_body)
 
@@ -112,12 +126,14 @@ if __name__ == "__main__":
     patient_filename = "seed_data/u.patient"
     goal_filename = "seed_data/u.goal"
     post_filename = "seed_data/u.post"
+    user_type_filename = "seed_data/u.usertype"
     comment_filename = "seed_data/u.comment"
 
     load_dietitians(dietitian_filename)
     load_patients(patient_filename)
     load_goals(goal_filename)
     load_posts(post_filename)
+    load_user_types(user_type_filename)
     load_comments(comment_filename)
 
 

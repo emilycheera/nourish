@@ -171,7 +171,10 @@ def show_dietitian_homepage(dietitian_id):
             .order_by(Post.post_time.desc())
             .limit(30).all())
 
+    page = "dietitian home"
+
     return render_template("dietitian-home-posts.html",
+                            page=page,
                             dietitian=dietitian,
                             patients=sorted_patients,
                             posts=posts)
@@ -409,23 +412,6 @@ def edit_single_patient_information(patient_id):
 def view_reset_patient_password_form(patient_id):
     """Reset a patient's password."""
 
-    user_type = get_user_type_from_session()
-
-    if user_type == "dietitian":
-        dietitian = get_current_dietitian()
-        patients_list = dietitian.patients
-        sorted_patients = sorted(patients_list, key=lambda x: x.lname)
-        patient = Patient.query.get(patient_id)
-
-        if not patient in patients_list:
-            return render_template("unauthorized.html")
-
-        return render_template("dietitian-home-patient-resetpw.html",
-                                dietitian=dietitian,
-                                patients=sorted_patients,
-                                patient=patient)
-
-
     if not check_patient_authorization(patient_id):
         return render_template("unauthorized.html")
 
@@ -604,6 +590,8 @@ def show_single_patient_posts(patient_id):
         if not patient in patients_list:
             return render_template("unauthorized.html")
 
+        page = "single patient posts"
+
         return render_template("dietitian-home-patient-posts.html",
                                 dietitian=dietitian,
                                 patients=sorted_patients,
@@ -628,19 +616,22 @@ def add_post_comment(post_id):
     user_type = get_user_type_from_session()
 
     if user_type == "patient":
-        patient_author = True
+        author_type = "pat"
         patient = get_current_patient()
+        author_id = patient.patient_id
         fname = patient.fname
         lname = patient.lname
 
     else:
-        patient_author = False
+        author_type = "diet"
         dietitian = get_current_dietitian()
+        author_id = dietitian.dietitian_id
         fname = dietitian.fname
         lname = dietitian.lname
 
     new_comment = Comment(post_id=post_id,
-                          patient_author=patient_author,
+                          author_type=author_type,
+                          author_id=author_id,
                           time_stamp=time_stamp,
                           comment_body=comment_body)
 
@@ -674,7 +665,7 @@ def edit_post_comment(comment_id):
 
     patient = comment.post.patient
 
-    if comment.patient_author == True:
+    if comment.author_type == "pat":
         fname = patient.fname
         lname = patient.lname
 
@@ -744,12 +735,13 @@ def show_patient_homepage(patient_id):
 def add_new_post():
     """Add a new post."""
     
-    patient_id = session.get("patient_id")
+    img_path = save_image()
 
     if img_path == "Bad Extension":
         flash("Only .png, .jpg, or .jpeg images are accepted.")
         return redirect(f"/patient/{patient_id}")
 
+    patient_id = session.get("patient_id")
     post_time = datetime.now()
     meal_time = request.form.get("meal-time")
     meal_setting = request.form.get("meal-setting")

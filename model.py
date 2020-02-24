@@ -122,7 +122,8 @@ class Comment(db.Model):
 
     comment_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     post_id = db.Column(db.Integer, db.ForeignKey("posts.post_id"))
-    patient_author = db.Column(db.Boolean, nullable=False)
+    author_id = db.Column(db.Integer, nullable=False)
+    author_type = db.Column(db.String(5), db.ForeignKey("user_types.type_code"))
     time_stamp = db.Column(db.DateTime, nullable=False)
     edited = db.Column(db.Boolean, default=False, nullable=False)
     comment_body = db.Column(db.Text, nullable=False)
@@ -135,6 +136,13 @@ class Comment(db.Model):
         return f"""<Comment id={self.comment_id}, post={self.post_id}, time={self.time_stamp}>"""
 
 
+class UserType(db.Model):
+    """Types of users."""
+
+    __tablename__ = "user_types"
+
+    type_code = db.Column(db.String(5), primary_key=True)
+    user_type_name = db.Column(db.String(15))
 
 
 def connect_to_db(app):

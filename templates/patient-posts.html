@@ -43,16 +43,16 @@
                             {% for comment in post.comments %}
                                 <div id="comment-and-edit-form-{{ comment.comment_id }}">
                                     <div id="comment-{{ comment.comment_id }}">
-                                        <p>{% if not comment.patient_author %}
+                                        <p>{% if comment.author_type == "diet" %}
                                                 {{ patient.dietitian.fname }} {{ patient.dietitian.lname }}
                                             {% endif %}
-                                            {% if comment.patient_author %}
+                                            {% if comment.author_type == "pat" %}
                                                 {{ patient.fname }} {{ patient.lname }}
                                             {% endif %} | 
                                            {{ comment.time_stamp|datetime }} {% if comment.edited %}(edited){% endif %}
                                        </p>
                                         <p>{{ comment.comment_body }}</p>
-                                        {% if comment.patient_author %}
+                                        {% if comment.author_type == "pat" and comment.author_id == patient.patient_id %}
                                             <button class="edit-comment-btn" data-comment-id="{{ comment.comment_id }}">Edit</button>
                                             <button class="delete-comment-btn" data-comment-id="{{ comment.comment_id }}">Delete</button>
                                         {% endif %}

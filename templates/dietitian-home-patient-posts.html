@@ -1,74 +1,11 @@
 {% extends "dietitian-single-patient-base.html" %}
-{% block patient_content %}
-    <div>
-        {% if not posts %}
-            <p>No posts to display.</p>
-        {% endif %}
 
-        {% if posts %}
-            {% for post in posts %}
-                <p>{{ post.patient.fname }} {{ post.patient.lname }}</p>
-                <p>{{ post.post_time|datetime }} {% if post.edited %}(edited){% endif %}</p>
-                {% if post.img_path %}
-                    <img src="{{post.img_path}}" width="400">
-                {% endif %}
-                <p>Meal time: {{ post.meal_time|datetime }}</p>
-                <p>Setting: {{ post.meal_setting }}</p>
-                {% if post.TEB %}
-                    <p>Thoughts, emotions, behaviors: {{ post.TEB }}</p>
-                {% endif %}
-                {% if post.hunger %}
-                    <p>Hunger: {{ post.hunger }}</p>
-                {% endif %}
-                {% if post.fullness %}
-                    <p>Fullness: {{ post.fullness }}</p>
-                {% endif %}
-                {% if post.satisfaction %}
-                    <p>Satisfaction: {{ post.satisfaction }}</p>
-                {% endif %}
-                {% if post.meal_notes %}
-                    <p>Additional Notes: {{ post.meal_notes }}</p>
-                {% endif %}
-                <div>
-                    <div id="comments-for-{{ post.post_id }}">
-                        {% if post.comments %}
-                            {% for comment in post.comments %}
-                                <div id="comment-and-edit-form-{{ comment.comment_id }}">
-                                    <div id="comment-{{ comment.comment_id }}">
-                                        <p>{% if not comment.patient_author %}
-                                                {{ dietitian.fname }} {{ dietitian.lname }}
-                                            {% endif %}
-                                            {% if comment.patient_author %}
-                                                {{ post.patient.fname }} {{ post.patient.lname }}
-                                            {% endif %} | 
-                                           {{ comment.time_stamp|datetime }} {% if comment.edited %}(edited){% endif %}
-                                       </p>
-                                        <p>{{ comment.comment_body }}</p>
-                                        {% if not comment.patient_author %}
-                                            <button class="edit-comment-btn" data-comment-id="{{ comment.comment_id }}">Edit</button>
-                                            <button class="delete-comment-btn" data-comment-id="{{ comment.comment_id }}">Delete</button>
-                                        {% endif %}
-                                    </div>
-                                    <div id="editable-comment-{{ comment.comment_id }}" hidden>
-                                        <form class="edit-comment-form" id="edit-comment-form-{{ comment.comment_id }}" data-comment-id="{{ comment.comment_id }}" method="POST">
-                                            <textarea required name="comment">{{ comment.comment_body }}</textarea>
-                                            <button class="cancel-edit-btn" data-comment-id="{{ comment.comment_id }}">Cancel</button>
-                                            <button type="submit">Update Comment</button>
-                                        </form>
-                                    </div>
-                                </div>
-                            {% endfor %}
-                        {% endif %}
-                    </div>
-                    <form class="add-comment-form" id="add-comment-form-{{ post.post_id }}" data-post-id="{{ post.post_id }}" action="/post/{{ post.post_id }}/add-comment" method="POST">
-                        <textarea required name="comment" placeholder="Write a comment..."></textarea>
-                        <input type="submit" value="Add Comment">
-                    </form>
-                </div>
-            {% endfor %}
-        {% endif %}
-    </div>
+{% block patient_content %}
+        
+    {% include 'dietitian-posts.html' %}
+
 {% endblock %}
+
 {% block script %}
     <script src="/static/js/comments.js"></script>
 {% endblock %}
