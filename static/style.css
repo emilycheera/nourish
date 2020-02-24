@@ -38,11 +38,11 @@ body {
 
 .sidebar .nav-link:hover,
 .sidebar .nav-link.active {
-    color: blue;
+    color: #e87e07;
 }
 
 .sidebar-heading {
-    font-size: 1.5rem;
+    font-size: 1.3rem;
 }
 
 .bg-dark {
@@ -51,6 +51,7 @@ body {
 
 .navbar {
     padding: .6rem 1.5rem;
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,.05);
 }
 
 .navbar-dark .navbar-nav .nav-link {
@@ -58,9 +59,8 @@ body {
 }
 
 .navbar-brand {
-    font-family: 'Palanquin Dark';
-    font-size: 2rem;
-    letter-spacing: .1rem;
+    margin-top: 5px;
+    margin-bottom: 5px;
 }
 
 .patient-search {
@@ -113,9 +113,22 @@ body {
     background-color: #fff;
     padding: 10px;
     border-radius: 20px;
+    margin-top: 5px;
     margin-bottom: 0;
 }
 
 a {
-    color: #114f94;
+    color: #e87e07;
+}
+
+a:hover {
+    color: #c66c06;
+}
+
+.sidebar-sticky .border-bottom {
+    padding-bottom: 5px;
+}
+
+.fas {
+    padding: 5px;
 }
