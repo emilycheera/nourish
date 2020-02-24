@@ -71,10 +71,10 @@ def load_posts(post_filename):
 
     for row in open(post_filename):
         row = row.rstrip()
-        patient_id, post_time, meal_time, img_path, meal_setting, TEB = row.split("|")
+        patient_id, time_stamp, meal_time, img_path, meal_setting, TEB = row.split("|")
 
         post = Post(patient_id=patient_id,
-                    post_time=post_time,
+                    time_stamp=time_stamp,
                     meal_time=meal_time,
                     img_path=img_path,
                     meal_setting=meal_setting,

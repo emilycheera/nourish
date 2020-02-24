@@ -12,7 +12,7 @@ from flask_debugtoolbar import DebugToolbarExtension
 
 from helpers import (get_current_dietitian, get_current_patient,
     get_user_type_from_session, check_dietitian_authorization,
-    check_patient_authorization)
+    check_patient_authorization, sort_date_desc, alphabetize_by_lname)
 from jinja_filters import datetimeformat, dateformat, htmldateformat
 from model import connect_to_db, db, Dietitian, Patient, Goal, Post, Comment
 
@@ -164,17 +164,14 @@ def show_dietitian_homepage(dietitian_id):
 
     dietitian = get_current_dietitian()
     patients_list = dietitian.patients
-    sorted_patients = sorted(patients_list, key=lambda x: x.lname)
+    sorted_patients = alphabetize_by_lname(patients_list)
     posts = (Post.query.filter(Patient.dietitian_id == dietitian.dietitian_id)
             .join(Patient)
             .join(Dietitian)
-            .order_by(Post.post_time.desc())
+            .order_by(Post.time_stamp.desc())
             .limit(30).all())
 
-    page = "dietitian home"
-
     return render_template("dietitian-home-posts.html",
-                            page=page,
                             dietitian=dietitian,
                             patients=sorted_patients,
                             posts=posts)
@@ -189,7 +186,7 @@ def show_dietitian_account(dietitian_id):
 
     dietitian = get_current_dietitian()
     patients_list = dietitian.patients
-    sorted_patients = sorted(patients_list, key=lambda x: x.lname)
+    sorted_patients = alphabetize_by_lname(patients_list)
 
     return render_template("dietitian-account.html",
                             dietitian=dietitian,
@@ -205,7 +202,7 @@ def view_edit_dietitian_information(dietitian_id):
 
     dietitian = get_current_dietitian()
     patients_list = dietitian.patients
-    sorted_patients = sorted(patients_list, key=lambda x: x.lname)
+    sorted_patients = alphabetize_by_lname(patients_list)
 
     return render_template("dietitian-account-edit.html",
                             dietitian=dietitian,
@@ -242,7 +239,7 @@ def view_reset_dietitian_password_form(dietitian_id):
 
     dietitian = get_current_dietitian()
     patients_list = dietitian.patients
-    sorted_patients = sorted(patients_list, key=lambda x: x.lname)
+    sorted_patients = alphabetize_by_lname(patients_list)
 
     return render_template("dietitian-resetpw.html",
                             dietitian=dietitian,
@@ -277,7 +274,7 @@ def show_patient_registration_form():
 
     dietitian = get_current_dietitian()
     patients_list = dietitian.patients
-    sorted_patients = sorted(patients_list, key=lambda x: x.lname)
+    sorted_patients = alphabetize_by_lname(patients_list)
 
     return render_template("patient-registration.html",
                             dietitian=dietitian,
@@ -335,7 +332,7 @@ def show_single_patient_overview(patient_id):
     if user_type == "dietitian":
         dietitian = get_current_dietitian()
         patients_list = dietitian.patients
-        sorted_patients = sorted(patients_list, key=lambda x: x.lname)
+        sorted_patients = alphabetize_by_lname(patients_list)
         patient = Patient.query.get(patient_id)
 
         if not patient in patients_list:
@@ -365,7 +362,7 @@ def view_edit_patient_information_form(patient_id):
     if user_type == "dietitian":
         dietitian = get_current_dietitian()
         patients_list = dietitian.patients
-        sorted_patients = sorted(patients_list, key=lambda x: x.lname)
+        sorted_patients = alphabetize_by_lname(patients_list)
         patient = Patient.query.get(patient_id)
 
         if not patient in patients_list:
@@ -449,7 +446,7 @@ def customize_patient_post_form(patient_id):
         return render_template("unauthorized.html")
 
     patients_list = dietitian.patients
-    sorted_patients = sorted(patients_list, key=lambda x: x.lname)
+    sorted_patients = alphabetize_by_lname(patients_list)
     patient = Patient.query.get(patient_id)
 
     return render_template("dietitian-customize-post-form.html",
@@ -485,16 +482,14 @@ def show_patient_goals(patient_id):
 
     patient = Patient.query.get(patient_id)
     goals_list = patient.goals
-    sorted_goals = sorted(goals_list,
-                          key=lambda x: x.time_stamp,
-                          reverse=True)
+    sorted_goals = sort_date_desc(goals_list)
 
     user_type = get_user_type_from_session()
 
     if user_type == "dietitian":
         dietitian = get_current_dietitian()
         patients_list = dietitian.patients
-        sorted_patients = sorted(patients_list, key=lambda x: x.lname)
+        sorted_patients = alphabetize_by_lname(patients_list)
 
         if not patient in patients_list:
             return render_template("unauthorized.html")
@@ -526,9 +521,14 @@ def show_patient_goals(patient_id):
 def add_new_patient_goal(patient_id):
     """Process form to add a new goal."""
 
+    patient = Patient.query.get(patient_id)
+    goals_list = patient.goals
+    sorted_goals = sort_date_desc(goals_list)
+    new_past_goal = sorted_goals[0]
+    edited = " (edited)" if new_past_goal.edited else ""
+
     time_stamp = datetime.now()
     goal_body = request.form.get("goal-body")
-
 
     new_goal = Goal(patient_id=patient_id,
                     time_stamp=time_stamp,
@@ -537,12 +537,21 @@ def add_new_patient_goal(patient_id):
     db.session.add(new_goal)
     db.session.commit()
 
+    goals = {"current_goal": {"goal_id": new_goal.goal_id,
+                              "time_stamp": new_goal.time_stamp.isoformat(),
+                              "edited": "",
+                              "goal_body": new_goal.goal_body},
+             "goal": {"goal_id": new_past_goal.goal_id,
+                      "time_stamp": new_past_goal.time_stamp.isoformat(),
+                      "edited": edited,
+                      "goal_body": new_past_goal.goal_body}}
+
     flash("Successfully added goal.")
-    return redirect(f"/patient/{patient_id}/goals")
+    return jsonify(goals)
 
 
-@app.route("/patient/<int:patient_id>/edit/<int:goal_id>", methods=["POST"])
-def edit_patient_goal(patient_id, goal_id):
+@app.route("/goal/<int:goal_id>/edit", methods=["POST"])
+def edit_patient_goal(goal_id):
     """Edit a patient goal."""
 
     goal = Goal.query.get(goal_id)
@@ -555,7 +564,12 @@ def edit_patient_goal(patient_id, goal_id):
     db.session.add(goal)
     db.session.commit()
 
-    return redirect(f"/patient/{patient_id}/goals")
+    goal = {"current_goal": {"goal_id": goal.goal_id,
+                             "time_stamp": goal.time_stamp.isoformat(),
+                             "edited": " (edited)",
+                             "goal_body": goal.goal_body}}
+
+    return jsonify(goal)
 
 
 @app.route("/delete-goal", methods=["POST"])
@@ -578,19 +592,17 @@ def show_single_patient_posts(patient_id):
 
     patient = Patient.query.get(patient_id)
     posts_list = patient.posts
-    sorted_posts = sorted(posts_list, key=lambda x: x.post_time, reverse=True)
+    sorted_posts = sort_date_desc(posts_list)
 
     user_type = get_user_type_from_session()
 
     if user_type == "dietitian":
         dietitian = get_current_dietitian()
         patients_list = dietitian.patients
-        sorted_patients = sorted(patients_list, key=lambda x: x.lname)
+        sorted_patients = alphabetize_by_lname(patients_list)
 
         if not patient in patients_list:
             return render_template("unauthorized.html")
-
-        page = "single patient posts"
 
         return render_template("dietitian-home-patient-posts.html",
                                 dietitian=dietitian,
@@ -601,8 +613,11 @@ def show_single_patient_posts(patient_id):
     if not check_patient_authorization(patient_id):
         return render_template("unauthorized.html")
 
+    dietitian = patient.dietitian
+
     return render_template("patient-posts.html",
                             patient=patient,
+                            dietitian=dietitian,
                             posts=sorted_posts)
 
 
@@ -674,7 +689,7 @@ def edit_post_comment(comment_id):
         fname = dietitian.fname
         lname = dietitian.lname
 
-    isoformat_time_stamp = time_stamp.isoformat()
+    isoformat_time_stamp = comment.time_stamp.isoformat()
 
     comment = {"user": {"fname": fname,
                         "lname": lname},
@@ -718,9 +733,7 @@ def show_patient_homepage(patient_id):
 
     if patient.goals:
         goals_list = patient.goals
-        sorted_goals = sorted(goals_list,
-                              key=lambda x: x.time_stamp,
-                              reverse=True)
+        sorted_goals = sort_date_desc(goals_list)
         current_goal = sorted_goals[0]
     else: 
         current_goal = None
@@ -742,7 +755,7 @@ def add_new_post():
         return redirect(f"/patient/{patient_id}")
 
     patient_id = session.get("patient_id")
-    post_time = datetime.now()
+    time_stamp = datetime.now()
     meal_time = request.form.get("meal-time")
     meal_setting = request.form.get("meal-setting")
     TEB = request.form.get("TEB")
@@ -752,7 +765,7 @@ def add_new_post():
     meal_notes = request.form.get("meal-notes")
 
     new_post = Post(patient_id=patient_id,
-                    post_time=post_time,
+                    time_stamp=time_stamp,
                     meal_time=meal_time,
                     img_path=img_path,
                     meal_setting=meal_setting,

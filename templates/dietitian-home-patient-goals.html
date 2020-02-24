@@ -1,27 +1,31 @@
 {% extends "dietitian-single-patient-base.html" %}
 {% block patient_content %}
     <div>
+
         <h3>Add a new goal for {{ patient.fname }} {{ patient.lname }}:</h3>
-        <form action="/patient/{{ patient.patient_id }}/add-goal" method="POST">
+        <form id="add-goal-form" data-patient-id="{{ patient.patient_id }}">
             <textarea name="goal-body" required rows="4" cols="48"></textarea>
             <input type="submit" value="Add New Goal">
         </form>
+
         {% if not current_goal %}
             <p>
                 {{ patient.fname }} {{ patient.lname }} has no goals yet.
                 Add a goal to see it here.
             </p>
         {% endif %}
+
         {% if current_goal %}
             <h3>Current Goal</h3>
+            <div id="current-goal-div">
                 <div id="goal-{{ current_goal.goal_id }}">
                     <p>{{ current_goal.time_stamp|datetime }} {% if current_goal.edited %}(edited){% endif %}</p>
                     <p>{{ current_goal.goal_body }}</p>
                     <button class="edit-goal-btn" data-goal-id="{{ current_goal.goal_id }}">Edit</button>
                     <button class="delete-goal-btn" data-goal-id="{{ current_goal.goal_id }}">Delete</button>
                 </div>
-                <div id="editable-goal-{{ current_goal.goal_id }}" hidden>
-                    <form action="/patient/{{ patient.patient_id }}/edit/{{ current_goal.goal_id }}" method="POST">
+                <div id="editable-goal-{{ current_goal.goal_id }}" class="hidden-form">
+                    <form class="edit-goal-form" id="edit-goal-form-{{ current_goal.goal_id }}" data-goal-id="{{ current_goal.goal_id }}">
                         <textarea name="goal-body" required rows="4" cols="48">{{ current_goal.goal_body }}</textarea>
                         <div>
                             <button class="cancel-edit-btn" data-goal-id="{{ current_goal.goal_id }}">Cancel</button>
@@ -29,17 +33,22 @@
                         </div>
                     </form>
                 </div>
-            {% endif %}
-            {% if past_goals %}
+            </div>
+        {% endif %}
+
+        {% if past_goals %}
             <h3>Past Goals</h3>
             {% for goal in past_goals %}
-                <div id="goal-{{ goal.goal_id }}">
-                    <p>{{ goal.time_stamp|datetime }} {% if goal.edited %}(edited){% endif %}</p>
-                    <p>{{ goal.goal_body }}</p>
-                    <button class="delete-goal-btn" data-goal-id="{{ goal.goal_id }}">Delete</button>
+                <div id="past-goals-div">
+                    <div id="goal-{{ goal.goal_id }}">
+                        <p>{{ goal.time_stamp|datetime }} {% if goal.edited %}(edited){% endif %}</p>
+                        <p>{{ goal.goal_body }}</p>
+                        <button class="delete-goal-btn" data-goal-id="{{ goal.goal_id }}">Delete</button>
+                    </div>
                 </div>
             {% endfor %}
         {% endif %}
+
     </div>
 {% endblock %}
 {% block script %}

@@ -15,7 +15,7 @@
             <div class="post-container">
                 <div class="post-content">
                     <a href="/patient/{{ post.patient.patient_id }}/account" class="post-author">{{ post.patient.fname }} {{ post.patient.lname }}</a>
-                    <p class="post-time">{{ post.post_time|datetime }} {% if post.edited %}(edited){% endif %}</p>
+                    <p class="post-time">{{ post.time_stamp|datetime }} {% if post.edited %}(edited){% endif %}</p>
                 </div>
                 {% if post.img_path %}
                     <img src="{{post.img_path}}" class="post-image">
@@ -45,26 +45,26 @@
                             {% if post.comments %}
                             <div class="border-top">
                             </div>
-                                {% for comment in post.comments %}
+                                {% for comment in post.comments|sort(attribute="time_stamp") %}
                                     <div id="comment-and-edit-form-{{ comment.comment_id }}">
                                         <div id="comment-{{ comment.comment_id }}">
                                             <p class="comment-body">
                                                 <b>{% if comment.author_type == "diet" %}
-                                                        {{ dietitian.fname }} {{ dietitian.lname }}
+                                                        {{ dietitian.fname }} {{ dietitian.lname }}:
                                                     {% endif %}
                                                     {% if comment.author_type == "pat" %}
-                                                        {{ post.patient.fname }} {{ post.patient.lname }}
+                                                        {{ post.patient.fname }} {{ post.patient.lname }}:
                                                     {% endif %}</b>
                                                 {{ comment.comment_body }}
                                             </p>
                                             <p class="comment-time">
                                                 {{ comment.time_stamp|datetime }} {% if comment.edited %}(edited){% endif %}
-                                            </p>
                                             {% if (session.get("dietitian_id") and comment.author_type == "diet" and comment.author_id == dietitian.dietitian_id)
                                                or (session.get("patient_id") and comment.author_type == "pat" and comment.author_id == post.patient.patient_id) %}
-                                                <button class="edit-comment-btn" data-comment-id="{{ comment.comment_id }}">Edit</button>
-                                                <button class="delete-comment-btn" data-comment-id="{{ comment.comment_id }}">Delete</button>
+                                                <button class="edit-comment-btn btn btn-link" data-comment-id="{{ comment.comment_id }}">Edit</button>
+                                                <button class="delete-comment-btn btn btn-link" data-comment-id="{{ comment.comment_id }}">Delete</button>
                                             {% endif %}
+                                            </p>
                                         </div>
                                         <div class="hidden-form" id="editable-comment-{{ comment.comment_id }}">
                                             <form class="edit-comment-form" id="edit-comment-form-{{ comment.comment_id }}" data-comment-id="{{ comment.comment_id }}" method="POST">
@@ -78,7 +78,7 @@
                             {% endif %}
                         </div>
                         <form class="add-comment-form" id="add-comment-form-{{ post.post_id }}" data-post-id="{{ post.post_id }}" method="POST">
-                            <textarea required name="comment" placeholder="Write a comment..."></textarea>
+                            <textarea class="comment-box" required name="comment" placeholder="Write a comment..."></textarea>
                             <input type="submit" value="Add Comment">
                         </form>
                     </div>

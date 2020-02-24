@@ -83,6 +83,11 @@ class Goal(db.Model):
     # Define relationship to patient
     patient = db.relationship("Patient", backref=db.backref("goals"))
 
+    def sort_date_desc(self, goals_list):
+        return sorted(goals_list,
+                      key=lambda x: x.time_stamp,
+                      reverse=True)
+
     def __repr__(self):
 
         return f"""<Goal id={self.goal_id}, patient={self.patient_id}, time={self.time_stamp}>"""
@@ -96,7 +101,7 @@ class Post(db.Model):
     post_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     patient_id = db.Column(db.Integer, 
                            db.ForeignKey("patients.patient_id"))
-    post_time = db.Column(db.DateTime, nullable=False)
+    time_stamp = db.Column(db.DateTime, nullable=False)
     edited = db.Column(db.Boolean, default=False, nullable=False)
     meal_time = db.Column(db.DateTime, nullable=False)
     img_path = db.Column(db.String)
@@ -112,7 +117,7 @@ class Post(db.Model):
 
     def __repr__(self):
 
-        return f"""<Post id={self.post_id}, patient={self.patient_id}, time={self.post_time}>"""
+        return f"""<Post id={self.post_id}, patient={self.patient_id}, time={self.time_stamp}>"""
 
 
 class Comment(db.Model):

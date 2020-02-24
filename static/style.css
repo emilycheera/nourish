@@ -104,7 +104,6 @@ body {
 
 .comment-time {
     font-size: .8rem;
-    margin-top: 0;
     padding-left: 10px;
 }
 
@@ -131,4 +130,26 @@ a:hover {
 
 .fas {
     padding: 5px;
+}
+
+.btn-link {
+    font-size: .8rem;
+    display: inline;
+    padding-left: 5px;
+    padding-right: 0;
+    color: #e87e07;
+    margin-top: -2px;
+}
+
+.btn-link:hover {
+    color: #c66c06;
+}
+
+.comment-box {
+    font-size: .85rem;
+    width: 100%;
+    padding: 10px;
+    border-radius: 20px;
+    border: 0px;
+    resize: none;
 }

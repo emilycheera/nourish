@@ -7,6 +7,7 @@ $("body").on("click", "button.edit-comment-btn", (evt) => {
     $(`#editable-comment-${commentId}`).show();
 });
 
+
 // When a user clicks the cancel button, editable form is hidden
 // and the comment is shown without any changes.
 $("body").on("click", "button.cancel-edit-btn", (evt) => {
@@ -15,6 +16,7 @@ $("body").on("click", "button.cancel-edit-btn", (evt) => {
     $(`#comment-${commentId}`).show();
     $(`#editable-comment-${commentId}`).hide();
 });
+
 
 // When a user clicks the delete button, they're asked if they
 // want to delete the comment. If so, comment is deleted in database
@@ -32,7 +34,7 @@ $("body").on("click", "button.delete-comment-btn", (evt) => {
 
 
 const getDiv = (res) => {
-    const timeStamp = (moment(res.comment.time_stampformat).format("MMM D YYYY [at] h:mm A"));
+    const timeStamp = (moment(res.comment.time_stamp).format("MMM D YYYY [at] h:mm A"));
     return `<div id="comment-and-edit-form-${res.comment.comment_id}">
                 <div id="comment-${res.comment.comment_id}">
                     <p>${res.user.fname} ${res.user.lname} | 
@@ -41,7 +43,7 @@ const getDiv = (res) => {
                     <button class="edit-comment-btn" data-comment-id="${res.comment.comment_id}">Edit</button>
                     <button class="delete-comment-btn" data-comment-id="${res.comment.comment_id}">Delete</button>
                 </div>
-                <div id="editable-comment-${res.comment.comment_id}" hidden>
+                <div id="editable-comment-${res.comment.comment_id}" class="hidden-form">
                     <form class="edit-comment-form" id="edit-comment-form-${res.comment.comment_id}" data-comment-id="${res.comment.comment_id}" method="POST">
                         <textarea required name="comment">${res.comment.comment_body}</textarea>
                         <button class="cancel-edit-btn" data-comment-id="${res.comment.comment_id}">Cancel</button>
