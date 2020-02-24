@@ -34,13 +34,14 @@ $("body").on("click", "button.delete-goal-btn", (evt) => {
 const getCurrentGoal = (res) => {
     const timeStamp = (moment(res.current_goal.time_stamp).format("MMM D YYYY [at] h:mm A"));
     return `<div id="current-goal-div">
+                <h3>Current Goal</h3>
                 <div id="goal-${res.current_goal.goal_id}">
                     <p>${timeStamp} ${res.current_goal.edited}</p>
                     <p>${res.current_goal.goal_body}</p>
                     <button class="edit-goal-btn" data-goal-id="${res.current_goal.goal_id}">Edit</button>
                     <button class="delete-goal-btn" data-goal-id="${res.current_goal.goal_id}">Delete</button>
                 </div>
-                <div id="editable-goal-${res.current_goal.goal_id}" class="hidden-form">
+                <div id="editable-goal-${res.current_goal.goal_id}" class="hidden">
                     <form class="edit-goal-form" id="edit-goal-form-${res.current_goal.goal_id}" data-goal-id="${res.current_goal.goal_id}">
                         <textarea name="goal-body" required rows="4" cols="48">${res.current_goal.goal_body}</textarea>
                         <div>
@@ -53,12 +54,17 @@ const getCurrentGoal = (res) => {
 }
 
 const getPastGoal = (res) => {
+    if (!res.hasOwnProperty("goal")) {
+        $("#past-goals-heading").hide()
+        return "";
+    };
     const timeStamp = (moment(res.goal.time_stamp).format("MMM D YYYY [at] h:mm A"));
+    $("#past-goals-heading").show()
     return `<div id="goal-${res.goal.goal_id}">
                 <p>${timeStamp} ${res.goal.edited}</p>
                 <p>${res.goal.goal_body}</p>
                 <button class="delete-goal-btn" data-goal-id="${res.goal.goal_id}">Delete</button>
-            </div>`
+            </div>`;
 }
 
 

@@ -17,7 +17,7 @@
         <h3>What type of user are you?</h3>
         <button id="patient-login-btn">Patient</button>
         <button id="dietitian-login-btn">Dietitian</button>
-        <div class="hidden-form" id="patient-login" >
+        <div class="hidden" id="patient-login" >
             <h4>Patient Login</h4>
             <form action="/patient-login" method="POST">
                 <input type="email" required name="email" placeholder="Email address">
@@ -25,7 +25,7 @@
                 <input type="submit" value="Log In">
             </form>
         </div>
-        <div class="hidden-form" id="dietitian-login">
+        <div class="hidden" id="dietitian-login">
             <h4>Dietitian Login</h4>
             <form action="/dietitian-login" method="POST">
                 <input type="email" required name="email" placeholder="Email address">

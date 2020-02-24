@@ -522,10 +522,10 @@ def add_new_patient_goal(patient_id):
     """Process form to add a new goal."""
 
     patient = Patient.query.get(patient_id)
+    
+    # Get list of goals before new goal is added to check if there's
+    # a previous current goal that needs to be moved to the past goals section.
     goals_list = patient.goals
-    sorted_goals = sort_date_desc(goals_list)
-    new_past_goal = sorted_goals[0]
-    edited = " (edited)" if new_past_goal.edited else ""
 
     time_stamp = datetime.now()
     goal_body = request.form.get("goal-body")
@@ -538,15 +538,20 @@ def add_new_patient_goal(patient_id):
     db.session.commit()
 
     goals = {"current_goal": {"goal_id": new_goal.goal_id,
-                              "time_stamp": new_goal.time_stamp.isoformat(),
-                              "edited": "",
-                              "goal_body": new_goal.goal_body},
-             "goal": {"goal_id": new_past_goal.goal_id,
-                      "time_stamp": new_past_goal.time_stamp.isoformat(),
-                      "edited": edited,
-                      "goal_body": new_past_goal.goal_body}}
+                             "time_stamp": new_goal.time_stamp.isoformat(),
+                             "edited": "",
+                             "goal_body": new_goal.goal_body}}
 
-    flash("Successfully added goal.")
+    if goals_list:
+        sorted_goals = sort_date_desc(goals_list)
+        new_past_goal = sorted_goals[0]
+        edited = " (edited)" if new_past_goal.edited else ""
+
+        goals["goal"] = {"goal_id": new_past_goal.goal_id,
+                         "time_stamp": new_past_goal.time_stamp.isoformat(),
+                         "edited": edited,
+                         "goal_body": new_past_goal.goal_body}
+
     return jsonify(goals)
 
 
