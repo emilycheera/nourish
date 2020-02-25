@@ -1,19 +1,9 @@
 {% extends "dietitian-single-patient-base.html" %}
 {% block patient_content %}
-    <div>
+    <div class="mb-3">
         <h4>Account Details</h4>
-        <a href="/patient/{{ patient.patient_id }}/account/edit">Edit</a>
+        <a href="/patient/{{ patient.patient_id }}/account/edit" class="mr-3">Edit Account</a>
         <a href="/patient/{{ patient.patient_id }}/account/customize-posts">Customize Posts</a>
-        <ul>
-            <li>First name: {{ patient.fname }}</li>
-            <li>Last name: {{ patient.lname }}</li>
-            <li>Email: {{ patient.email }}</li>
-            <li>Address: {{ patient.street_address }}</li>
-            <li>City: {{ patient.city }}</li>
-            <li>State: {{ patient.state }}</li>
-            <li>Zipcode: {{ patient.zipcode }}</li>
-            <li>Phone number: {{ patient.phone }}</li>
-            <li>Birthdate: {{ patient.birthdate|date }}</li>
-        </ul>
     </div>
+        {% include "patient-account-details.html" %}
 {% endblock %}

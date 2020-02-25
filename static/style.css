@@ -17,6 +17,7 @@ body {
     position: relative;
     top: 0;
     height: calc(100vh - 48px);
+    min-width: 220px;
     padding-top: .5rem;
     padding-right: 20px;
     padding-left: 10px;
@@ -49,6 +50,10 @@ body {
     background-color: #54775e !important;
 }
 
+.bg-light {
+    background-color: #f3f5f7 !important;
+}
+
 .navbar {
     padding: .6rem 1.5rem;
     box-shadow: 0 0.5rem 1rem rgba(0,0,0,.05);
@@ -68,7 +73,7 @@ body {
 }
 
 .post-container {
-    background-color: #f8f9fa;
+    background-color: #f3f5f7;
     margin-bottom: 20px;
     max-width: 500px;
     border-radius: 3px;
@@ -93,6 +98,10 @@ body {
     padding: 10px;
 }
 
+.post-fields p {
+    font-size: .9rem;
+}
+
 .hidden {
     display: none;
 }
@@ -105,6 +114,7 @@ body {
 .comment-time {
     font-size: .8rem;
     padding-left: 10px;
+    margin-bottom: 16px;
 }
 
 .comment-body {
@@ -153,3 +163,54 @@ a:hover {
     border: 0px;
     resize: none;
 }
+
+.btn-primary {
+    background: #e87e07;
+    border-color: #e87e07;
+}
+
+.btn-primary:hover {
+    background: #c66c06;
+    border-color: #c66c06;
+}
+
+.btn-outline-primary {
+    color: #e87e07;
+    border-color: #e87e07;
+}
+
+.btn-outline-primary:hover {
+    color: #fff;
+    background-color: #e87e07;
+    border-color: #e87e07
+}
+
+.edit-comment-div {
+    margin-top: 5px;
+}
+
+.btn-edit-cmt {
+    padding: 0 0 0 10px;
+    margin-bottom: 16px;
+}
+
+.user-dashboard-tag {
+    text-transform: uppercase;
+    font-size: .7rem;
+    font-weight: 800;
+    letter-spacing: .05em;
+}
+
+.post-edit-btns {
+    float: right;
+}
+
+#ratings-chart {
+    max-width: 800px;
+    max-height: 400px;
+}
+
+
+
+
+

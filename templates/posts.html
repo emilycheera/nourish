@@ -11,36 +11,39 @@
 
     {% if posts %}
         {% for post in posts %}
-        <div id="post-{{ post.post_id }}">
-            <div class="post-container">
-                <div class="post-content">
-                    <a href="/patient/{{ post.patient.patient_id }}/account" class="post-author">{{ post.patient.fname }} {{ post.patient.lname }}</a>
-                    <p class="post-time">{{ post.time_stamp|datetime }} {% if post.edited %}(edited){% endif %}</p>
-                </div>
-                {% if post.img_path %}
-                    <img src="{{post.img_path}}" class="post-image">
-                {% endif %}
-                <div class="post-content">
-                    <p>Meal time: {{ post.meal_time|datetime }}</p>
-                    <p>Setting: {{ post.meal_setting }}</p>
-                        <p>Thoughts, emotions, behaviors: {{ post.TEB }}</p>
-                    {% if post.hunger %}
-                        <p>Hunger: {{ post.hunger }}</p>
+            <div id="post-{{ post.post_id }}">
+                <div class="post-container">
+                    <div class="post-content">
+                        <a href="/patient/{{ post.patient.patient_id }}/account" class="post-author">{{ post.patient.fname }} {{ post.patient.lname }}</a>
+                        {% if session.get("patient_id") %}
+                            <div class="post-edit-btns">
+                                <button class="edit-post-btn btn btn-link" data-post-id="{{ post.post_id }}">Edit Post</button>
+                                <button class="delete-post-btn btn btn-link" data-post-id="{{ post.post_id }}">Delete</button>
+                            </div>
+                        {% endif %}
+                        <p class="post-time">{{ post.time_stamp|datetime }} {% if post.edited %}(edited){% endif %}</p>
+                    </div>
+                    {% if post.img_path %}
+                        <img src="{{post.img_path}}" class="post-image">
                     {% endif %}
-                    {% if post.fullness %}
-                        <p>Fullness: {{ post.fullness }}</p>
-                    {% endif %}
-                    {% if post.satisfaction %}
-                        <p>Satisfaction: {{ post.satisfaction }}</p>
-                    {% endif %}
-                    {% if post.meal_notes %}
-                        <p>Additional Notes: {{ post.meal_notes }}</p>
-                    {% endif %}
-                    {% if session.get("patient_id") %}
-                        <button class="edit-post-btn" data-post-id="{{ post.post_id }}">Edit</button>
-                        <button class="delete-post-btn" data-post-id="{{ post.post_id }}">Delete</button>
-                    {% endif %}
-                    <div>
+                    <div class="post-content">
+                        <div class="post-fields">
+                            <p><b>Meal Time:</b> {{ post.meal_time|datetime }}</p>
+                            <p><b>Setting:</b> {{ post.meal_setting }}</p>
+                            <p><b>Thoughts, Emotions, Behaviors:</b> {{ post.TEB }}</p>
+                            {% if post.hunger %}
+                                <p><b>Hunger:</b> {{ post.hunger }}</p>
+                            {% endif %}
+                            {% if post.fullness %}
+                                <p><b>Fullness:</b> {{ post.fullness }}</p>
+                            {% endif %}
+                            {% if post.satisfaction %}
+                                <p><b>Satisfaction:</b> {{ post.satisfaction }}</p>
+                            {% endif %}
+                            {% if post.meal_notes %}
+                                <p><b>Additional Notes:</b> {{ post.meal_notes }}</p>
+                            {% endif %}
+                        </div>
                         <div id="comments-for-{{ post.post_id }}">
                             {% if post.comments %}
                             <div class="border-top">
@@ -66,11 +69,11 @@
                                             {% endif %}
                                             </p>
                                         </div>
-                                        <div class="hidden" id="editable-comment-{{ comment.comment_id }}">
-                                            <form class="edit-comment-form" id="edit-comment-form-{{ comment.comment_id }}" data-comment-id="{{ comment.comment_id }}" method="POST">
-                                                <textarea required name="comment">{{ comment.comment_body }}</textarea>
-                                                <button class="cancel-edit-btn" data-comment-id="{{ comment.comment_id }}">Cancel</button>
-                                                <button type="submit">Update Comment</button>
+                                        <div class="hidden edit-comment-div" id="editable-comment-{{ comment.comment_id }}">
+                                            <form class="edit-comment-form" id="edit-comment-form-{{ comment.comment_id }}" data-comment-id="{{ comment.comment_id }}">
+                                                <textarea required class="comment-box" name="comment">{{ comment.comment_body }}</textarea>
+                                                <button class="cancel-edit-btn btn btn-link btn-edit-cmt" data-comment-id="{{ comment.comment_id }}">Cancel</button>
+                                                <button class="btn btn-link btn-edit-cmt" type="submit">Save Changes</button>
                                             </form>
                                         </div>
                                     </div>
@@ -79,77 +82,76 @@
                         </div>
                         <form class="add-comment-form" id="add-comment-form-{{ post.post_id }}" data-post-id="{{ post.post_id }}" method="POST">
                             <textarea class="comment-box" required name="comment" placeholder="Write a comment..."></textarea>
-                            <input type="submit" value="Add Comment">
+                            <button type="submit" class="btn btn-outline-primary btn-sm btn-block">Submit Comment</button>
                         </form>
                     </div>
                 </div>
             </div>
-        </div>
-        {% if session.get("patient_id") %}
-            <div id="editable-post-{{ post.post_id }}" class="hidden">
-                <form enctype="multipart/form-data" action="/post/edit/{{ post.post_id }}" method="POST">
-                    <p>
-                        <label for="datetime">
-                            <span>Time of meal/snack*: </span>
-                            <input type="datetime-local" required name="meal-time" value="{{ post.meal_time|htmldatetime }}">
-                        </label>
-                    </p>
-                    {% if post.img_path %}
-                        <img src="{{ post.img_path }}" width="400">
-                    {% endif %} 
-                    <p>
-                        <label for="meal-image">
-                            <span>Update image: </span>
-                            <input type="file" name="meal-image" accept="image/png, image/jpeg, image/jpg">
-                        </label>
-                    </p>
-                    <p>
-                        <label for="meal-setting">
-                            <span>Where did you eat and with whom?* </span>
-                            <textarea name="meal-setting" required maxlength="200">{{ post.meal_setting }}</textarea>
-                        </label>
-                    </p>
-                    <p>
-                        <label for="TEB">
-                            <span>What thoughts, emotions, and/or behaviors did you notice?* </span>
-                            <textarea name="TEB" required>{{ post.TEB }}</textarea>
-                        </label>
-                    </p>
-                    <p>
-                    {% if patient.hunger_visible %}
-                        <label for="hunger">
-                            <span>Hunger rating: </span>
-                            <input type="number" name="hunger" min="0" max="10" step="1" {% if post.hunger %} value={{ post.hunger }} {% endif %}>
-                        </label>
-                    </p>
-                    {% endif %}
-                    {% if patient.fullness_visible %}
-                    <p>
-                        <label for="fullness">
-                            <span>Fullness rating: </span>
-                            <input type="number" name="fullness" min="0" max="10" step="1" {% if post.fullness %} value={{ post.fullness }} {% endif %}>
-                        </label>
-                    </p>
-                    {% endif %}
-                    {% if patient.satisfaction_visible %}
-                    <p>
-                        <label for="satisfaction">
-                            <span>Satisfaction rating: </span>
-                            <input type="number" name="satisfaction" min="0" max="10" step="1" {% if post.satisfaction %} value={{ post.satisfaction }} {% endif %}>
-                        </label>
-                    </p>
-                    {% endif %}
-                    <p>   
-                        <label for="meal-notes">
-                            <span>Anything else you'd like to share: </span>
-                            <textarea name="meal-notes">{% if post.meal_notes %}{{ post.meal_notes }}{% endif %}</textarea>
-                        </label>
-                    </p>
-                    <button class="cancel-edit-btn" data-post-id="{{ post.post_id }}">Cancel</button>
-                    <p><button type="submit">Save Changes</button></p>
-                </form>
-            </div>
-        {% endif %}
+            {% if session.get("patient_id") %}
+                <div id="editable-post-{{ post.post_id }}" class="hidden">
+                    <form class="edit-post-form" id="edit-post-form-{{ post.post_id }}" enctype="multipart/form-data" data-post-id="{{ post.post_id }}">
+                        <p>
+                            <label for="datetime">
+                                <span>Time of meal/snack*: </span>
+                                <input type="datetime-local" required name="meal-time" value="{{ post.meal_time|htmldatetime }}">
+                            </label>
+                        </p>
+                        {% if post.img_path %}
+                            <img src="{{ post.img_path }}" width="100">
+                        {% endif %} 
+                        <p>
+                            <label for="meal-image">
+                                <span>Update image: </span>
+                                <input type="file" name="meal-image" accept="image/png, image/jpeg, image/jpg">
+                            </label>
+                        </p>
+                        <p>
+                            <label for="meal-setting">
+                                <span>Where did you eat and with whom?* </span>
+                                <textarea name="meal-setting" required maxlength="200">{{ post.meal_setting }}</textarea>
+                            </label>
+                        </p>
+                        <p>
+                            <label for="TEB">
+                                <span>What thoughts, emotions, and/or behaviors did you notice?* </span>
+                                <textarea name="TEB" required>{{ post.TEB }}</textarea>
+                            </label>
+                        </p>
+                        <p>
+                        {% if patient.hunger_visible %}
+                            <label for="hunger">
+                                <span>Hunger rating: </span>
+                                <input type="number" name="hunger" min="0" max="10" step="1" {% if post.hunger %} value={{ post.hunger }} {% endif %}>
+                            </label>
+                        </p>
+                        {% endif %}
+                        {% if patient.fullness_visible %}
+                        <p>
+                            <label for="fullness">
+                                <span>Fullness rating: </span>
+                                <input type="number" name="fullness" min="0" max="10" step="1" {% if post.fullness %} value={{ post.fullness }} {% endif %}>
+                            </label>
+                        </p>
+                        {% endif %}
+                        {% if patient.satisfaction_visible %}
+                        <p>
+                            <label for="satisfaction">
+                                <span>Satisfaction rating: </span>
+                                <input type="number" name="satisfaction" min="0" max="10" step="1" {% if post.satisfaction %} value={{ post.satisfaction }} {% endif %}>
+                            </label>
+                        </p>
+                        {% endif %}
+                        <p>   
+                            <label for="meal-notes">
+                                <span>Anything else you'd like to share: </span>
+                                <textarea name="meal-notes">{% if post.meal_notes %}{{ post.meal_notes }}{% endif %}</textarea>
+                            </label>
+                        </p>
+                        <button class="cancel-edit-btn" data-post-id="{{ post.post_id }}">Cancel</button>
+                        <p><button type="submit">Save Changes</button></p>
+                    </form>
+                </div>
+            {% endif %}
         {% endfor %}
     {% endif %}
 </div>

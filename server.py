@@ -1,5 +1,5 @@
 
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 
 from flask import (Flask, render_template, request, flash, redirect,
@@ -129,7 +129,7 @@ def process_dietitian_registration():
     state = request.form.get("state")
     zipcode = request.form.get("zipcode")
 
-    if Dietitian.query.filter_by(email=email):
+    if Dietitian.query.filter_by(email=email).first():
         flash("An account with this email address already exists.")
         return redirect("/register")
 
@@ -297,7 +297,7 @@ def process_patient_registration():
     phone = request.form.get("phone")
     birthdate = request.form.get("birthdate")
 
-    if Patient.query.filter_by(email=email):
+    if Patient.query.filter_by(email=email).first():
         flash("An account with this email address already exists.")
         return redirect("/patient/new-patient")
 
@@ -840,6 +840,76 @@ def delete_post():
     db.session.commit()
 
     return "Success"
+
+
+@app.route("/patient/<int:patient_id>/weekly-ratings.json")
+def get_patients_weekly_ratings(patient_id):
+    """Get a patient's hunger/fullness/satisfaction ratings from last 7 days."""
+
+    patient = Patient.query.get(patient_id)
+    previous_week = datetime.now() - timedelta(days=7)
+
+    weekly_hunger_ratings = (db.session.query(Post.meal_time, Post.hunger)
+                             .filter(Post.patient == patient,
+                                     Post.meal_time > previous_week))
+
+    weekly_fullness_ratings = (db.session.query(Post.meal_time, Post.fullness)
+                             .filter(Post.patient == patient,
+                                     Post.meal_time > previous_week))
+
+    weekly_satisfaction_ratings = (db.session.query(Post.meal_time, Post.satisfaction)
+                             .filter(Post.patient == patient,
+                                     Post.meal_time > previous_week))
+
+    hunger_ratings_list = []
+    for meal_time, hunger in weekly_hunger_ratings:
+        hunger_ratings_list.append({"meal_time": meal_time.isoformat(),
+                                    "hunger_rating": hunger})
+
+    fullness_ratings_list = []
+    for meal_time, fullness in weekly_fullness_ratings:
+        fullness_ratings_list.append({"meal_time": meal_time.isoformat(),
+                                      "fullness_rating": fullness})
+
+    satisfaction_ratings_list = []
+    for meal_time, satisfaction in weekly_satisfaction_ratings:
+        satisfaction_ratings_list.append({"meal_time": meal_time.isoformat(),
+                                          "satisfaction_rating": satisfaction})
+
+    return jsonify({"data": {"hunger": hunger_ratings_list,
+                             "fullness": fullness_ratings_list,
+                             "satisfaction": satisfaction_ratings_list}})
+
+
+@app.route("/patient/<int:patient_id>/ratings-chart")
+def show_ratings_chart(patient_id):
+    """Show chart that displays hunger, fullness, and satisfacting ratings."""
+
+    patient = Patient.query.get(patient_id)
+
+    user_type = get_user_type_from_session()
+
+    if user_type == "dietitian":
+        dietitian = get_current_dietitian()
+        patients_list = dietitian.patients
+        sorted_patients = alphabetize_by_lname(patients_list)
+
+        if not patient in patients_list:
+            return render_template("unauthorized.html")
+
+        return render_template("dietitian-ratings-chart.html",
+                                dietitian=dietitian,
+                                patients=sorted_patients,
+                                patient=patient)
+    
+    if not check_patient_authorization(patient_id):
+        return render_template("unauthorized.html")
+
+    dietitian = patient.dietitian
+
+    return render_template("patient-ratings-chart.html",
+                            patient=patient,
+                            dietitian=dietitian)
 
 
 def allowed_image(filename):

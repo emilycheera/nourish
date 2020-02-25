@@ -79,6 +79,7 @@ $("#add-goal-form").on("submit", (evt) => {
     });
 });
 
+
 $("body").on("submit", "form.edit-goal-form", (evt) => {
     evt.preventDefault();
     const goalId = evt.target.dataset.goalId;

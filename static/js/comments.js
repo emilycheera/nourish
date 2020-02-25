@@ -37,17 +37,21 @@ const getDiv = (res) => {
     const timeStamp = (moment(res.comment.time_stamp).format("MMM D YYYY [at] h:mm A"));
     return `<div id="comment-and-edit-form-${res.comment.comment_id}">
                 <div id="comment-${res.comment.comment_id}">
-                    <p>${res.user.fname} ${res.user.lname} | 
-                        ${timeStamp}${res.comment.edited}</p>
-                    <p>${res.comment.comment_body}</p>
-                    <button class="edit-comment-btn" data-comment-id="${res.comment.comment_id}">Edit</button>
-                    <button class="delete-comment-btn" data-comment-id="${res.comment.comment_id}">Delete</button>
+                    <p class="comment-body">
+                        <b>${res.user.fname} ${res.user.lname}:</b> 
+                        ${res.comment.comment_body}
+                    </p>
+                    <p class="comment-time">
+                        ${timeStamp}${res.comment.edited}
+                        <button class="edit-comment-btn btn btn-link" data-comment-id="${res.comment.comment_id}">Edit</button>
+                        <button class="delete-comment-btn btn btn-link" data-comment-id="${res.comment.comment_id}">Delete</button>
+                    </p>
                 </div>
-                <div id="editable-comment-${res.comment.comment_id}" class="hidden">
-                    <form class="edit-comment-form" id="edit-comment-form-${res.comment.comment_id}" data-comment-id="${res.comment.comment_id}" method="POST">
-                        <textarea required name="comment">${res.comment.comment_body}</textarea>
-                        <button class="cancel-edit-btn" data-comment-id="${res.comment.comment_id}">Cancel</button>
-                        <button type="submit">Update Comment</button>
+                <div class="hidden edit-comment-div" id="editable-comment-${res.comment.comment_id}">
+                    <form class="edit-comment-form" id="edit-comment-form-${res.comment.comment_id}" data-comment-id="${res.comment.comment_id}">
+                        <textarea required class="comment-box" name="comment">${res.comment.comment_body}</textarea>
+                        <button class="cancel-edit-btn btn btn-link btn-edit-cmt" data-comment-id="${res.comment.comment_id}">Cancel</button>
+                        <button class="btn btn-link btn-edit-cmt" type="submit">Save Changes</button>
                     </form>
                 </div>
             </div>`;

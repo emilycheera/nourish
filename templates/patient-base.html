@@ -1,24 +1,42 @@
 {% extends "base.html" %}
 {% block title %}Patient Dashboard{% endblock %}
-{% block head %}
-    {{ super() }}
-{% endblock %}
 {% block content %}
-    <div id="sidebar">
-        <p>
-        <a href="/patient/{{ patient.patient_id }}">
-            Main Page</a>
-        </p>
-        <p><a href="/patient/{{ patient.patient_id }}/goals">
-            Goals</a>
-        </p>
-            <p><a href="/patient/{{ patient.patient_id }}/posts">
-            Posts</a>
-        </p>
+
+<div class="container-fluid">
+    <div =class="row">
+        <nav class="d-none d-md-block bg-light sidebar">
+            <div class="sidebar-sticky">
+                <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-3">
+                    <span class="border-bottom">{{ patient.fname }} {{ patient.lname }}</span>
+                </h6>
+                <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mb-4">
+                    <span class="user-dashboard-tag">Patient Dashboard</span>
+                </h6>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/patient/{{ patient.patient_id }}">
+                            Main Page
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/patient/{{ patient.patient_id }}/goals">
+                            View All Goals
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/patient/{{ patient.patient_id }}/posts">
+                            View All Posts
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <main class="col-md-8 col-lg-9 ml-auto">
+            <div>
+                {% block flash %} {{ super() }} {% endblock %}
+            </div>
+            <div>{% block dashboard_content %}{% endblock %}</div>
+        </main>
     </div>
-    <h1>{{ patient.fname }} {{ patient.lname }}</h1>
-    <div>
-        {% block flash %} {{ super() }} {% endblock %}
-    </div>
-    <div>{% block dashboard_content %}{% endblock %}</div>
+</div>
 {% endblock %}

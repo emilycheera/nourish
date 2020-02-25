@@ -1,10 +1,13 @@
 {% extends "patient-base.html" %}
 {% block dashboard_content %}
     <div>
-        <h3>Reset Password</h3>
+        <h4>Reset Password</h4>
         <p>Type in a new password, and click "Reset" to save.</p>
         <form action="/patient/{{ patient.patient_id }}/account/reset-password" method="POST">
-            <input type="password" required name="password">
+            <input type="password" required minlength="6" maxlength="20" name="password">
+            <small id="passwordHelpBlock" class="form-text text-muted">
+                Your password must be 6-20 characters long.
+            </small>
             <input type="submit" value="Reset">
         </form>
         <a href="/patient/{{ patient.patient_id }}/account">Cancel</a>

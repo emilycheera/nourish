@@ -1,0 +1,17 @@
+<div>
+    <h4>Account Details</h4>
+    <p>Edit the information below. Click the button to save your changes.</p>
+    <form action="/patient/{{ patient.patient_id }}/account/edit" method="POST">
+        <input type="text" required name="fname" maxlength="50" value="{{ patient.fname }}">
+        <input type="text" required name="lname" maxlength="50" value="{{ patient.lname }}">
+        <input type="email" required name="email" maxlength="120" value="{{ patient.email }}">
+        <input type="text" required name="street-address" size="50" maxlength="100" value="{{ patient.street_address }}">
+        <input type="text" required name="city" maxlength="40" value="{{ patient.city }}">
+        <input type="text" required name="state" maxlength="2" value="{{ patient.state }}">
+        <input type="text" required name="zipcode" maxlength="11" value="{{ patient.zipcode }}">
+        <input type="tel" required name="phone" maxlength="15" value="{{ patient.phone }}">
+        <input type="date" required name="birthdate" value={{ patient.birthdate }}>
+        <input type="submit" value="Submit Changes">
+    </form>
+    <a href="/patient/{{ patient.patient_id }}/account">Cancel</a>
+</div>
