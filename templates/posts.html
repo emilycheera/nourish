@@ -45,9 +45,9 @@
                             {% endif %}
                         </div>
                         <div id="comments-for-{{ post.post_id }}">
-                            {% if post.comments %}
                             <div class="border-top">
                             </div>
+                            {% if post.comments %}
                                 {% for comment in post.comments|sort(attribute="time_stamp") %}
                                     <div id="comment-and-edit-form-{{ comment.comment_id }}">
                                         <div id="comment-{{ comment.comment_id }}">

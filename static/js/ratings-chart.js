@@ -20,9 +20,7 @@ $(".ratings-chart-btn").on("click", (evt) => {
   }
 
   Chart.defaults.global.defaultFontFamily = "Roboto";
-  Chart.Legend.prototype.afterFit = function() {
-    this.height = this.height + 10;
-};
+  Chart.defaults.global.legend.position = 'bottom';
   new Chart(
     $("#ratings-chart"),
     {
@@ -60,18 +58,22 @@ $(".ratings-chart-btn").on("click", (evt) => {
                 padding: 30,
             }
         },
-        title: {
-            display: true,
-            text: "Ratings for Week of [Date]",
-            fontSize: 24,
-            fontColor: "#212529",
-            fontStyle: "normal",
-        },
         scales: {
             xAxes: [{
                 type: "time",
                 time: {
-                    tooltipFormat: "MMM D h:mm a"
+                    tooltipFormat: "MMM D  h:mma",
+                    displayFormats: {
+                       'millisecond': 'MMM DD',
+                       'second': 'MMM DD',
+                       'minute': 'MMM DD',
+                       'hour': 'MMM DD',
+                       'day': 'MMM DD',
+                       'week': 'MMM DD',
+                       'month': 'MMM DD',
+                       'quarter': 'MMM DD',
+                       'year': 'MMM DD',
+                    }
                 },
                 distribution: "series"
             }],
