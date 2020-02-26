@@ -6,67 +6,76 @@ $(".ratings-chart-btn").on("click", (evt) => {
 
     $.get(`/patient/${patientId}/weekly-ratings.json`, (res) => {
       const hungerData = [];
-      for (const dailyRating of res.data.hunger) {
-        hungerData.push({x: dailyRating.meal_time, y: dailyRating.hunger_rating});
+      for (const post of res.data.hunger) {
+        hungerData.push({x: post.meal_time, y: post.hunger_rating});
     }
 
       const fullnessData = [];
-      for (const dailyRating of res.data.fullness) {
-        fullnessData.push({x: dailyRating.meal_time, y: dailyRating.fullness_rating});
+      for (const post of res.data.fullness) {
+        fullnessData.push({x: post.meal_time, y: post.fullness_rating});
     }
       const satisfactionData = [];
-      for (const dailyRating of res.data.satisfaction) {
-        satisfactionData.push({x: dailyRating.meal_time, y: dailyRating.satisfaction_rating});
+      for (const post of res.data.satisfaction) {
+        satisfactionData.push({x: post.meal_time, y: post.satisfaction_rating});
   }
 
+  Chart.defaults.global.defaultFontFamily = "Roboto";
+  Chart.Legend.prototype.afterFit = function() {
+    this.height = this.height + 10;
+};
   new Chart(
-    $('#ratings-chart'),
+    $("#ratings-chart"),
     {
       type: "line",
       data: {
         datasets: [{
             label: "Hunger Rating",
             data: hungerData,
-            lineTension: 0,
-            backgroundColor: "#007bff",
-            borderColor: "#007bff",
+            backgroundColor: "#FFB561",
+            borderColor: "#FFB561",
             fill: false,
             borderWidth: 4,
-            pointBackgroundColor: "#007bff"
+            pointBackgroundColor: "#FFB561"
           }, {
             label: "Fullness Rating",
             data: fullnessData,
-            lineTension: 0,
-            backgroundColor: "#007bff",
-            borderColor: "#007bff",
+            backgroundColor: "#E87E07",
+            borderColor: "#E87E07",
             fill: false,
             borderWidth: 4,
-            pointBackgroundColor: "#007bff"
+            pointBackgroundColor: "#E87E07"
           }, {
             label: "Satisfaction Rating",
             data: satisfactionData,
-            lineTension: 0,
-            backgroundColor: "#007bff",
-            borderColor: "#007bff",
+            backgroundColor: "#904C00",
+            borderColor: "#904C00",
             fill: false,
             borderWidth: 4,
-            pointBackgroundColor: "#007bff"
+            pointBackgroundColor: "#904C00"
           }]
       },
       options: {
+        legend: {
+            labels: {
+                padding: 30,
+            }
+        },
+        title: {
+            display: true,
+            text: "Ratings for Week of [Date]",
+            fontSize: 24,
+            fontColor: "#212529",
+            fontStyle: "normal",
+        },
         scales: {
             xAxes: [{
-                type: 'time',
-                distribution: 'series'
-            }]
+                type: "time",
+                time: {
+                    tooltipFormat: "MMM D h:mm a"
+                },
+                distribution: "series"
+            }],
         },
-        tooltips: {
-          callbacks: {
-            title: (tooltipItem) => {
-              return moment(tooltipItem.label).format('MMM D');
-            }
-          }
-        }
     }
     }
   );

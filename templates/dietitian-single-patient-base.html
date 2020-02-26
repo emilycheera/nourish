@@ -1,11 +1,13 @@
 {% extends "dietitian-base.html" %}
 {% block dashboard_content %}
-    <div class="mb-4">
-        <h2 class="mb-3"><b>{{ patient.fname }} {{ patient.lname }}</b></h2>
-        <a class="btn btn-primary mr-2" href="/patient/{{ patient.patient_id }}/account">Account</a>
-        <a class="btn btn-primary mr-2" href="/patient/{{ patient.patient_id }}/goals">Goals</a>
-        <a class="btn btn-primary mr-2" href="/patient/{{ patient.patient_id }}/posts">Posts</a>
-        <a class="btn btn-primary ratings-chart-btn" data-patient-id="{{ patient.patient_id }}" href="/patient/{{ patient.patient_id }}/ratings-chart">Ratings Chart</a>
+    <div class="mb-5">
+        <h2 class="mb-4"><b>{{ patient.fname }} {{ patient.lname }}</b></h2>
+        <a class="btn btn-primary btn-sm mr-3" href="/patient/{{ patient.patient_id }}/account">Account</a>
+        <a class="btn btn-primary btn-sm mr-3" href="/patient/{{ patient.patient_id }}/goals">Goals</a>
+        <a class="btn btn-primary btn-sm mr-3" href="/patient/{{ patient.patient_id }}/posts">Posts</a>
+        <a class="btn btn-primary btn-sm ratings-chart-btn" href="/patient/{{ patient.patient_id }}/ratings-chart" data-patient-id="{{ patient.patient_id }}">Ratings Chart</a>
     </div>
-    <div>{% block patient_content %}{% endblock %}</div>
+    <div>
+        {% block patient_content %}{% endblock %}
+    </div>
 {% endblock %}

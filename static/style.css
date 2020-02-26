@@ -1,6 +1,7 @@
 body {
     padding-top: 150px;
     font-family: roboto;
+    padding-bottom: 75px;
 }
 
 .sidebar {
@@ -207,7 +208,7 @@ a:hover {
 
 #ratings-chart {
     max-width: 800px;
-    max-height: 400px;
+    max-height: 500px;
 }
 
 

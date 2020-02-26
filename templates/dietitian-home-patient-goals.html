@@ -1,6 +1,5 @@
 {% extends "dietitian-single-patient-base.html" %}
 {% block patient_content %}
-
 <h3>Add a new goal for {{ patient.fname }} {{ patient.lname }}:</h3>
 <form id="add-goal-form" data-patient-id="{{ patient.patient_id }}">
     <textarea name="goal-body" required rows="4" cols="48"></textarea>
@@ -46,8 +45,7 @@
             </div>
         {% endfor %}
     {% endif %}
-</div>
-    
+    </div>
 {% endblock %}
 {% block script %}
     <script src="/static/js/dietitian-home-patient-goals.js"></script>

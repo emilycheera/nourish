@@ -71,14 +71,26 @@ def load_posts(post_filename):
 
     for row in open(post_filename):
         row = row.rstrip()
-        patient_id, time_stamp, meal_time, img_path, meal_setting, TEB = row.split("|")
+        patient_id, time_stamp, meal_time, img_path, meal_setting, TEB, hunger, fullness, satisfaction = row.split("|")
+
+        if not hunger:
+          hunger = None
+
+        if not fullness:
+          fullness = None
+
+        if not satisfaction:
+          satisfaction = None
 
         post = Post(patient_id=patient_id,
                     time_stamp=time_stamp,
                     meal_time=meal_time,
                     img_path=img_path,
                     meal_setting=meal_setting,
-                    TEB=TEB)
+                    TEB=TEB,
+                    hunger=hunger,
+                    fullness=fullness,
+                    satisfaction=satisfaction)
 
         db.session.add(post)
 
