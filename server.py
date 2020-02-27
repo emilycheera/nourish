@@ -886,6 +886,36 @@ def get_patients_past_ratings(patient_id):
                              "search_start_date": search_start_date_isoformat}})
 
 
+@app.route("/patient/<int:patient_id>/get-post.json")
+def get_post_from_chart(patient_id):
+    """Get a post as JSON from clicking on a point on the ratings chart."""
+
+    rating_label = request.args.get("ratingLabel")
+    meal_time_isoformat = request.args.get("postDatetime")
+    rating_value = request.args.get("ratingValue")
+
+    # Assign the type of rating to search for in the query.
+    if rating_label == "Hunger Rating":
+        rating_to_search = Post.hunger
+
+    elif rating_label == "Fullness Rating":
+        rating_to_search = Post.fullness
+
+    else:
+        rating_to_search = Post.satisfaction
+
+    # Convert meal_time from isoformat to a datetime object.
+    post_meal_time = datetime.strptime(meal_time_isoformat, "%Y-%m-%dT%H:%M:%S")
+
+    post = Post.query.filter(Post.meal_time==post_meal_time,
+                             Post.patient_id==patient_id,
+                             rating_to_search==rating_value).first()
+
+    print(post)
+
+    return "success"
+
+
 def allowed_image(filename):
     """Check if image file has one of the allowed extensions."""
 

@@ -1,4 +1,75 @@
 
+Chart.defaults.global.defaultFontFamily = "Roboto";
+Chart.defaults.global.legend.position = 'bottom';
+
+const config_chart = (hungerData, fullnessData, satisfactionData) => {
+    const config =   
+        {   
+            type: "line",
+            data: {
+                datasets: [{
+                    label: "Hunger Rating",
+                    data: hungerData,
+                    backgroundColor: "#FFB561",
+                    borderColor: "#FFB561",
+                    fill: false,
+                    borderWidth: 4,
+                    pointBackgroundColor: "#FFB561"
+                }, {
+                    label: "Fullness Rating",
+                    data: fullnessData,
+                    backgroundColor: "#E87E07",
+                    borderColor: "#E87E07",
+                    fill: false,
+                    borderWidth: 4,
+                    pointBackgroundColor: "#E87E07"
+                }, {
+                    label: "Satisfaction Rating",
+                    data: satisfactionData,
+                    backgroundColor: "#904C00",
+                    borderColor: "#904C00",
+                    fill: false,
+                    borderWidth: 4,
+                    pointBackgroundColor: "#904C00"
+                    }]
+                },
+            options: {
+                legend: {
+                    labels: {
+                        padding: 30,
+                    }
+                },
+                scales: {
+                    xAxes: [{
+                        type: "time",
+                        time: {
+                            tooltipFormat: "MMM D  h:mma",
+                            displayFormats: {
+                               'millisecond': 'MMM DD',
+                               'second': 'MMM DD',
+                               'minute': 'MMM DD',
+                               'hour': 'MMM DD',
+                               'day': 'MMM DD',
+                               'week': 'MMM DD',
+                               'month': 'MMM DD',
+                               'quarter': 'MMM DD',
+                               'year': 'MMM DD',
+                            }
+                        },
+                        distribution: "series"
+                    }],
+                    yAxes: [{
+                        ticks: {
+                            min: 0,
+                            suggestedMax: 10,
+                        }
+                    }]
+                },
+            }
+        }
+    return config;
+}
+
 $(".ratings-chart-btn").on("click", (evt) => {
     evt.preventDefault();
 
@@ -54,74 +125,28 @@ $(".ratings-chart-btn").on("click", (evt) => {
                 </div>
             </div>`
         );
-  
-        Chart.defaults.global.defaultFontFamily = "Roboto";
-        Chart.defaults.global.legend.position = 'bottom';
-      
-        new Chart(
-            $("#ratings-chart"),
-            {
-            type: "line",
-            data: {
-                datasets: [{
-                    label: "Hunger Rating",
-                    data: hungerData,
-                    backgroundColor: "#FFB561",
-                    borderColor: "#FFB561",
-                    fill: false,
-                    borderWidth: 4,
-                    pointBackgroundColor: "#FFB561"
-                }, {
-                    label: "Fullness Rating",
-                    data: fullnessData,
-                    backgroundColor: "#E87E07",
-                    borderColor: "#E87E07",
-                    fill: false,
-                    borderWidth: 4,
-                    pointBackgroundColor: "#E87E07"
-                }, {
-                    label: "Satisfaction Rating",
-                    data: satisfactionData,
-                    backgroundColor: "#904C00",
-                    borderColor: "#904C00",
-                    fill: false,
-                    borderWidth: 4,
-                    pointBackgroundColor: "#904C00"
-                    }]
-                },
-            options: {
-                legend: {
-                    labels: {
-                        padding: 30,
-                    }
-                },
-                scales: {
-                    xAxes: [{
-                        type: "time",
-                        time: {
-                            tooltipFormat: "MMM D  h:mma",
-                            displayFormats: {
-                               'millisecond': 'MMM DD',
-                               'second': 'MMM DD',
-                               'minute': 'MMM DD',
-                               'hour': 'MMM DD',
-                               'day': 'MMM DD',
-                               'week': 'MMM DD',
-                               'month': 'MMM DD',
-                               'quarter': 'MMM DD',
-                               'year': 'MMM DD',
-                            }
-                        },
-                        distribution: "series"
-                    }],
-                    yAxes: [{
-                        ticks: {
-                            min: 0,
-                            suggestedMax: 10,
-                        }
-                    }]
-                },
+        
+        const config = config_chart(hungerData, fullnessData, satisfactionData);
+
+        const ratingsChart = new Chart($("#ratings-chart"), config);
+
+        $("body").on("click", "canvas.chartjs-render-monitor", (evt) => {
+            var firstPoint = ratingsChart.getElementAtEvent(evt)[0];
+
+            if (firstPoint) {
+                var label = ratingsChart.data.datasets[firstPoint._datasetIndex].label;
+                var value = ratingsChart.data.datasets[firstPoint._datasetIndex].data[firstPoint._index];
             }
+
+            const postData = {
+                ratingLabel: label,
+                postDatetime: value.x,
+                ratingValue: value.y
+            };
+
+            $.get(`/patient/${patientId}/get-post.json`, postData, (res) => {
+                alert(res);
+            });
         });
     });
 });
@@ -162,75 +187,10 @@ $("body").on("submit", "form.chart-date-form", (evt) => {
                                     <canvas id="ratings-chart" width="800" 
                                         height="500"></canvas>
                                        </div>`);
-
-  Chart.defaults.global.defaultFontFamily = "Roboto";
-        Chart.defaults.global.legend.position = 'bottom';
       
-        new Chart(
-            $("#ratings-chart"),
-            {
-            type: "line",
-            data: {
-                datasets: [{
-                    label: "Hunger Rating",
-                    data: hungerData,
-                    backgroundColor: "#FFB561",
-                    borderColor: "#FFB561",
-                    fill: false,
-                    borderWidth: 4,
-                    pointBackgroundColor: "#FFB561"
-                }, {
-                    label: "Fullness Rating",
-                    data: fullnessData,
-                    backgroundColor: "#E87E07",
-                    borderColor: "#E87E07",
-                    fill: false,
-                    borderWidth: 4,
-                    pointBackgroundColor: "#E87E07"
-                }, {
-                    label: "Satisfaction Rating",
-                    data: satisfactionData,
-                    backgroundColor: "#904C00",
-                    borderColor: "#904C00",
-                    fill: false,
-                    borderWidth: 4,
-                    pointBackgroundColor: "#904C00"
-                    }]
-                },
-            options: {
-                legend: {
-                    labels: {
-                        padding: 30,
-                    }
-                },
-                scales: {
-                    xAxes: [{
-                        type: "time",
-                        time: {
-                            tooltipFormat: "MMM D  h:mma",
-                            displayFormats: {
-                               'millisecond': 'MMM DD',
-                               'second': 'MMM DD',
-                               'minute': 'MMM DD',
-                               'hour': 'MMM DD',
-                               'day': 'MMM DD',
-                               'week': 'MMM DD',
-                               'month': 'MMM DD',
-                               'quarter': 'MMM DD',
-                               'year': 'MMM DD',
-                            }
-                        },
-                        distribution: "series"
-                    }],
-                    yAxes: [{
-                        ticks: {
-                            min: 0,
-                            suggestedMax: 10,
-                        }
-                    }]
-                },
-            }
-        });
+        const config = config_chart(hungerData, fullnessData, satisfactionData);
+
+        const ratingsChart = new Chart($("#ratings-chart"), config);
+
     });
 });
-
