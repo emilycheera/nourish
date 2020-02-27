@@ -70,6 +70,55 @@ const config_chart = (hungerData, fullnessData, satisfactionData) => {
     return config;
 }
 
+
+<!-- Modal -->
+
+const getModal = (res) => {
+
+    const imgPath = (res.post.img_path) ? `<img src="${res.post.img_path}" class="post-image">` : "";
+    const hunger = (res.post.hunger) ? `<p><b>Hunger:</b>${res.post.hunger}</p>` : "";
+    const fullness = (res.post.fullness) ? `<p><b>Fullness:</b>${res.post.fullness}</p>` : "";
+    const satisfaction = (res.post.satisfaction) ? `<p><b>Satisfaction:</b>${res.post.satisfaction}</p>` : "";
+    const mealNotes = (res.post.meal_notes) ? `<p><b>Additional Notes:</b>${res.post.meal_notes}</p>` : "";
+
+    const modalHTML = `<div class="modal" id="post-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                          <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                              <div class="modal-body">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                  <span aria-hidden="true">&times;</span>
+                                </button>
+                                <div class="post-container">
+                                    <div class="post-content">
+                                        <a href="/patient/${res.patient.patient_id}/account" class="post-author">
+                                            ${res.patient.fname} ${res.patient.lname}
+                                        </a>
+                                        <p class="post-time">${res.post.time_stamp}${res.post.edited}</p>
+                                    </div>
+                                        ${imgPath}
+                                    <div class="post-content">
+                                        <div class="post-fields">
+                                            <p><b>Meal Time:</b> ${res.post.meal_time}</p>
+                                            <p><b>Setting:</b> ${res.post.meal_setting}</p>
+                                            <p><b>Thoughts, Emotions, Behaviors:</b> ${res.post.TEB}</p>
+                                             ${hunger}
+                                             ${fullness}
+                                             ${satisfaction}
+                                             ${mealNotes}
+                                        </div>
+                                    </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>`;
+
+    return modalHTML;
+}
+
+
+
+
 $(".ratings-chart-btn").on("click", (evt) => {
     evt.preventDefault();
 
@@ -123,6 +172,8 @@ $(".ratings-chart-btn").on("click", (evt) => {
                     <canvas id="ratings-chart" width="800" 
                         height="500"></canvas>
                 </div>
+            </div>
+            <div id="post-modal-div">
             </div>`
         );
         
@@ -145,7 +196,8 @@ $(".ratings-chart-btn").on("click", (evt) => {
             };
 
             $.get(`/patient/${patientId}/get-post.json`, postData, (res) => {
-                alert(res);
+                $("#post-modal-div").html(getModal(res));
+                $("#post-modal").modal();
             });
         });
     });

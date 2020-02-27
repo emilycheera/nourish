@@ -257,7 +257,10 @@ a:hover {
     border-color: #c6cdd2;
 }
 
+.modal-body {
+    margin-bottom: -20px;
+}
 
-
-
-
+.close {
+    margin-right: 7px;
+}

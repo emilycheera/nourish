@@ -911,9 +911,24 @@ def get_post_from_chart(patient_id):
                              Post.patient_id==patient_id,
                              rating_to_search==rating_value).first()
 
-    print(post)
+    edited = " (edited)" if post.edited else ""
 
-    return "success"
+    post = {"patient": {"patient_id": post.patient_id,
+                        "fname": post.patient.fname,
+                        "lname": post.patient.lname},
+            "post": {"time_stamp": post.time_stamp,
+                     "edited": edited,
+                     "img_path": post.img_path,
+                     "meal_time": post.meal_time,
+                     "meal_setting": post.meal_setting,
+                     "TEB": post.TEB,
+                     "hunger": post.hunger,
+                     "fullness": post.fullness,
+                     "satisfaction": post.satisfaction,
+                     "meal_notes": post.meal_notes}}
+
+
+    return jsonify(post)
 
 
 def allowed_image(filename):
