@@ -886,37 +886,6 @@ def get_patients_past_ratings(patient_id):
                              "search_start_date": search_start_date_isoformat}})
 
 
-# @app.route("/patient/<int:patient_id>/ratings-chart")
-# def show_ratings_chart(patient_id):
-#     """Show chart that displays hunger, fullness, and satisfacting ratings."""
-
-#     patient = Patient.query.get(patient_id)
-
-#     user_type = get_user_type_from_session()
-
-#     if user_type == "dietitian":
-#         dietitian = get_current_dietitian()
-#         patients_list = dietitian.patients
-#         sorted_patients = alphabetize_by_lname(patients_list)
-
-#         if not patient in patients_list:
-#             return render_template("unauthorized.html")
-
-#         return render_template("dietitian-ratings-chart.html",
-#                                 dietitian=dietitian,
-#                                 patients=sorted_patients,
-#                                 patient=patient)
-    
-#     if not check_patient_authorization(patient_id):
-#         return render_template("unauthorized.html")
-
-#     dietitian = patient.dietitian
-
-#     return render_template("patient-ratings-chart.html",
-#                             patient=patient,
-#                             dietitian=dietitian)
-
-
 def allowed_image(filename):
     """Check if image file has one of the allowed extensions."""
 
@@ -952,6 +921,7 @@ def get_list_of_ratings(patient_obj, post_rating, from_date_obj, to_date_obj):
 
     dates_ratings_tuples = (db.session.query(Post.meal_time, post_rating)
                              .filter(Post.patient == patient_obj, 
+                             post_rating != None, 
                              Post.meal_time.between(from_date_obj, to_date_obj))
                              .all())
 
@@ -968,7 +938,9 @@ def get_sundays_with_data(patient):
     """Get a list of past Sundays where the following week has ratings data."""
 
     dates_with_data = (db.session.query(Post.meal_time)
-                         .filter_by(patient=patient)).all()
+                         .filter(Post.patient==patient, 
+                          ( (Post.hunger != None) | (Post.fullness !=None) | 
+                            (Post.satisfaction != None) ))).all()
 
     sundays_with_data = set()
 
@@ -982,7 +954,10 @@ def get_sundays_with_data(patient):
         if previous_sunday not in sundays_with_data:
             sundays_with_data.add(previous_sunday.isoformat())
 
-    return list(sundays_with_data)
+    sundays_with_data_list = list(sundays_with_data)
+    sorted_data = sorted(sundays_with_data_list)
+    
+    return sorted_data[::-1]
 
 
 
