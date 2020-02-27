@@ -62,6 +62,3 @@ def alphabetize_by_lname(lst):
     """Alphabetize a list of objects by their attribute lname."""
 
     return sorted(lst, key=lambda x: x.lname)
-
-
-

@@ -5,9 +5,16 @@
         <a class="btn btn-primary btn-sm mr-3" href="/patient/{{ patient.patient_id }}/account">Account</a>
         <a class="btn btn-primary btn-sm mr-3" href="/patient/{{ patient.patient_id }}/goals">Goals</a>
         <a class="btn btn-primary btn-sm mr-3" href="/patient/{{ patient.patient_id }}/posts">Posts</a>
-        <a class="btn btn-primary btn-sm ratings-chart-btn" href="/patient/{{ patient.patient_id }}/ratings-chart" data-patient-id="{{ patient.patient_id }}">Ratings Chart</a>
+        <button type="button" class="btn btn-primary btn-sm ratings-chart-btn" data-patient-id="{{ patient.patient_id }}">Ratings Chart</button>
     </div>
-    <div>
+    <div id="patient-content">
         {% block patient_content %}{% endblock %}
     </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.js"></script>
+<script src="/static/js/ratings-chart.js"></script>
 {% endblock %}
+    
+
+
+<!-- href="/patient/{{ patient.patient_id }}/ratings-chart" -->

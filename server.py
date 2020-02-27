@@ -1,5 +1,5 @@
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 import os
 
 from flask import (Flask, render_template, request, flash, redirect,
@@ -847,69 +847,74 @@ def get_patients_weekly_ratings(patient_id):
     """Get a patient's hunger/fullness/satisfaction ratings from last 7 days."""
 
     patient = Patient.query.get(patient_id)
-    previous_week = datetime.now() - timedelta(days=7)
+    now = datetime.now()
+    one_week_ago = now - timedelta(days=7)
 
-    weekly_hunger_ratings = (db.session.query(Post.meal_time, Post.hunger)
-                             .filter(Post.patient == patient,
-                                     Post.meal_time > previous_week))
+    hunger_ratings_list = get_list_of_ratings(patient, Post.hunger, one_week_ago, now)
+    fullness_ratings_list = get_list_of_ratings(patient, Post.fullness, one_week_ago, now)
+    satisfaction_ratings_list = get_list_of_ratings(patient, Post.satisfaction, one_week_ago, now)
 
-    weekly_fullness_ratings = (db.session.query(Post.meal_time, Post.fullness)
-                             .filter(Post.patient == patient,
-                                     Post.meal_time > previous_week))
-
-    weekly_satisfaction_ratings = (db.session.query(Post.meal_time, Post.satisfaction)
-                             .filter(Post.patient == patient,
-                                     Post.meal_time > previous_week))
-
-    hunger_ratings_list = []
-    for meal_time, hunger in weekly_hunger_ratings:
-        hunger_ratings_list.append({"meal_time": meal_time.isoformat(),
-                                    "hunger_rating": hunger})
-
-    fullness_ratings_list = []
-    for meal_time, fullness in weekly_fullness_ratings:
-        fullness_ratings_list.append({"meal_time": meal_time.isoformat(),
-                                      "fullness_rating": fullness})
-
-    satisfaction_ratings_list = []
-    for meal_time, satisfaction in weekly_satisfaction_ratings:
-        satisfaction_ratings_list.append({"meal_time": meal_time.isoformat(),
-                                          "satisfaction_rating": satisfaction})
+    # Get dates to populate dropdown menu.
+    sundays_with_data = get_sundays_with_data(patient)
 
     return jsonify({"data": {"hunger": hunger_ratings_list,
                              "fullness": fullness_ratings_list,
-                             "satisfaction": satisfaction_ratings_list}})
+                             "satisfaction": satisfaction_ratings_list,
+                             "one_week_ago": one_week_ago.isoformat()},
+                    "dropdown": {"dropdown_dates": sundays_with_data}})
 
 
-@app.route("/patient/<int:patient_id>/ratings-chart")
-def show_ratings_chart(patient_id):
-    """Show chart that displays hunger, fullness, and satisfacting ratings."""
+@app.route("/patient/<int:patient_id>/past-ratings.json")
+def get_patients_past_ratings(patient_id):
+    """Get hunger/fullness/satisfaction ratings from a previous week."""
 
     patient = Patient.query.get(patient_id)
 
-    user_type = get_user_type_from_session()
+    search_start_date_isoformat = request.args.get("chart-date")
+    search_start_date = datetime.strptime(search_start_date_isoformat, "%Y-%m-%d")
 
-    if user_type == "dietitian":
-        dietitian = get_current_dietitian()
-        patients_list = dietitian.patients
-        sorted_patients = alphabetize_by_lname(patients_list)
+    # Get the date one week from the start date.
+    search_end_date = search_start_date + timedelta(days=7)
 
-        if not patient in patients_list:
-            return render_template("unauthorized.html")
+    hunger_ratings_list = get_list_of_ratings(patient, Post.hunger, search_start_date, search_end_date)
+    fullness_ratings_list = get_list_of_ratings(patient, Post.fullness, search_start_date, search_end_date)
+    satisfaction_ratings_list = get_list_of_ratings(patient, Post.satisfaction, search_start_date, search_end_date)
 
-        return render_template("dietitian-ratings-chart.html",
-                                dietitian=dietitian,
-                                patients=sorted_patients,
-                                patient=patient)
+    return jsonify({"data": {"hunger": hunger_ratings_list,
+                             "fullness": fullness_ratings_list,
+                             "satisfaction": satisfaction_ratings_list,
+                             "search_start_date": search_start_date_isoformat}})
+
+
+# @app.route("/patient/<int:patient_id>/ratings-chart")
+# def show_ratings_chart(patient_id):
+#     """Show chart that displays hunger, fullness, and satisfacting ratings."""
+
+#     patient = Patient.query.get(patient_id)
+
+#     user_type = get_user_type_from_session()
+
+#     if user_type == "dietitian":
+#         dietitian = get_current_dietitian()
+#         patients_list = dietitian.patients
+#         sorted_patients = alphabetize_by_lname(patients_list)
+
+#         if not patient in patients_list:
+#             return render_template("unauthorized.html")
+
+#         return render_template("dietitian-ratings-chart.html",
+#                                 dietitian=dietitian,
+#                                 patients=sorted_patients,
+#                                 patient=patient)
     
-    if not check_patient_authorization(patient_id):
-        return render_template("unauthorized.html")
+#     if not check_patient_authorization(patient_id):
+#         return render_template("unauthorized.html")
 
-    dietitian = patient.dietitian
+#     dietitian = patient.dietitian
 
-    return render_template("patient-ratings-chart.html",
-                            patient=patient,
-                            dietitian=dietitian)
+#     return render_template("patient-ratings-chart.html",
+#                             patient=patient,
+#                             dietitian=dietitian)
 
 
 def allowed_image(filename):
@@ -940,6 +945,45 @@ def save_image():
         img_path = f"/static/images/uploads/{filename}"
 
     return img_path
+
+
+def get_list_of_ratings(patient_obj, post_rating, from_date_obj, to_date_obj):
+    """Return a list of dates and ratings as dictionaries."""
+
+    dates_ratings_tuples = (db.session.query(Post.meal_time, post_rating)
+                             .filter(Post.patient == patient_obj, 
+                             Post.meal_time.between(from_date_obj, to_date_obj))
+                             .all())
+
+    dates_ratings_dicts = []
+
+    for meal_time, rating in dates_ratings_tuples:
+        dates_ratings_dicts.append({"meal_time": meal_time.isoformat(),
+                                    "rating": rating})
+
+    return dates_ratings_dicts
+
+
+def get_sundays_with_data(patient):
+    """Get a list of past Sundays where the following week has ratings data."""
+
+    dates_with_data = (db.session.query(Post.meal_time)
+                         .filter_by(patient=patient)).all()
+
+    sundays_with_data = set()
+
+    for day, in dates_with_data:
+        
+        # Get the previous Sunday.
+        idx = (day.date().weekday() + 1) % 7
+        previous_sunday = day.date() - timedelta(idx)
+        
+        # If the previous Sunday is not in the set, add it.
+        if previous_sunday not in sundays_with_data:
+            sundays_with_data.add(previous_sunday.isoformat())
+
+    return list(sundays_with_data)
+
 
 
 if __name__ == "__main__":
