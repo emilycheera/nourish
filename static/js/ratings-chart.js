@@ -71,15 +71,14 @@ const config_chart = (hungerData, fullnessData, satisfactionData) => {
 }
 
 
-<!-- Modal -->
-
 const getModal = (res) => {
-
+    const timeStamp = (moment(res.post.time_stamp).format("MMM D YYYY [at] h:mm A"));
     const imgPath = (res.post.img_path) ? `<img src="${res.post.img_path}" class="post-image">` : "";
-    const hunger = (res.post.hunger) ? `<p><b>Hunger:</b>${res.post.hunger}</p>` : "";
-    const fullness = (res.post.fullness) ? `<p><b>Fullness:</b>${res.post.fullness}</p>` : "";
-    const satisfaction = (res.post.satisfaction) ? `<p><b>Satisfaction:</b>${res.post.satisfaction}</p>` : "";
-    const mealNotes = (res.post.meal_notes) ? `<p><b>Additional Notes:</b>${res.post.meal_notes}</p>` : "";
+    const mealTime = (moment(res.post.meal_time).format("MMM D YYYY [at] h:mm A"));
+    const hunger = (res.post.hunger) ? `<p><b>Hunger:</b> ${res.post.hunger}</p>` : "";
+    const fullness = (res.post.fullness) ? `<p><b>Fullness:</b> ${res.post.fullness}</p>` : "";
+    const satisfaction = (res.post.satisfaction) ? `<p><b>Satisfaction:</b> ${res.post.satisfaction}</p>` : "";
+    const mealNotes = (res.post.meal_notes) ? `<p><b>Additional Notes:</b>$ {res.post.meal_notes}</p>` : "";
 
     const modalHTML = `<div class="modal" id="post-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
                           <div class="modal-dialog modal-dialog-centered" role="document">
@@ -93,12 +92,12 @@ const getModal = (res) => {
                                         <a href="/patient/${res.patient.patient_id}/account" class="post-author">
                                             ${res.patient.fname} ${res.patient.lname}
                                         </a>
-                                        <p class="post-time">${res.post.time_stamp}${res.post.edited}</p>
+                                        <p class="post-time">${timeStamp}${res.post.edited}</p>
                                     </div>
                                         ${imgPath}
                                     <div class="post-content">
                                         <div class="post-fields">
-                                            <p><b>Meal Time:</b> ${res.post.meal_time}</p>
+                                            <p><b>Meal Time:</b> ${mealTime}</p>
                                             <p><b>Setting:</b> ${res.post.meal_setting}</p>
                                             <p><b>Thoughts, Emotions, Behaviors:</b> ${res.post.TEB}</p>
                                              ${hunger}
@@ -115,7 +114,6 @@ const getModal = (res) => {
 
     return modalHTML;
 }
-
 
 
 
@@ -138,18 +136,12 @@ $(".ratings-chart-btn").on("click", (evt) => {
             satisfactionData.push({x: post.meal_time, y: post.rating});
         }
   
-        const oneWeekAgo = (moment(res.data.one_week_ago).format("MMM D, YYYY"));
-
-        const getDropdownHTML = (dropdownDates) => {
-            let dateOptions;
-            for (date of dropdownDates) {
-                const formattedDate = (moment(date).format("MMM D, YYYY"));
-                dateOptions += `<option value="${date}">${formattedDate}</option>`;
-            };
-            return dateOptions;
+        // Get option elements for dropdown.
+        let dateOptions;
+        for (date of res.dropdown.dropdown_dates) {
+            const formattedDate = (moment(date).format("MMM D, YYYY"));
+            dateOptions += `<option value="${date}">${formattedDate}</option>`;
         };
-
-        const dateOptions = getDropdownHTML(res.dropdown.dropdown_dates);
 
         $("#patient-content").replaceWith(`<div id="patient-content">
                 <form class="chart-date-form mb-4" data-patient-id="${patientId}">
@@ -166,10 +158,10 @@ $(".ratings-chart-btn").on("click", (evt) => {
                         Ratings for the Last 7 Days
                     </h4>
                     <p>
-                        Hover over a point on the chart to view 
-                        the rating’s value and the time it was posted.
+                        Hover over a point to see more information about a 
+                        rating. Click on a point to see the patient's post.
                     </p>
-                    <canvas id="ratings-chart" width="800" 
+                    <canvas id="ratings-chart-recent" width="800" 
                         height="500"></canvas>
                 </div>
             </div>
@@ -179,26 +171,26 @@ $(".ratings-chart-btn").on("click", (evt) => {
         
         const config = config_chart(hungerData, fullnessData, satisfactionData);
 
-        const ratingsChart = new Chart($("#ratings-chart"), config);
+        const ratingsChart = new Chart($("#ratings-chart-recent"), config);
 
-        $("body").on("click", "canvas.chartjs-render-monitor", (evt) => {
+        $("#ratings-chart-recent").on("click", (evt) => {
             var firstPoint = ratingsChart.getElementAtEvent(evt)[0];
 
             if (firstPoint) {
                 var label = ratingsChart.data.datasets[firstPoint._datasetIndex].label;
                 var value = ratingsChart.data.datasets[firstPoint._datasetIndex].data[firstPoint._index];
-            }
 
-            const postData = {
-                ratingLabel: label,
-                postDatetime: value.x,
-                ratingValue: value.y
+                const postData = {
+                    ratingLabel: label,
+                    postDatetime: value.x,
+                    ratingValue: value.y
+                };
+
+                $.get(`/patient/${patientId}/get-post.json`, postData, (res) => {
+                    $("#post-modal-div").html(getModal(res));
+                    $("#post-modal").modal();
+                });
             };
-
-            $.get(`/patient/${patientId}/get-post.json`, postData, (res) => {
-                $("#post-modal-div").html(getModal(res));
-                $("#post-modal").modal();
-            });
         });
     });
 });
@@ -236,13 +228,34 @@ $("body").on("submit", "form.chart-date-form", (evt) => {
                                         Hover over a point on the chart to view the 
                                         rating’s value and the time it was posted.
                                     </p>
-                                    <canvas id="ratings-chart" width="800" 
+                                    <canvas id="ratings-chart-previous" width="800" 
                                         height="500"></canvas>
-                                       </div>`);
+                                    </div>`);
       
         const config = config_chart(hungerData, fullnessData, satisfactionData);
 
-        const ratingsChart = new Chart($("#ratings-chart"), config);
+        const ratingsChart = new Chart($("#ratings-chart-previous"), config);
 
+        $("#ratings-chart-previous").on("click", (evt) => {
+            var firstPoint = ratingsChart.getElementAtEvent(evt)[0];
+
+            if (firstPoint) {
+                var label = ratingsChart.data.datasets[firstPoint._datasetIndex].label;
+                var value = ratingsChart.data.datasets[firstPoint._datasetIndex].data[firstPoint._index];
+
+                const postData = {
+                    ratingLabel: label,
+                    postDatetime: value.x,
+                    ratingValue: value.y
+                };
+
+                $.get(`/patient/${patientId}/get-post.json`, postData, (res) => {
+                    $("#post-modal-div").html(getModal(res));
+                    $("#post-modal").modal();
+            });
+            };
+        });
     });
 });
+
+
