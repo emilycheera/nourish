@@ -144,14 +144,18 @@ $(".ratings-chart-btn").on("click", (evt) => {
         };
 
         $("#patient-content").replaceWith(`<div id="patient-content">
-                <form class="chart-date-form mb-4" data-patient-id="${patientId}">
+                <form class="chart-date-form mb-4 mr-auto" data-patient-id="${patientId}">
                     <label for="chart-date-select">
                         See ratings for previous weeks:
                     </label>
-                    <select name="chart-date" id="chart-date-select">
+                    <div class="input-group">
+                    <select name="chart-date" id="chart-date-select" class="custom-select">
                         ${dateOptions}
                     </select>
-                    <button type="submit">Get Chart</button>
+                    <div class="input-group-append">
+                        <button type="submit" class="btn btn-outline-secondary">Get Chart</button>
+                    </div>
+                    </div>
                 </form>
                 <div id="chart-div">
                     <h4>
@@ -161,7 +165,7 @@ $(".ratings-chart-btn").on("click", (evt) => {
                         Hover over a point to see more information about a 
                         rating. Click on a point to see the patient's post.
                     </p>
-                    <canvas id="ratings-chart-recent" width="800" 
+                    <canvas id="ratings-chart-recent" class="ratings-chart" width="800" 
                         height="500"></canvas>
                 </div>
             </div>
@@ -225,10 +229,10 @@ $("body").on("submit", "form.chart-date-form", (evt) => {
                                         Ratings for Week of ${searchStartDate}
                                     </h4>
                                     <p>
-                                        Hover over a point on the chart to view the 
-                                        rating’s value and the time it was posted.
+                                        Hover over a point to see more information about a 
+                                        rating. Click on a point to see the patient's post.
                                     </p>
-                                    <canvas id="ratings-chart-previous" width="800" 
+                                    <canvas id="ratings-chart-previous" class="ratings-chart" width="800" 
                                         height="500"></canvas>
                                     </div>`);
       

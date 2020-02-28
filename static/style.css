@@ -187,6 +187,14 @@ a:hover {
     box-shadow: none !important;
 }
 
+.btn-outline-secondary:focus {
+    box-shadow: none !important;
+}
+
+.btn-outline-secondary:active {
+    box-shadow: none !important;
+}
+
 .dropdown-item.active, .dropdown-item:active {
     background-color: #f3f5f7 !important;
 }
@@ -241,7 +249,7 @@ a:hover {
     float: right;
 }
 
-#ratings-chart {
+.ratings-chart {
     max-width: 800px;
     max-height: 500px;
 }
@@ -257,10 +265,19 @@ a:hover {
     border-color: #c6cdd2;
 }
 
+.custom-select:focus {
+    box-shadow: none;
+    border-color: #c6cdd2;
+}
+
 .modal-body {
     margin-bottom: -20px;
 }
 
 .close {
     margin-right: 7px;
+}
+
+.chart-date-form {
+    max-width: 350px;
 }
