@@ -63,7 +63,7 @@ $(".add-comment-form").on("submit", (evt) => {
     const postId = evt.target.dataset.postId;
     const formValues = $(`#add-comment-form-${postId}`).serialize();
     $(`#add-comment-form-${postId}`)[0].reset();
-    $.post(`/post/${postId}/add-comment`, formValues, (res) => {
+    $.post(`/post/${postId}/add-comment.json`, formValues, (res) => {
         $(`#comments-for-${postId}`).append(getDiv(res));
     });
 });
@@ -73,7 +73,7 @@ $("body").on("submit", "form.edit-comment-form", (evt) => {
     evt.preventDefault();
     const commentId = evt.target.dataset.commentId;
     const formValues = $(`#edit-comment-form-${commentId}`).serialize();
-    $.post(`/comment/${commentId}/edit`, formValues, (res) => {
+    $.post(`/comment/${commentId}/edit.json`, formValues, (res) => {
         $(`#comment-and-edit-form-${commentId}`).replaceWith(getDiv(res));
     });
 });

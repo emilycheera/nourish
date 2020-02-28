@@ -73,7 +73,7 @@ $("#add-goal-form").on("submit", (evt) => {
     const patientId = evt.target.dataset.patientId;
     const formValues = $("#add-goal-form").serialize();
     $("#add-goal-form")[0].reset();
-    $.post(`/patient/${patientId}/add-goal`, formValues, (res) => {
+    $.post(`/patient/${patientId}/add-goal.json`, formValues, (res) => {
         $("#current-goal-div").replaceWith(getCurrentGoal(res));
         $("#past-goals-div").prepend(getPastGoal(res));
     });
@@ -84,7 +84,7 @@ $("body").on("submit", "form.edit-goal-form", (evt) => {
     evt.preventDefault();
     const goalId = evt.target.dataset.goalId;
     const formValues = $(`#edit-goal-form-${goalId}`).serialize();
-    $.post(`/goal/${goalId}/edit`, formValues, (res) => {
+    $.post(`/goal/${goalId}/edit.json`, formValues, (res) => {
         $("#current-goal-div").replaceWith(getCurrentGoal(res));
     });
 });

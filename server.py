@@ -459,15 +459,15 @@ def customize_patient_post_form(patient_id):
 def save_customized_patient_post_form(patient_id):
     """Save which form fields the dietitian selected for a specific patient."""
 
-    hunger_visible = request.form.get("hunger-visible")
-    fullness_visible = request.form.get("fullness-visible")
-    satisfaction_visible = request.form.get("satisfaction-visible")
-
     patient = Patient.query.get(patient_id)
 
-    patient.hunger_visible = True if hunger_visible else False
-    patient.fullness_visible = True if fullness_visible else False
-    patient.satisfaction_visible = True if satisfaction_visible else False
+    patient.hunger_visible = bool(request.form.get("hunger-visible"))
+    patient.fullness_visible = bool(request.form.get("fullness-visible"))
+    patient.satisfaction_visible = bool(request.form.get("satisfaction-visible"))
+
+    # patient.hunger_visible = True if fullness_visible else False
+    # patient.fullness_visible = True if fullness_visible else False
+    # patient.satisfaction_visible = True if satisfaction_visible else False
 
     db.session.add(patient)
     db.session.commit()
@@ -517,7 +517,7 @@ def show_patient_goals(patient_id):
                             goals=sorted_goals)
 
 
-@app.route("/patient/<int:patient_id>/add-goal", methods=["POST"])
+@app.route("/patient/<int:patient_id>/add-goal.json", methods=["POST"])
 def add_new_patient_goal(patient_id):
     """Process form to add a new goal."""
 
@@ -555,7 +555,7 @@ def add_new_patient_goal(patient_id):
     return jsonify(goals)
 
 
-@app.route("/goal/<int:goal_id>/edit", methods=["POST"])
+@app.route("/goal/<int:goal_id>/edit.json", methods=["POST"])
 def edit_patient_goal(goal_id):
     """Edit a patient goal."""
 
@@ -626,7 +626,7 @@ def show_single_patient_posts(patient_id):
                             posts=sorted_posts)
 
 
-@app.route("/post/<int:post_id>/add-comment", methods=["POST"])
+@app.route("/post/<int:post_id>/add-comment.json", methods=["POST"])
 def add_post_comment(post_id):
     """Add a comment to a post."""
 
@@ -670,7 +670,7 @@ def add_post_comment(post_id):
     return jsonify(comment)
 
 
-@app.route("/comment/<int:comment_id>/edit", methods=["POST"])
+@app.route("/comment/<int:comment_id>/edit.json", methods=["POST"])
 def edit_post_comment(comment_id):
     """Update a comment on a post."""
 
@@ -764,9 +764,9 @@ def add_new_post():
     meal_time = request.form.get("meal-time")
     meal_setting = request.form.get("meal-setting")
     TEB = request.form.get("TEB")
-    hunger = request.form.get("hunger")
-    fullness = request.form.get("fullness")
-    satisfaction = request.form.get("satisfaction")
+    hunger = request.form.get("hunger") or None
+    fullness = request.form.get("fullness") or None
+    satisfaction = request.form.get("satisfaction") or None
     meal_notes = request.form.get("meal-notes")
 
     new_post = Post(patient_id=patient_id,
@@ -775,11 +775,14 @@ def add_new_post():
                     img_path=img_path,
                     meal_setting=meal_setting,
                     TEB=TEB,
+                    hunger=hunger,
+                    fullness=fullness,
+                    satisfaction=satisfaction,
                     meal_notes=meal_notes)
 
-    new_post.hunger = hunger if hunger else None
-    new_post.fullness = fullness if fullness else None
-    new_post.satisfaction = satisfaction if satisfaction else None
+    # new_post.hunger = hunger if hunger else None
+    # new_post.fullness = fullness if fullness else None
+    # new_post.satisfaction = satisfaction if satisfaction else None
 
     db.session.add(new_post)
     db.session.commit()
@@ -913,22 +916,41 @@ def get_post_from_chart(patient_id):
 
     edited = " (edited)" if post.edited else ""
 
-    post = {"patient": {"patient_id": post.patient_id,
-                        "fname": post.patient.fname,
-                        "lname": post.patient.lname},
-            "post": {"time_stamp": post.time_stamp.isoformat(),
-                     "edited": edited,
-                     "img_path": post.img_path,
-                     "meal_time": post.meal_time.isoformat(),
-                     "meal_setting": post.meal_setting,
-                     "TEB": post.TEB,
-                     "hunger": post.hunger,
-                     "fullness": post.fullness,
-                     "satisfaction": post.satisfaction,
-                     "meal_notes": post.meal_notes}}
+    post_dict = {"patient": {"patient_id": patient_id,
+                             "fname": post.patient.fname,
+                             "lname": post.patient.lname},
+                 "post": {"post_id": post.post_id,
+                          "time_stamp": post.time_stamp.isoformat(),
+                          "edited": edited,
+                          "img_path": post.img_path,
+                          "meal_time": post.meal_time.isoformat(),
+                          "meal_setting": post.meal_setting,
+                          "TEB": post.TEB,
+                          "hunger": post.hunger,
+                          "fullness": post.fullness,
+                          "satisfaction": post.satisfaction,
+                          "meal_notes": post.meal_notes},
+                 "comments": {}}
+
+    comments = post.comments
+    if comments:
+        sorted_comments = sorted(comments, key=lambda x: x.time_stamp)
+        patient = Patient.query.get(patient_id)
+        
+        for comment in sorted_comments:
+            author_fname = patient.dietitian.fname if comment.author_type == "diet" else patient.fname
+            author_lname = patient.dietitian.lname if comment.author_type == "diet" else patient.lname
+            edited = " (edited)" if comment.edited else ""
+
+            post_dict["comments"][comment.comment_id] = {"author_fname": author_fname,
+                                                           "author_lname": author_lname,
+                                                           "comment_body": comment.comment_body,
+                                                           "time_stamp": comment.time_stamp.isoformat(),
+                                                           "edited": edited,
+                                                           "post_id": comment.post_id}
 
 
-    return jsonify(post)
+    return jsonify(post_dict)
 
 
 def allowed_image(filename):

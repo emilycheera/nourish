@@ -1,4 +1,5 @@
 
+
 Chart.defaults.global.defaultFontFamily = "Roboto";
 Chart.defaults.global.legend.position = 'bottom';
 
@@ -72,13 +73,37 @@ const config_chart = (hungerData, fullnessData, satisfactionData) => {
 
 
 const getModal = (res) => {
-    const timeStamp = (moment(res.post.time_stamp).format("MMM D YYYY [at] h:mm A"));
+    const postTimeStamp = (moment(res.post.time_stamp).format("MMM D YYYY [at] h:mm A"));
     const imgPath = (res.post.img_path) ? `<img src="${res.post.img_path}" class="post-image">` : "";
     const mealTime = (moment(res.post.meal_time).format("MMM D YYYY [at] h:mm A"));
     const hunger = (res.post.hunger) ? `<p><b>Hunger:</b> ${res.post.hunger}</p>` : "";
     const fullness = (res.post.fullness) ? `<p><b>Fullness:</b> ${res.post.fullness}</p>` : "";
     const satisfaction = (res.post.satisfaction) ? `<p><b>Satisfaction:</b> ${res.post.satisfaction}</p>` : "";
     const mealNotes = (res.post.meal_notes) ? `<p><b>Additional Notes:</b>$ {res.post.meal_notes}</p>` : "";
+    let commentDiv = "";
+    console.log(res.comments);
+    if (res.comments) {
+        let commentDiv = `<div id="comments-for-${res.post.post_id}">
+                            <div class="border-top">
+                            </div>
+                            <div id="comment-div">`;
+
+        for (const comment of Object.values(res.comments)) {
+            const commentId = comment;
+            const commentTimeStamp = (moment(comment.time_stamp).format("MMM D YYYY [at] h:mm A"));
+
+            commentDiv += `<div id="${commentId}">
+                                <p class="comment-body">
+                                    <b>${comment.author_fname} ${comment.author_lname}</b>
+                                    ${comment.comment_body}
+                                </p>
+                                <p class="comment-time">
+                                    ${commentTimeStamp}${comment.edited}
+                                </p>
+                            </div>`;
+        }
+        commentDiv += "</div></div>";
+    }
 
     const modalHTML = `<div class="modal" id="post-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
                           <div class="modal-dialog modal-dialog-centered" role="document">
@@ -92,7 +117,7 @@ const getModal = (res) => {
                                         <a href="/patient/${res.patient.patient_id}/account" class="post-author">
                                             ${res.patient.fname} ${res.patient.lname}
                                         </a>
-                                        <p class="post-time">${timeStamp}${res.post.edited}</p>
+                                        <p class="post-time">${postTimeStamp}${res.post.edited}</p>
                                     </div>
                                         ${imgPath}
                                     <div class="post-content">
@@ -105,6 +130,11 @@ const getModal = (res) => {
                                              ${satisfaction}
                                              ${mealNotes}
                                         </div>
+                                        ${commentDiv}
+                                        <form class="add-comment-form" id="add-comment-form-${res.post.post_id}" data-post-id="${res.post.post_id}">
+                                            <textarea class="comment-box" required name="comment" placeholder="Write a comment..."></textarea>
+                                            <button type="submit" class="btn btn-outline-primary btn-sm btn-block">Submit Comment</button>
+                                        </form>
                                     </div>
                                 </div>
                               </div>
@@ -144,12 +174,16 @@ $(".ratings-chart-btn").on("click", (evt) => {
         };
 
         $("#patient-content").replaceWith(`<div id="patient-content">
-                <form class="chart-date-form mb-4 mr-auto" data-patient-id="${patientId}">
-                    <label for="chart-date-select">
+                <form class="chart-date-form mb-5 mr-auto" data-patient-id="${patientId}">
+                    <label for="chart-date-select" class="sr-only">
                         See ratings for previous weeks:
                     </label>
-                    <div class="input-group">
+                    <div class="input-group input-group-sm chart-date-div">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">See ratings for previous weeks:</span>
+                    </div>
                     <select name="chart-date" id="chart-date-select" class="custom-select">
+                        <option value="" disabled selected hidden>Select a Date</option>
                         ${dateOptions}
                     </select>
                     <div class="input-group-append">
@@ -261,5 +295,3 @@ $("body").on("submit", "form.chart-date-form", (evt) => {
         });
     });
 });
-
-

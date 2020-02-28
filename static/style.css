@@ -176,14 +176,14 @@ a:hover {
 }
 
 .btn-primary:focus {
-    background-color: #c66c06 !important;
-    border-color: #c66c06 !important;
+    background-color: #e87e07 !important;
+    border-color: #e87e07 !important;
     box-shadow: none !important;
 }
 
 .btn-primary:active {
-    background-color: #c66c06 !important;
-    border-color: #c66c06 !important;
+    background-color: #e87e07 !important;
+    border-color: #e87e07!important;
     box-shadow: none !important;
 }
 
@@ -252,6 +252,7 @@ a:hover {
 .ratings-chart {
     max-width: 800px;
     max-height: 500px;
+    margin-top: 20px;
 }
 
 .select2-container--bootstrap.select2-container--focus .select2-selection, 
@@ -279,5 +280,11 @@ a:hover {
 }
 
 .chart-date-form {
-    max-width: 350px;
+    margin-top: -10px;
+    max-width: 475px;
 }
+
+.pt-btn {
+    width: 140px !important;
+}
+
