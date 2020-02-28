@@ -845,6 +845,24 @@ def delete_post():
     return "Success"
 
 
+@app.route("/patient/<int:patient_id>/ratings-chart")
+def get_ratings_chart_template(patient_id):
+    """Shows page containing rating chart div."""
+
+    patient = Patient.query.get(patient_id)
+    dietitian = get_current_dietitian()
+    patients_list = dietitian.patients
+    sorted_patients = alphabetize_by_lname(patients_list)
+
+    if not patient in patients_list:
+        return render_template("unauthorized.html")
+
+    return render_template("dietitian-ratings-chart.html",
+                            dietitian=dietitian,
+                            patient=patient,
+                            patients=sorted_patients)
+
+
 @app.route("/patient/<int:patient_id>/weekly-ratings.json")
 def get_patients_weekly_ratings(patient_id):
     """Get a patient's hunger/fullness/satisfaction ratings from last 7 days."""
@@ -942,13 +960,12 @@ def get_post_from_chart(patient_id):
             author_lname = patient.dietitian.lname if comment.author_type == "diet" else patient.lname
             edited = " (edited)" if comment.edited else ""
 
-            post_dict["comments"][comment.comment_id] = {"author_fname": author_fname,
-                                                           "author_lname": author_lname,
-                                                           "comment_body": comment.comment_body,
-                                                           "time_stamp": comment.time_stamp.isoformat(),
-                                                           "edited": edited,
-                                                           "post_id": comment.post_id}
-
+            post_dict["comments"]["comment"] = {"comment_id": comment.comment_id,
+                                              "author_fname": author_fname,
+                                              "author_lname": author_lname,
+                                              "comment_body": comment.comment_body,
+                                              "time_stamp": comment.time_stamp.isoformat(),
+                                              "edited": edited}
 
     return jsonify(post_dict)
 

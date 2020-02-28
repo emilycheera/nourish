@@ -73,37 +73,38 @@ const config_chart = (hungerData, fullnessData, satisfactionData) => {
 
 
 const getModal = (res) => {
-    const postTimeStamp = (moment(res.post.time_stamp).format("MMM D YYYY [at] h:mm A"));
+    const postTimeStamp = (moment(res.post.time_stamp).format("MMM D, YYYY [at] h:mm A"));
     const imgPath = (res.post.img_path) ? `<img src="${res.post.img_path}" class="post-image">` : "";
-    const mealTime = (moment(res.post.meal_time).format("MMM D YYYY [at] h:mm A"));
+    const mealTime = (moment(res.post.meal_time).format("MMM D, YYYY [at] h:mm A"));
     const hunger = (res.post.hunger) ? `<p><b>Hunger:</b> ${res.post.hunger}</p>` : "";
     const fullness = (res.post.fullness) ? `<p><b>Fullness:</b> ${res.post.fullness}</p>` : "";
     const satisfaction = (res.post.satisfaction) ? `<p><b>Satisfaction:</b> ${res.post.satisfaction}</p>` : "";
     const mealNotes = (res.post.meal_notes) ? `<p><b>Additional Notes:</b>$ {res.post.meal_notes}</p>` : "";
-    let commentDiv = "";
-    console.log(res.comments);
+    let commentDiv;
+
     if (res.comments) {
-        let commentDiv = `<div id="comments-for-${res.post.post_id}">
-                            <div class="border-top">
-                            </div>
-                            <div id="comment-div">`;
+        commentDiv = `<div class="border-top">
+                      </div>
+                        <div id="comment-div">
+                           <div id="comments-for-${res.post.post_id}">`;
 
         for (const comment of Object.values(res.comments)) {
-            const commentId = comment;
-            const commentTimeStamp = (moment(comment.time_stamp).format("MMM D YYYY [at] h:mm A"));
+            const commentId = comment.comment_id;
+            const commentTimeStamp = (moment(comment.time_stamp).format("MMM D, YYYY [at] h:mm A"));
 
-            commentDiv += `<div id="${commentId}">
+            commentDiv += `<div id="comment-${commentId}">
                                 <p class="comment-body">
                                     <b>${comment.author_fname} ${comment.author_lname}</b>
                                     ${comment.comment_body}
                                 </p>
                                 <p class="comment-time">
                                     ${commentTimeStamp}${comment.edited}
+                                    <button class="modal-delete-comment-btn btn btn-link" data-comment-id="${commentId}">Delete</button>
                                 </p>
                             </div>`;
-        }
+        };
         commentDiv += "</div></div>";
-    }
+    };
 
     const modalHTML = `<div class="modal" id="post-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
                           <div class="modal-dialog modal-dialog-centered" role="document">
@@ -131,7 +132,7 @@ const getModal = (res) => {
                                              ${mealNotes}
                                         </div>
                                         ${commentDiv}
-                                        <form class="add-comment-form" id="add-comment-form-${res.post.post_id}" data-post-id="${res.post.post_id}">
+                                        <form class="modal-add-comment-form" id="add-comment-form-${res.post.post_id}" data-post-id="${res.post.post_id}">
                                             <textarea class="comment-box" required name="comment" placeholder="Write a comment..."></textarea>
                                             <button type="submit" class="btn btn-outline-primary btn-sm btn-block">Submit Comment</button>
                                         </form>
@@ -149,8 +150,8 @@ const getModal = (res) => {
 
 $(".ratings-chart-btn").on("click", (evt) => {
     evt.preventDefault();
-
     const patientId = evt.target.dataset.patientId;
+    window.history.pushState("object or string", "", `/patient/${patientId}/ratings-chart`);
 
     $.get(`/patient/${patientId}/weekly-ratings.json`, (res) => {
         const hungerData = [];
@@ -294,4 +295,40 @@ $("body").on("submit", "form.chart-date-form", (evt) => {
             };
         });
     });
+});
+
+const getCommentDiv = (res) => {
+    const timeStamp = (moment(res.comment.time_stamp).format("MMM D, YYYY [at] h:mm A"));
+    return `<div id="comment-${res.comment.comment_id}">
+                <p class="comment-body">
+                    <b>${res.user.fname} ${res.user.lname}:</b> 
+                    ${res.comment.comment_body}
+                </p>
+                <p class="comment-time">
+                    ${timeStamp}${res.comment.edited}
+                    <button class="modal-delete-comment-btn btn btn-link" data-comment-id="${res.comment.comment_id}">Delete</button>
+                </p>
+            </div>`;
+}
+
+
+$("body").on("submit", "form.modal-add-comment-form", (evt) => {
+    evt.preventDefault();
+    const postId = evt.target.dataset.postId;
+    const formValues = $(`#add-comment-form-${postId}`).serialize();
+    $(`#add-comment-form-${postId}`)[0].reset();
+    $.post(`/post/${postId}/add-comment.json`, formValues, (res) => {
+        $(`#comments-for-${postId}`).append(getCommentDiv(res));
+    });
+});
+
+$("body").on("click", "button.modal-delete-comment-btn", (evt) => {
+    result = window.confirm("Are you sure you want to delete this comment?");
+
+    if (result) {
+        const commentId = evt.target.dataset.commentId;
+        $.post("/delete-comment", { comment: commentId }, () => {
+            $(`#comment-${commentId}`).hide()
+        });
+    };
 });

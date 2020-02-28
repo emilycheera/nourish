@@ -34,7 +34,7 @@ $("body").on("click", "button.delete-comment-btn", (evt) => {
 
 
 const getDiv = (res) => {
-    const timeStamp = (moment(res.comment.time_stamp).format("MMM D YYYY [at] h:mm A"));
+    const timeStamp = (moment(res.comment.time_stamp).format("MMM D, YYYY [at] h:mm A"));
     return `<div id="comment-and-edit-form-${res.comment.comment_id}">
                 <div id="comment-${res.comment.comment_id}">
                     <p class="comment-body">
