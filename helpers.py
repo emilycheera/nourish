@@ -1,5 +1,7 @@
+from datetime import timedelta, date
 from flask import session
-from model import Dietitian, Patient
+from model import db, Dietitian, Patient, Post
+
 
 
 def get_current_dietitian():
@@ -62,3 +64,50 @@ def alphabetize_by_lname(lst):
     """Alphabetize a list of objects by their attribute lname."""
 
     return sorted(lst, key=lambda x: x.lname)
+
+
+def get_list_of_ratings(patient_obj, post_rating, from_date_obj, to_date_obj):
+    """Return a list of dates and ratings as dictionaries."""
+
+    dates_ratings_tuples = (db.session.query(Post.meal_time, post_rating)
+                             .filter(Post.patient == patient_obj, 
+                             post_rating != None, 
+                             Post.meal_time.between(from_date_obj, to_date_obj))
+                             .all())
+
+    dates_ratings_dicts = []
+
+    for meal_time, rating in dates_ratings_tuples:
+        dates_ratings_dicts.append({"meal_time": meal_time.isoformat(),
+                                    "rating": rating})
+
+    return dates_ratings_dicts
+
+
+def get_sundays_with_data(patient):
+    """Get a list of past Sundays where the following week has ratings data."""
+
+    dates_with_data = (db.session.query(Post.meal_time)
+                         .filter(Post.patient==patient, 
+                          ( (Post.hunger != None) | (Post.fullness !=None) | 
+                            (Post.satisfaction != None) ))).all()
+
+    sundays_with_data = set()
+
+    for day, in dates_with_data:
+        
+        # Get the previous Sunday.
+        idx = (day.date().weekday() + 1) % 7
+        previous_sunday = day.date() - timedelta(idx)
+        
+        # If the previous Sunday is not in the set, add it.
+        if previous_sunday not in sundays_with_data:
+            sundays_with_data.add(previous_sunday.isoformat())
+
+    sundays_with_data_list = list(sundays_with_data)
+    sorted_data = sorted(sundays_with_data_list)
+    
+    return sorted_data[::-1]
+
+
+

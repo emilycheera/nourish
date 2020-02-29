@@ -1,5 +1,5 @@
 
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta
 import os
 
 from flask import (Flask, render_template, request, flash, redirect,
@@ -12,7 +12,8 @@ from flask_debugtoolbar import DebugToolbarExtension
 
 from helpers import (get_current_dietitian, get_current_patient,
     get_user_type_from_session, check_dietitian_authorization,
-    check_patient_authorization, sort_date_desc, alphabetize_by_lname)
+    check_patient_authorization, sort_date_desc, alphabetize_by_lname,
+    get_list_of_ratings, get_sundays_with_data)
 from jinja_filters import datetimeformat, dateformat, htmldateformat
 from model import connect_to_db, db, Dietitian, Patient, Goal, Post, Comment
 
@@ -1002,49 +1003,6 @@ def save_image():
 
     return img_path
 
-
-def get_list_of_ratings(patient_obj, post_rating, from_date_obj, to_date_obj):
-    """Return a list of dates and ratings as dictionaries."""
-
-    dates_ratings_tuples = (db.session.query(Post.meal_time, post_rating)
-                             .filter(Post.patient == patient_obj, 
-                             post_rating != None, 
-                             Post.meal_time.between(from_date_obj, to_date_obj))
-                             .all())
-
-    dates_ratings_dicts = []
-
-    for meal_time, rating in dates_ratings_tuples:
-        dates_ratings_dicts.append({"meal_time": meal_time.isoformat(),
-                                    "rating": rating})
-
-    return dates_ratings_dicts
-
-
-def get_sundays_with_data(patient):
-    """Get a list of past Sundays where the following week has ratings data."""
-
-    dates_with_data = (db.session.query(Post.meal_time)
-                         .filter(Post.patient==patient, 
-                          ( (Post.hunger != None) | (Post.fullness !=None) | 
-                            (Post.satisfaction != None) ))).all()
-
-    sundays_with_data = set()
-
-    for day, in dates_with_data:
-        
-        # Get the previous Sunday.
-        idx = (day.date().weekday() + 1) % 7
-        previous_sunday = day.date() - timedelta(idx)
-        
-        # If the previous Sunday is not in the set, add it.
-        if previous_sunday not in sundays_with_data:
-            sundays_with_data.add(previous_sunday.isoformat())
-
-    sundays_with_data_list = list(sundays_with_data)
-    sorted_data = sorted(sundays_with_data_list)
-    
-    return sorted_data[::-1]
 
 
 
