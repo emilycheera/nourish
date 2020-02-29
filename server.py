@@ -949,15 +949,26 @@ def get_post_from_chart(patient_id):
         
         for comment in sorted_comments:
             author_fname = patient.dietitian.fname if comment.author_type == "diet" else patient.fname
-            author_lname = patient.dietitian.lname if comment.author_type == "diet" else patient.lname
+            author_lname = patient.dietitian.lname if comment.author_type == "diet" else patient.lname 
             edited = " (edited)" if comment.edited else ""
 
-            post_dict["comments"]["comment"] = {"comment_id": comment.comment_id,
-                                              "author_fname": author_fname,
-                                              "author_lname": author_lname,
-                                              "comment_body": comment.comment_body,
-                                              "time_stamp": comment.time_stamp.isoformat(),
-                                              "edited": edited}
+            user_type = get_user_type_from_session()
+
+            if ((user_type == "dietitian" and comment.author_type == "diet") or 
+            (user_type == "patient" and comment.author_type == "pat")):
+                is_author = True
+            else:
+                is_author = False
+
+            print(is_author)
+
+            post_dict["comments"][comment.comment_id] = {"comment_id": comment.comment_id,
+                                                         "author_fname": author_fname,
+                                                         "author_lname": author_lname,
+                                                         "comment_body": comment.comment_body,
+                                                         "time_stamp": comment.time_stamp.isoformat(),
+                                                         "edited": edited,
+                                                         "is_author": is_author}
 
     return jsonify(post_dict)
 

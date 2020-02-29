@@ -298,4 +298,6 @@ a:hover {
     font-family: roboto;
 }
 
-
+textarea:focus {
+    outline: none;
+}

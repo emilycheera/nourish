@@ -1,8 +1,9 @@
 
-
+// Set default font family and legend position for all charts.
 Chart.defaults.global.defaultFontFamily = "Roboto";
 Chart.defaults.global.legend.position = 'bottom';
 
+// Set configuration for all charts.
 const config_chart = (hungerData, fullnessData, satisfactionData) => {
     const config =   
         {   
@@ -91,6 +92,7 @@ const getModal = (res) => {
         for (const comment of Object.values(res.comments)) {
             const commentId = comment.comment_id;
             const commentTimeStamp = (moment(comment.time_stamp).format("MMM D, YYYY [at] h:mm A"));
+            const deleteCommentBtn = (comment.is_author) ? `<button class="modal-delete-comment-btn btn btn-link" data-comment-id="${commentId}">Delete</button>` : "";
 
             commentDiv += `<div id="comment-${commentId}">
                                 <p class="comment-body">
@@ -99,7 +101,7 @@ const getModal = (res) => {
                                 </p>
                                 <p class="comment-time">
                                     ${commentTimeStamp}${comment.edited}
-                                    <button class="modal-delete-comment-btn btn btn-link" data-comment-id="${commentId}">Delete</button>
+                                    ${deleteCommentBtn}
                                 </p>
                             </div>`;
         };
@@ -146,7 +148,7 @@ const getModal = (res) => {
     return modalHTML;
 };
 
-
+// Disable ratings chart button, enable tooltip if patient has no ratings data.
 $("document").ready( () => {
     const pathArray = (window.location.pathname).split('/');
     const patientId = pathArray[2];
@@ -158,7 +160,9 @@ $("document").ready( () => {
     });
 });
 
-
+// When the ratings chart button is clicked, create 'Ratings for Last 7 Days'
+// chart and a dropdown so the user can get charts for previous weeks' ratings 
+// data.
 $(".ratings-chart-btn").on("click", (evt) => {
     evt.preventDefault();
     const patientId = evt.target.dataset.patientId;
@@ -223,6 +227,8 @@ $(".ratings-chart-btn").on("click", (evt) => {
 
         const ratingsChart = new Chart($("#ratings-chart-recent"), config);
 
+        // When a user clicks on a point on the chart, get data for that point
+        // and display a modal window with the post for that data.
         $("#ratings-chart-recent").on("click", (evt) => {
             var firstPoint = ratingsChart.getElementAtEvent(evt)[0];
 
@@ -246,7 +252,8 @@ $(".ratings-chart-btn").on("click", (evt) => {
 });
 
 
-
+// When a user submits the chart-date-form dropdown, create a chart and 
+// display a chart for the selected dates.
 $("body").on("submit", "form.chart-date-form", (evt) => {
     evt.preventDefault();
 
@@ -286,6 +293,8 @@ $("body").on("submit", "form.chart-date-form", (evt) => {
 
         const ratingsChart = new Chart($("#ratings-chart-previous"), config);
 
+        // When a user clicks on a point on the chart, get data for that point
+        // and display a modal window with the post for that data.
         $("#ratings-chart-previous").on("click", (evt) => {
             var firstPoint = ratingsChart.getElementAtEvent(evt)[0];
 
@@ -307,6 +316,7 @@ $("body").on("submit", "form.chart-date-form", (evt) => {
         });
     });
 });
+
 
 const getCommentDiv = (res) => {
     const timeStamp = (moment(res.comment.time_stamp).format("MMM D, YYYY [at] h:mm A"));
@@ -332,6 +342,7 @@ $("body").on("submit", "form.modal-add-comment-form", (evt) => {
         $(`#comments-for-${postId}`).append(getCommentDiv(res));
     });
 });
+
 
 $("body").on("click", "button.modal-delete-comment-btn", (evt) => {
     result = window.confirm("Are you sure you want to delete this comment?");
