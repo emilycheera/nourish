@@ -187,6 +187,12 @@ a:hover {
     box-shadow: none !important;
 }
 
+.btn-primary:disabled {
+    background-color: #c66c06 !important;
+    border-color: #c66c06!important;
+    box-shadow: none !important;
+}
+
 .btn-outline-secondary:focus {
     box-shadow: none !important;
 }
@@ -287,4 +293,9 @@ a:hover {
 .pt-btn {
     width: 140px !important;
 }
+
+.tooltip {
+    font-family: roboto;
+}
+
 

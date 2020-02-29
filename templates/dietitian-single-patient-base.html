@@ -5,7 +5,9 @@
         <a class="btn btn-primary pt-btn mr-2 mb-2" href="/patient/{{ patient.patient_id }}/account">Account</a>
         <a class="btn btn-primary pt-btn mr-2 mb-2" href="/patient/{{ patient.patient_id }}/goals">Goals</a>
         <a class="btn btn-primary pt-btn mr-2 mb-2" href="/patient/{{ patient.patient_id }}/posts">Posts</a>
-        <button type="button" class="btn btn-primary pt-btn ratings-chart-btn mb-2" data-patient-id="{{ patient.patient_id }}">Ratings Chart</button>
+        <span id="disabled-btn-tooltip" class="d-inline-block" tabindex="0" data-toggle="tooltip" title="Patient has no ratings data.">
+            <button type="button" class="btn btn-primary pt-btn ratings-chart-btn mb-2" data-patient-id="{{ patient.patient_id }}">Ratings Chart</button>
+        </span>
     </div>
     <div id="patient-content">
         {% block patient_content %}{% endblock %}

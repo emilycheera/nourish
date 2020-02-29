@@ -144,8 +144,19 @@ const getModal = (res) => {
                         </div>`;
 
     return modalHTML;
-}
+};
 
+
+$("document").ready( () => {
+    const pathArray = (window.location.pathname).split('/');
+    const patientId = pathArray[2];
+    $.get(`/patient/${patientId}/weekly-ratings.json`, (res) => {
+        if (res.dropdown.dropdown_dates.length == 0) {
+            $(".ratings-chart-btn").prop("disabled", true);
+            $("#disabled-btn-tooltip").tooltip();
+        };
+    });
+});
 
 
 $(".ratings-chart-btn").on("click", (evt) => {
