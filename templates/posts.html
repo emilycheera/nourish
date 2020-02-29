@@ -62,13 +62,15 @@
                                             </p>
                                             <p class="comment-time">
                                                 {{ comment.time_stamp|datetime }} {% if comment.edited %}(edited){% endif %}
-                                            {% if (session.get("dietitian_id") and comment.author_type == "diet" and comment.author_id == dietitian.dietitian_id)
-                                               or (session.get("patient_id") and comment.author_type == "pat" and comment.author_id == post.patient.patient_id) %}
+                                            {% if (session.get("dietitian_id") and comment.author_type == "diet")
+                                               or (session.get("patient_id") and comment.author_type == "pat") %}
                                                 <button class="edit-comment-btn btn btn-link" data-comment-id="{{ comment.comment_id }}">Edit</button>
                                                 <button class="delete-comment-btn btn btn-link" data-comment-id="{{ comment.comment_id }}">Delete</button>
                                             {% endif %}
                                             </p>
                                         </div>
+                                        {% if (session.get("dietitian_id") and comment.author_type == "diet")
+                                           or (session.get("patient_id") and comment.author_type == "pat") %}
                                         <div class="hidden edit-comment-div" id="editable-comment-{{ comment.comment_id }}">
                                             <form class="edit-comment-form" id="edit-comment-form-{{ comment.comment_id }}" data-comment-id="{{ comment.comment_id }}">
                                                 <textarea required class="comment-box" name="comment">{{ comment.comment_body }}</textarea>
@@ -76,6 +78,7 @@
                                                 <button class="btn btn-link btn-edit-cmt" type="submit">Save Changes</button>
                                             </form>
                                         </div>
+                                        {% endif %}
                                     </div>
                                 {% endfor %}
                             {% endif %}
