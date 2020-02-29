@@ -89,7 +89,7 @@
             </div>
             {% if session.get("patient_id") %}
                 <div id="editable-post-{{ post.post_id }}" class="hidden">
-                    <form class="edit-post-form" id="edit-post-form-{{ post.post_id }}" enctype="multipart/form-data" data-post-id="{{ post.post_id }}">
+                    <form action="/post/edit/{{ post.post_id }}" method="POST" class="edit-post-form" id="edit-post-form-{{ post.post_id }}" enctype="multipart/form-data" data-post-id="{{ post.post_id }}">
                         <p>
                             <label for="datetime">
                                 <span>Time of meal/snack*: </span>

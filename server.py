@@ -465,10 +465,6 @@ def save_customized_patient_post_form(patient_id):
     patient.fullness_visible = bool(request.form.get("fullness-visible"))
     patient.satisfaction_visible = bool(request.form.get("satisfaction-visible"))
 
-    # patient.hunger_visible = True if fullness_visible else False
-    # patient.fullness_visible = True if fullness_visible else False
-    # patient.satisfaction_visible = True if satisfaction_visible else False
-
     db.session.add(patient)
     db.session.commit()
 
@@ -779,10 +775,6 @@ def add_new_post():
                     fullness=fullness,
                     satisfaction=satisfaction,
                     meal_notes=meal_notes)
-
-    # new_post.hunger = hunger if hunger else None
-    # new_post.fullness = fullness if fullness else None
-    # new_post.satisfaction = satisfaction if satisfaction else None
 
     db.session.add(new_post)
     db.session.commit()
