@@ -28,6 +28,59 @@ def get_user_type_from_session():
         return "patient"
 
 
+def create_new_dietitian_account(fname, lname, email, password,
+                                 street_address, city, state, zipcode):
+    """Add a dietitian to the database."""
+
+    new_dietitian = Dietitian(fname=fname,
+                              lname=lname,
+                              email=email,
+                              street_address=street_address,
+                              city=city,
+                              state=state,
+                              zipcode=zipcode)
+
+    new_dietitian.set_password(password)
+
+    db.session.add(new_dietitian)
+    db.session.commit()
+
+    return new_dietitian.dietitian_id
+
+
+def create_new_patient_account(dietitian_id, fname, lname, email, password,
+                               street_address, city, state, zipcode, phone,
+                               birthdate):
+    """Add a patient to the database."""
+
+    new_patient = Patient(dietitian_id=dietitian_id,
+                          fname=fname,
+                          lname=lname,
+                          email=email,
+                          street_address=street_address,
+                          city=city,
+                          state=state,
+                          zipcode=zipcode,
+                          phone=phone,
+                          birthdate=birthdate)
+
+    new_patient.set_password(password)
+
+    db.session.add(new_patient)
+    db.session.commit()
+
+    return new_patient.patient_id
+
+
+def reset_password(password, user_object):
+    """Reset a user's password in the database."""
+
+    user_object.set_password(password)
+
+    db.session.add(user_object)
+    db.session.commit()
+
+
 def check_dietitian_authorization(dietitian_id):
     """Check to see if the logged in dietitian is authorized to view page."""
 
@@ -54,6 +107,31 @@ def check_patient_authorization(patient_id):
     return True
 
 
+def get_dietitian_and_patients_list():
+    """Return a dictionary with the dietitian and sorted list of patients."""
+
+    dietitian = get_current_dietitian()
+    patients_list = dietitian.patients
+    sorted_patients = alphabetize_by_lname(patients_list)
+
+    diet_and_pats = {"dietitian": dietitian,
+                     "sorted_patients": sorted_patients}
+
+    return diet_and_pats
+
+
+def get_all_patients_posts(dietitian):
+    """Get all of a dietitian's patient's posts, limit to 30."""
+
+    posts = (Post.query.filter(Patient.dietitian_id == dietitian.dietitian_id)
+            .join(Patient)
+            .join(Dietitian)
+            .order_by(Post.time_stamp.desc())
+            .limit(30).all())
+
+    return posts
+
+
 def sort_date_desc(lst):
     """Sort a list of objects with attribute time_stamp by date descending."""
 
@@ -64,6 +142,35 @@ def alphabetize_by_lname(lst):
     """Alphabetize a list of objects by their attribute lname."""
 
     return sorted(lst, key=lambda x: x.lname)
+
+
+def create_new_goal(patient_id, time_stamp, goal_body):
+    """Create a new goal in the database."""
+
+    new_goal = Goal(patient_id=patient_id,
+                    time_stamp=time_stamp,
+                    goal_body=goal_body)
+
+    db.session.add(new_goal)
+    db.session.commit()
+
+    return new_goal
+
+def create_goal_dict(key_name, goal_obj, current_dict=None):
+    """Return a dictionary containing goal object(s)."""
+
+    edited = " (edited)" if goal_obj.edited else ""
+
+    goal_dict = {"goal_id": goal_obj.goal_id,
+                 "time_stamp": goal_obj.time_stamp.isoformat(),
+                 "edited": edited,
+                 "goal_body": goal_obj.goal_body}
+
+    if current_dict:
+        current_dict[key_name] = goal_dict
+        return current_dict
+
+    return goal_dict
 
 
 def get_list_of_ratings(patient_obj, post_rating, from_date_obj, to_date_obj):

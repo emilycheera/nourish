@@ -12,6 +12,7 @@ const config_chart = (hungerData, fullnessData, satisfactionData) => {
                 datasets: [{
                     label: "Hunger Rating",
                     data: hungerData,
+                    lineTension: 0,
                     backgroundColor: "#FFB561",
                     borderColor: "#FFB561",
                     fill: false,
@@ -20,6 +21,7 @@ const config_chart = (hungerData, fullnessData, satisfactionData) => {
                 }, {
                     label: "Fullness Rating",
                     data: fullnessData,
+                    lineTension: 0,
                     backgroundColor: "#E87E07",
                     borderColor: "#E87E07",
                     fill: false,
@@ -28,6 +30,7 @@ const config_chart = (hungerData, fullnessData, satisfactionData) => {
                 }, {
                     label: "Satisfaction Rating",
                     data: satisfactionData,
+                    lineTension: 0,
                     backgroundColor: "#904C00",
                     borderColor: "#904C00",
                     fill: false,

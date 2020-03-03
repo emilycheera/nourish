@@ -10,10 +10,13 @@ from werkzeug.utils import secure_filename
 
 from flask_debugtoolbar import DebugToolbarExtension
 
+from decorators import dietitian_auth, patient_or_dietitian_auth
 from helpers import (get_current_dietitian, get_current_patient,
-    get_user_type_from_session, check_dietitian_authorization,
-    check_patient_authorization, sort_date_desc, alphabetize_by_lname,
-    get_list_of_ratings, get_sundays_with_data)
+     get_user_type_from_session, check_patient_authorization, sort_date_desc,
+     alphabetize_by_lname, get_list_of_ratings, get_sundays_with_data, 
+     get_dietitian_and_patients_list, create_new_dietitian_account, 
+     create_new_patient_account, reset_password, create_new_goal, 
+     create_goal_dict, get_all_patients_posts)
 from jinja_filters import datetimeformat, dateformat, htmldateformat
 from model import connect_to_db, db, Dietitian, Patient, Goal, Post, Comment
 
@@ -38,12 +41,11 @@ def index():
     """Homepage that shows login form."""
 
     patient_id = session.get("patient_id")
-    dietitian_id = session.get("dietitian_id")
-
     if patient_id:
         return redirect(f"/patient/{patient_id}")
 
-    if dietitian_id:
+    dietitian_id = session.get("dietitian_id")
+    if session.get("dietitian_id"):
         return redirect(f"/dietitian/{dietitian_id}")
 
     return render_template("homepage.html")
@@ -118,8 +120,8 @@ def show_dietitian_registration_form():
 
 
 @app.route("/register", methods=["POST"])
-def process_dietitian_registration():
-    """Process dietitian registration."""
+def handle_dietitian_registration_form():
+    """Process dietitian registration form."""
     
     fname = request.form.get("fname")
     lname = request.form.get("lname")
@@ -134,20 +136,9 @@ def process_dietitian_registration():
         flash("An account with this email address already exists.")
         return redirect("/register")
 
-    new_dietitian = Dietitian(fname=fname,
-                              lname=lname,
-                              email=email,
-                              street_address=street_address,
-                              city=city,
-                              state=state,
-                              zipcode=zipcode)
-
-    new_dietitian.set_password(password)
-
-    db.session.add(new_dietitian)
-    db.session.commit()
-
-    dietitian_id = new_dietitian.dietitian_id
+    dietitian_id = create_new_dietitian_account(fname, lname, email, password,
+                                                street_address, city, state, 
+                                                zipcode)
 
     # Log in new dietitian
     session["dietitian_id"] = dietitian_id
@@ -157,57 +148,41 @@ def process_dietitian_registration():
 
 
 @app.route("/dietitian/<int:dietitian_id>")
+@dietitian_auth
 def show_dietitian_homepage(dietitian_id):
     """Show a dietitian's homepage."""
 
-    if not check_dietitian_authorization(dietitian_id):
-        return render_template("unauthorized.html")
-
-    dietitian = get_current_dietitian()
-    patients_list = dietitian.patients
-    sorted_patients = alphabetize_by_lname(patients_list)
-    posts = (Post.query.filter(Patient.dietitian_id == dietitian.dietitian_id)
-            .join(Patient)
-            .join(Dietitian)
-            .order_by(Post.time_stamp.desc())
-            .limit(30).all())
+    diet_and_pats = get_dietitian_and_patients_list()
+    posts = get_all_patients_posts(diet_and_pats["dietitian"])
 
     return render_template("dietitian-home-posts.html",
-                            dietitian=dietitian,
-                            patients=sorted_patients,
+                            dietitian=diet_and_pats["dietitian"],
+                            patients=diet_and_pats["sorted_patients"],
                             posts=posts)
 
 
 @app.route("/dietitian/<int:dietitian_id>/account")
+@dietitian_auth
 def show_dietitian_account(dietitian_id):
     """Show a dietitian their account information"""
 
-    if not check_dietitian_authorization(dietitian_id):
-        return render_template("unauthorized.html")
-
-    dietitian = get_current_dietitian()
-    patients_list = dietitian.patients
-    sorted_patients = alphabetize_by_lname(patients_list)
+    diet_and_pats = get_dietitian_and_patients_list()
 
     return render_template("dietitian-account.html",
-                            dietitian=dietitian,
-                            patients=sorted_patients)
+                            dietitian=diet_and_pats["dietitian"],
+                            patients=diet_and_pats["sorted_patients"])
 
 
 @app.route("/dietitian/<int:dietitian_id>/account/edit", methods=["GET"])
+@dietitian_auth
 def view_edit_dietitian_information(dietitian_id):
     """Edit a dietitian's account information."""
 
-    if not check_dietitian_authorization(dietitian_id):
-        return render_template("unauthorized.html")
-
-    dietitian = get_current_dietitian()
-    patients_list = dietitian.patients
-    sorted_patients = alphabetize_by_lname(patients_list)
+    diet_and_pats = get_dietitian_and_patients_list()
 
     return render_template("dietitian-account-edit.html",
-                            dietitian=dietitian,
-                            patients=sorted_patients)
+                            dietitian=diet_and_pats["dietitian"],
+                            patients=diet_and_pats["sorted_patients"])
 
 
 @app.route("/dietitian/<int:dietitian_id>/account/edit", methods=["POST"])
@@ -232,33 +207,24 @@ def edit_dietitian_information(dietitian_id):
 
 
 @app.route("/dietitian/<int:dietitian_id>/account/reset-password", methods=["GET"])
+@dietitian_auth
 def view_reset_dietitian_password_form(dietitian_id):
     """Reset a dietitian's password."""
 
-    if not check_dietitian_authorization(dietitian_id):
-        return render_template("unauthorized.html")
-
-    dietitian = get_current_dietitian()
-    patients_list = dietitian.patients
-    sorted_patients = alphabetize_by_lname(patients_list)
+    diet_and_pats = get_dietitian_and_patients_list()
 
     return render_template("dietitian-resetpw.html",
-                            dietitian=dietitian,
-                            patients=sorted_patients)
+                            dietitian=diet_and_pats["dietitian"],
+                            patients=diet_and_pats["sorted_patients"])
 
 
 @app.route("/dietitian/<int:dietitian_id>/account/reset-password", methods=["POST"])
 def reset_dietitian_password(dietitian_id):
     """Process reset of a dietitian's password."""
 
-    dietitian = get_current_dietitian()
-
     password = request.form.get("password")
-
-    dietitian.set_password(password)
-
-    db.session.add(dietitian)
-    db.session.commit()
+    dietitian = get_current_dietitian()
+    reset_password(password, dietitian)
     
     flash("Password successfully reset.")
     return redirect(f"/dietitian/{dietitian_id}/account")
@@ -273,13 +239,11 @@ def show_patient_registration_form():
     if user_type != "dietitian":
         return render_template("unauthorized.html")
 
-    dietitian = get_current_dietitian()
-    patients_list = dietitian.patients
-    sorted_patients = alphabetize_by_lname(patients_list)
+    diet_and_pats = get_dietitian_and_patients_list()
 
     return render_template("patient-registration.html",
-                            dietitian=dietitian,
-                            patients=sorted_patients)
+                            dietitian=diet_and_pats["dietitian"],
+                            patients=diet_and_pats["sorted_patients"])
 
 
 @app.route("/patient/new-patient", methods=["POST"])
@@ -302,82 +266,47 @@ def process_patient_registration():
         flash("An account with this email address already exists.")
         return redirect("/patient/new-patient")
 
-    new_patient = Patient(dietitian_id=dietitian_id,
-                          fname=fname,
-                          lname=lname,
-                          email=email,
-                          street_address=street_address,
-                          city=city,
-                          state=state,
-                          zipcode=zipcode,
-                          phone=phone,
-                          birthdate=birthdate)
-
-    new_patient.set_password(password)
-
-    db.session.add(new_patient)
-    db.session.commit()
-
-    patient_id = new_patient.patient_id
+    patient_id = create_new_patient_account(dietitian_id, fname, lname, email, 
+                                            street_address, city, state,
+                                            zipcode, phone, birthdate)
 
     flash(f"Successfully registered new patient {fname} {lname}.")
     return redirect(f"/patient/{patient_id}")
 
 
 @app.route("/patient/<int:patient_id>/account")
+@patient_or_dietitian_auth
 def show_single_patient_overview(patient_id):
     """Show information about a single patient."""
 
     user_type = get_user_type_from_session()
+    patient = Patient.query.get(patient_id)
 
     if user_type == "dietitian":
-        dietitian = get_current_dietitian()
-        patients_list = dietitian.patients
-        sorted_patients = alphabetize_by_lname(patients_list)
-        patient = Patient.query.get(patient_id)
-
-        if not patient in patients_list:
-            return render_template("unauthorized.html")
-
+        diet_and_pats = get_dietitian_and_patients_list()
         return render_template("dietitian-home-patient-overview.html",
-                            dietitian=dietitian,
-                            patients=sorted_patients,
+                            dietitian=diet_and_pats["dietitian"],
+                            patients=diet_and_pats["sorted_patients"],
                             patient=patient)
-
-
-    if not check_patient_authorization(patient_id):
-        return render_template("unauthorized.html")
-
-    patient = get_current_patient()
 
     return render_template("patient-account.html",
                             patient=patient)
 
 
 @app.route("/patient/<int:patient_id>/account/edit")
+@patient_or_dietitian_auth
 def view_edit_patient_information_form(patient_id):
     """Edit a patient's basic information."""
 
     user_type = get_user_type_from_session()
+    patient = Patient.query.get(patient_id)
 
     if user_type == "dietitian":
-        dietitian = get_current_dietitian()
-        patients_list = dietitian.patients
-        sorted_patients = alphabetize_by_lname(patients_list)
-        patient = Patient.query.get(patient_id)
-
-        if not patient in patients_list:
-            return render_template("unauthorized.html")
-
+        diet_and_pats = get_dietitian_and_patients_list()
         return render_template("dietitian-home-patient-edit.html",
-                                dietitian=dietitian,
-                                patients=sorted_patients,
+                                dietitian=diet_and_pats["dietitian"],
+                                patients=diet_and_pats["sorted_patients"],
                                 patient=patient)
-
-    if not check_patient_authorization(patient_id):
-        return render_template("unauthorized.html")
-
-    patient = get_current_patient()
 
     return render_template("patient-account-edit.html",
                             patient=patient)
@@ -423,14 +352,9 @@ def view_reset_patient_password_form(patient_id):
 def reset_patient_password(patient_id):
     """Process reset of a patient's password."""
 
-    patient = Patient.query.get(patient_id)
-
     password = request.form.get("password")
-
-    patient.set_password(password)
-
-    db.session.add(patient)
-    db.session.commit()
+    patient = Patient.query.get(patient_id)
+    reset_password(password, patient)
 
     flash("Password successfully reset.")
     return redirect(f"/patient/{patient_id}/account")
@@ -440,19 +364,15 @@ def reset_patient_password(patient_id):
 def customize_patient_post_form(patient_id):
     """Allow dietitian to select form fields available on a patient's post."""
 
-    dietitian = get_current_dietitian()
-    dietitian_id = dietitian.dietitian_id
-
-    if not check_dietitian_authorization(dietitian_id):
-        return render_template("unauthorized.html")
-
-    patients_list = dietitian.patients
-    sorted_patients = alphabetize_by_lname(patients_list)
+    diet_and_pats = get_dietitian_and_patients_list()
     patient = Patient.query.get(patient_id)
 
+    if not patient in diet_and_pats["sorted_patients"]:
+        return render_template("unauthorized.html")
+
     return render_template("dietitian-customize-post-form.html",
-                            dietitian=dietitian,
-                            patients=sorted_patients,
+                            dietitian=diet_and_pats["dietitian"],
+                            patients=diet_and_pats["sorted_patients"],
                             patient=patient)
 
 
@@ -474,40 +394,25 @@ def save_customized_patient_post_form(patient_id):
 
 
 @app.route("/patient/<int:patient_id>/goals", methods=["GET"])
+@patient_or_dietitian_auth
 def show_patient_goals(patient_id):
     """Show goals for a patient and allow dietitian to update goals."""
 
-    patient = Patient.query.get(patient_id)
-    goals_list = patient.goals
-    sorted_goals = sort_date_desc(goals_list)
-
     user_type = get_user_type_from_session()
+    patient = Patient.query.get(patient_id)
+    sorted_goals = sort_date_desc(patient.goals)
 
     if user_type == "dietitian":
-        dietitian = get_current_dietitian()
-        patients_list = dietitian.patients
-        sorted_patients = alphabetize_by_lname(patients_list)
-
-        if not patient in patients_list:
-            return render_template("unauthorized.html")
-
-        if sorted_goals:
-            current_patient_goal = sorted_goals[0]
-            past_goals = sorted_goals[1:]
-        
-        else: 
-            current_patient_goal = None
-            past_goals = None
+        diet_and_pats = get_dietitian_and_patients_list()
+        current_goal = sorted_goals[0] if sorted_goals else None
+        past_goals = sorted_goals[1:] if sorted_goals else None
 
         return render_template("dietitian-home-patient-goals.html",
-                                dietitian=dietitian,
-                                patients=sorted_patients,
+                                dietitian=diet_and_pats["dietitian"],
+                                patients=diet_and_pats["sorted_patients"],
                                 patient=patient,
-                                current_goal=current_patient_goal,
+                                current_goal=current_goal,
                                 past_goals=past_goals)
-
-    if not check_patient_authorization(patient_id):
-        return render_template("unauthorized.html")
 
     return render_template("patient-goals.html",
                             patient=patient,
@@ -518,36 +423,21 @@ def show_patient_goals(patient_id):
 def add_new_patient_goal(patient_id):
     """Process form to add a new goal."""
 
+    # Get list of the patient's goals before new goal is added to check if 
+    # there's a previous current goal that needs to be moved to the past 
+    # goals section.
     patient = Patient.query.get(patient_id)
-    
-    # Get list of goals before new goal is added to check if there's
-    # a previous current goal that needs to be moved to the past goals section.
-    goals_list = patient.goals
+    sorted_goals = sort_date_desc(patient.goals)
+
+    if sorted_goals:
+        new_past_goal = sorted_goals[0]
+        goals = create_goal_dict("goal", new_past_goal)
 
     time_stamp = datetime.now()
     goal_body = request.form.get("goal-body")
+    new_goal = create_new_goal(patient_id, time_stamp, goal_body)
 
-    new_goal = Goal(patient_id=patient_id,
-                    time_stamp=time_stamp,
-                    goal_body=goal_body)
-
-    db.session.add(new_goal)
-    db.session.commit()
-
-    goals = {"current_goal": {"goal_id": new_goal.goal_id,
-                             "time_stamp": new_goal.time_stamp.isoformat(),
-                             "edited": "",
-                             "goal_body": new_goal.goal_body}}
-
-    if goals_list:
-        sorted_goals = sort_date_desc(goals_list)
-        new_past_goal = sorted_goals[0]
-        edited = " (edited)" if new_past_goal.edited else ""
-
-        goals["goal"] = {"goal_id": new_past_goal.goal_id,
-                         "time_stamp": new_past_goal.time_stamp.isoformat(),
-                         "edited": edited,
-                         "goal_body": new_past_goal.goal_body}
+    goals = create_goal_dict("current_goal", new_goal, goals)
 
     return jsonify(goals)
 
@@ -557,7 +447,6 @@ def edit_patient_goal(goal_id):
     """Edit a patient goal."""
 
     goal = Goal.query.get(goal_id)
-
     goal_body = request.form.get("goal-body")
 
     goal.goal_body = goal_body
@@ -566,12 +455,10 @@ def edit_patient_goal(goal_id):
     db.session.add(goal)
     db.session.commit()
 
-    goal = {"current_goal": {"goal_id": goal.goal_id,
-                             "time_stamp": goal.time_stamp.isoformat(),
-                             "edited": " (edited)",
-                             "goal_body": goal.goal_body}}
+    edited_goal_dict = {}
+    goal_dict = create_goal_dict("current_goal", goal, edited_goal_dict)
 
-    return jsonify(goal)
+    return jsonify(goal_dict)
 
 
 @app.route("/delete-goal", methods=["POST"])
@@ -589,34 +476,24 @@ def delete_goal():
 
 
 @app.route("/patient/<int:patient_id>/posts")
+@patient_or_dietitian_auth
 def show_single_patient_posts(patient_id):
     """Show a patient's posts."""
 
-    patient = Patient.query.get(patient_id)
-    posts_list = patient.posts
-    sorted_posts = sort_date_desc(posts_list)
-
     user_type = get_user_type_from_session()
+    patient = Patient.query.get(patient_id)
+    sorted_posts = sort_date_desc(patient.posts)
+
 
     if user_type == "dietitian":
-        dietitian = get_current_dietitian()
-        patients_list = dietitian.patients
-        sorted_patients = alphabetize_by_lname(patients_list)
-
-        if not patient in patients_list:
-            return render_template("unauthorized.html")
-
+        diet_and_pats = get_dietitian_and_patients_list()
         return render_template("dietitian-home-patient-posts.html",
-                                dietitian=dietitian,
-                                patients=sorted_patients,
+                                dietitian=diet_and_pats["dietitian"],
+                                patients=diet_and_pats["sorted_patients"],
                                 patient=patient,
                                 posts=sorted_posts)
     
-    if not check_patient_authorization(patient_id):
-        return render_template("unauthorized.html")
-
     dietitian = patient.dietitian
-
     return render_template("patient-posts.html",
                             patient=patient,
                             dietitian=dietitian,
@@ -733,12 +610,8 @@ def show_patient_homepage(patient_id):
     patient = get_current_patient()
     current_time = datetime.now().strftime("%Y-%m-%dT%H:%M")
 
-    if patient.goals:
-        goals_list = patient.goals
-        sorted_goals = sort_date_desc(goals_list)
-        current_goal = sorted_goals[0]
-    else: 
-        current_goal = None
+    sorted_goals = sort_date_desc(patient.goals)
+    current_goal = sorted_goals[0] if sorted_goals else None
 
     return render_template("patient-home-main.html",
                             patient=patient,
@@ -839,21 +712,17 @@ def delete_post():
 
 
 @app.route("/patient/<int:patient_id>/ratings-chart")
+@patient_or_dietitian_auth
 def get_ratings_chart_template(patient_id):
     """Shows page containing rating chart div."""
 
+    diet_and_pats = get_dietitian_and_patients_list()
     patient = Patient.query.get(patient_id)
-    dietitian = get_current_dietitian()
-    patients_list = dietitian.patients
-    sorted_patients = alphabetize_by_lname(patients_list)
-
-    if not patient in patients_list:
-        return render_template("unauthorized.html")
 
     return render_template("dietitian-ratings-chart.html",
-                            dietitian=dietitian,
-                            patient=patient,
-                            patients=sorted_patients)
+                            dietitian=diet_and_pats["dietitian"],
+                            patients=diet_and_pats["sorted_patients"],
+                            patient=patient)
 
 
 @app.route("/patient/<int:patient_id>/weekly-ratings.json")
