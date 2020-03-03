@@ -16,7 +16,8 @@ from helpers import (get_current_dietitian, get_current_patient,
      alphabetize_by_lname, get_list_of_ratings, get_sundays_with_data, 
      get_dietitian_and_patients_list, create_new_dietitian_account, 
      create_new_patient_account, reset_password, create_new_goal, 
-     create_goal_dict, get_all_patients_posts)
+     create_goal_dict, get_all_patients_posts, create_comment_dict,
+     get_post_object, create_post_dict)
 from jinja_filters import datetimeformat, dateformat, htmldateformat
 from model import connect_to_db, db, Dietitian, Patient, Goal, Post, Comment
 
@@ -120,25 +121,16 @@ def show_dietitian_registration_form():
 
 
 @app.route("/register", methods=["POST"])
-def handle_dietitian_registration_form():
+def handle_dietitian_registration():
     """Process dietitian registration form."""
     
-    fname = request.form.get("fname")
-    lname = request.form.get("lname")
     email = request.form.get("email")
-    password = request.form.get("password")
-    street_address = request.form.get("street-address")
-    city = request.form.get("city")
-    state = request.form.get("state")
-    zipcode = request.form.get("zipcode")
-
     if Dietitian.query.filter_by(email=email).first():
         flash("An account with this email address already exists.")
         return redirect("/register")
 
-    dietitian_id = create_new_dietitian_account(fname, lname, email, password,
-                                                street_address, city, state, 
-                                                zipcode)
+    form_data = request.form
+    dietitian_id = create_new_dietitian_account(form_data)
 
     # Log in new dietitian
     session["dietitian_id"] = dietitian_id
@@ -250,27 +242,16 @@ def show_patient_registration_form():
 def process_patient_registration():
     """Process new patient registration."""
 
-    dietitian_id = request.form.get("dietitian_id")
-    fname = request.form.get("fname")
-    lname = request.form.get("lname")
     email = request.form.get("email")
-    password = request.form.get("password")
-    street_address = request.form.get("street-address")
-    city = request.form.get("city")
-    state = request.form.get("state")
-    zipcode = request.form.get("zipcode")
-    phone = request.form.get("phone")
-    birthdate = request.form.get("birthdate")
 
     if Patient.query.filter_by(email=email).first():
         flash("An account with this email address already exists.")
         return redirect("/patient/new-patient")
 
-    patient_id = create_new_patient_account(dietitian_id, fname, lname, email, 
-                                            street_address, city, state,
-                                            zipcode, phone, birthdate)
+    form_data = request.form
+    patient_id = create_new_patient_account(form_data)
 
-    flash(f"Successfully registered new patient {fname} {lname}.")
+    flash(f"Successfully registered new patient.")
     return redirect(f"/patient/{patient_id}")
 
 
@@ -429,15 +410,15 @@ def add_new_patient_goal(patient_id):
     patient = Patient.query.get(patient_id)
     sorted_goals = sort_date_desc(patient.goals)
 
-    if sorted_goals:
-        new_past_goal = sorted_goals[0]
-        goals = create_goal_dict("goal", new_past_goal)
-
     time_stamp = datetime.now()
     goal_body = request.form.get("goal-body")
     new_goal = create_new_goal(patient_id, time_stamp, goal_body)
 
-    goals = create_goal_dict("current_goal", new_goal, goals)
+    goals = create_goal_dict("current_goal", new_goal)
+    
+    if sorted_goals:
+        new_past_goal = sorted_goals[0]
+        goals = create_goal_dict("goal", new_past_goal, goals)
 
     return jsonify(goals)
 
@@ -484,7 +465,6 @@ def show_single_patient_posts(patient_id):
     patient = Patient.query.get(patient_id)
     sorted_posts = sort_date_desc(patient.posts)
 
-
     if user_type == "dietitian":
         diet_and_pats = get_dietitian_and_patients_list()
         return render_template("dietitian-home-patient-posts.html",
@@ -513,15 +493,11 @@ def add_post_comment(post_id):
         author_type = "pat"
         patient = get_current_patient()
         author_id = patient.patient_id
-        fname = patient.fname
-        lname = patient.lname
 
     else:
         author_type = "diet"
         dietitian = get_current_dietitian()
         author_id = dietitian.dietitian_id
-        fname = dietitian.fname
-        lname = dietitian.lname
 
     new_comment = Comment(post_id=post_id,
                           author_type=author_type,
@@ -532,16 +508,9 @@ def add_post_comment(post_id):
     db.session.add(new_comment)
     db.session.commit()
 
-    isoformat_time_stamp = time_stamp.isoformat()
+    comment_dict = create_comment_dict(new_comment)
 
-    comment = {"user": {"fname": fname,
-                        "lname": lname},
-               "comment": {"time_stamp": isoformat_time_stamp,
-                           "comment_body": comment_body,
-                           "edited": "",
-                           "comment_id": new_comment.comment_id}}
-
-    return jsonify(comment)
+    return jsonify(comment_dict)
 
 
 @app.route("/comment/<int:comment_id>/edit.json", methods=["POST"])
@@ -557,27 +526,9 @@ def edit_post_comment(comment_id):
     db.session.add(comment)
     db.session.commit()
 
-    patient = comment.post.patient
+    comment_dict = create_comment_dict(comment)
 
-    if comment.author_type == "pat":
-        fname = patient.fname
-        lname = patient.lname
-
-    else:
-        dietitian = patient.dietitian
-        fname = dietitian.fname
-        lname = dietitian.lname
-
-    isoformat_time_stamp = comment.time_stamp.isoformat()
-
-    comment = {"user": {"fname": fname,
-                        "lname": lname},
-               "comment": {"time_stamp": isoformat_time_stamp,
-                           "comment_body": comment_body,
-                           "edited": " (edited)",
-                           "comment_id": comment.comment_id}}
-
-    return jsonify(comment)
+    return jsonify(comment_dict)
 
 
 @app.route("/delete-comment", methods=["POST"])
@@ -653,7 +604,8 @@ def add_new_post():
     db.session.add(new_post)
     db.session.commit()
 
-    flash(Markup(f"Post added successfully. <a href='/patient/{patient_id}/posts'>Click here to see it.</a>"))
+    flash(Markup(f"""Post added successfully. <a href='/patient/{patient_id}/posts'>
+                    Click here to see it.</a>"""))
     return redirect(f"/patient/{patient_id}")
 
 
@@ -773,72 +725,10 @@ def get_patients_past_ratings(patient_id):
 def get_post_from_chart(patient_id):
     """Get a post as JSON from clicking on a point on the ratings chart."""
 
-    rating_label = request.args.get("ratingLabel")
-    meal_time_isoformat = request.args.get("postDatetime")
-    rating_value = request.args.get("ratingValue")
+    point_data = request.args
+    post = get_post_object(point_data, patient_id)
 
-    # Assign the type of rating to search for in the query.
-    if rating_label == "Hunger Rating":
-        rating_to_search = Post.hunger
-
-    elif rating_label == "Fullness Rating":
-        rating_to_search = Post.fullness
-
-    else:
-        rating_to_search = Post.satisfaction
-
-    # Convert meal_time from isoformat to a datetime object.
-    post_meal_time = datetime.strptime(meal_time_isoformat, "%Y-%m-%dT%H:%M:%S")
-
-    post = Post.query.filter(Post.meal_time==post_meal_time,
-                             Post.patient_id==patient_id,
-                             rating_to_search==rating_value).first()
-
-    edited = " (edited)" if post.edited else ""
-
-    post_dict = {"patient": {"patient_id": patient_id,
-                             "fname": post.patient.fname,
-                             "lname": post.patient.lname},
-                 "post": {"post_id": post.post_id,
-                          "time_stamp": post.time_stamp.isoformat(),
-                          "edited": edited,
-                          "img_path": post.img_path,
-                          "meal_time": post.meal_time.isoformat(),
-                          "meal_setting": post.meal_setting,
-                          "TEB": post.TEB,
-                          "hunger": post.hunger,
-                          "fullness": post.fullness,
-                          "satisfaction": post.satisfaction,
-                          "meal_notes": post.meal_notes},
-                 "comments": {}}
-
-    comments = post.comments
-    if comments:
-        sorted_comments = sorted(comments, key=lambda x: x.time_stamp)
-        patient = Patient.query.get(patient_id)
-        
-        for comment in sorted_comments:
-            author_fname = patient.dietitian.fname if comment.author_type == "diet" else patient.fname
-            author_lname = patient.dietitian.lname if comment.author_type == "diet" else patient.lname 
-            edited = " (edited)" if comment.edited else ""
-
-            user_type = get_user_type_from_session()
-
-            if ((user_type == "dietitian" and comment.author_type == "diet") or 
-            (user_type == "patient" and comment.author_type == "pat")):
-                is_author = True
-            else:
-                is_author = False
-
-            print(is_author)
-
-            post_dict["comments"][comment.comment_id] = {"comment_id": comment.comment_id,
-                                                         "author_fname": author_fname,
-                                                         "author_lname": author_lname,
-                                                         "comment_body": comment.comment_body,
-                                                         "time_stamp": comment.time_stamp.isoformat(),
-                                                         "edited": edited,
-                                                         "is_author": is_author}
+    post_dict = create_post_dict(patient_id, post)
 
     return jsonify(post_dict)
 
