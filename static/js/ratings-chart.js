@@ -1,7 +1,7 @@
 
 // Set default font family and legend position for all charts.
 Chart.defaults.global.defaultFontFamily = "Roboto";
-Chart.defaults.global.legend.position = 'bottom';
+Chart.defaults.global.legend.position = "bottom";
 
 // Set configuration for all charts.
 const config_chart = (hungerData, fullnessData, satisfactionData) => {
@@ -50,15 +50,15 @@ const config_chart = (hungerData, fullnessData, satisfactionData) => {
                         time: {
                             tooltipFormat: "MMM D  h:mma",
                             displayFormats: {
-                               'millisecond': 'MMM DD',
-                               'second': 'MMM DD',
-                               'minute': 'MMM DD',
-                               'hour': 'MMM DD',
-                               'day': 'MMM DD',
-                               'week': 'MMM DD',
-                               'month': 'MMM DD',
-                               'quarter': 'MMM DD',
-                               'year': 'MMM DD',
+                               "millisecond": "MMM DD",
+                               "second": "MMM DD",
+                               "minute": "MMM DD",
+                               "hour": "MMM DD",
+                               "day": "MMM DD",
+                               "week": "MMM DD",
+                               "month": "MMM DD",
+                               "quarter": "MMM DD",
+                               "year": "MMM DD",
                             }
                         },
                         distribution: "series"
@@ -153,9 +153,9 @@ const getModal = (res) => {
 
 // Disable ratings chart button, enable tooltip if patient has no ratings data.
 $("document").ready( () => {
-    const pathArray = (window.location.pathname).split('/');
+    const pathArray = (window.location.pathname).split("/");
     const patientId = pathArray[2];
-    $.get(`/patient/${patientId}/weekly-ratings.json`, (res) => {
+    $.get(`/patient/${patientId}/recent-ratings.json`, (res) => {
         if (res.dropdown.dropdown_dates.length == 0) {
             $(".ratings-chart-btn").prop("disabled", true);
             $("#disabled-btn-tooltip").tooltip();
@@ -163,15 +163,15 @@ $("document").ready( () => {
     });
 });
 
-// When the ratings chart button is clicked, create 'Ratings for Last 7 Days'
-// chart and a dropdown so the user can get charts for previous weeks' ratings 
+// When the ratings chart button is clicked, create "Ratings for Last 7 Days"
+// chart and a dropdown so the user can get charts for previous weeks" ratings 
 // data.
 $(".ratings-chart-btn").on("click", (evt) => {
     evt.preventDefault();
     const patientId = evt.target.dataset.patientId;
     window.history.pushState("object or string", "", `/patient/${patientId}/ratings-chart`);
-
-    $.get(`/patient/${patientId}/weekly-ratings.json`, (res) => {
+    
+    $.get(`/patient/${patientId}/recent-ratings.json`, (res) => {
         const hungerData = [];
         for (const post of res.data.hunger) {
             hungerData.push({x: post.meal_time, y: post.rating});
@@ -277,7 +277,7 @@ $("body").on("submit", "form.chart-date-form", (evt) => {
             satisfactionData.push({x: post.meal_time, y: post.rating});
         }
 
-        const searchStartDate = (moment(res.data.search_start_date)
+        const searchStartDate = (moment(res.data.chart_start_date)
                                  .format("MMM D, YYYY"));
 
         $("#chart-div").replaceWith(`<div id="chart-div">

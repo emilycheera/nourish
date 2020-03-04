@@ -3,23 +3,32 @@ from datetime import datetime, timedelta
 import os
 
 from flask import (Flask, render_template, request, flash, redirect,
-    session, jsonify, Markup)
+                   session, jsonify, Markup)
 from jinja2 import StrictUndefined
 from sqlalchemy import desc
 from werkzeug.utils import secure_filename
 
 from flask_debugtoolbar import DebugToolbarExtension
 
-from decorators import dietitian_auth, patient_or_dietitian_auth
-from helpers import (get_current_dietitian, get_current_patient,
-     get_user_type_from_session, check_patient_authorization, sort_date_desc,
-     alphabetize_by_lname, get_list_of_ratings, get_sundays_with_data, 
-     get_dietitian_and_patients_list, create_new_dietitian_account, 
-     create_new_patient_account, reset_password, create_new_goal, 
-     create_goal_dict, get_all_patients_posts, create_comment_dict,
-     get_post_object, create_post_dict)
+from comments import (add_post_comment, edit_post_comment, delete_comment,
+                      create_comment_dict)
+from decorators import (dietitian_auth, patient_or_dietitian_auth, 
+                        patient_belongs_to_dietitian, patient_auth,
+                        dietitian_redirect)
+from goals import (edit_patient_goal, delete_goal, create_goal_dict,
+                   add_goal_and_get_dict)
+from helpers import sort_date_desc
 from jinja_filters import datetimeformat, dateformat, htmldateformat
 from model import connect_to_db, db, Dietitian, Patient, Goal, Post, Comment
+from posts import (create_new_post, edit_post, delete_post,
+                   get_all_patients_posts, save_customized_patient_post_form,
+                   get_post_object, create_post_dict)
+from ratings import get_ratings_dict, get_sundays_with_data
+from users import (create_new_dietitian_account, update_dietitian_account,
+                   create_new_patient_account, update_patient_account,
+                   reset_password, get_current_dietitian, get_current_patient,
+                   get_user_type_from_session, get_dietitian_and_patients_list)
+
 
 
 app = Flask(__name__)
@@ -181,19 +190,8 @@ def view_edit_dietitian_information(dietitian_id):
 def edit_dietitian_information(dietitian_id):
     """Process edit of a dietitian's account information."""
 
-    dietitian = get_current_dietitian()
-
-    dietitian.fname = request.form.get("fname")
-    dietitian.lname = request.form.get("lname")
-    dietitian.email = request.form.get("email")
-    dietitian.street_address = request.form.get("street-address")
-    dietitian.city = request.form.get("city")
-    dietitian.state = request.form.get("state")
-    dietitian.zipcode = request.form.get("zipcode")
-
-    db.session.add(dietitian)
-    db.session.commit()
-
+    update_dietitian_account(dietitian_id, request.form)
+ 
     flash("Account successfully updated.")
     return redirect(f"/dietitian/{dietitian_id}/account")
 
@@ -216,8 +214,8 @@ def reset_dietitian_password(dietitian_id):
 
     password = request.form.get("password")
     dietitian = get_current_dietitian()
-    reset_password(password, dietitian)
-    
+    reset = reset_password(password, dietitian)
+      
     flash("Password successfully reset.")
     return redirect(f"/dietitian/{dietitian_id}/account")
 
@@ -248,8 +246,7 @@ def process_patient_registration():
         flash("An account with this email address already exists.")
         return redirect("/patient/new-patient")
 
-    form_data = request.form
-    patient_id = create_new_patient_account(form_data)
+    patient_id = create_new_patient_account(request.form)
 
     flash(f"Successfully registered new patient.")
     return redirect(f"/patient/{patient_id}")
@@ -297,31 +294,16 @@ def view_edit_patient_information_form(patient_id):
 def edit_single_patient_information(patient_id):
     """Process edit of a single patient's basic information."""
 
-    patient = Patient.query.get(patient_id)
-
-    patient.fname = request.form.get("fname")
-    patient.lname = request.form.get("lname")
-    patient.email = request.form.get("email")
-    patient.street_address = request.form.get("street-address")
-    patient.city = request.form.get("city")
-    patient.state = request.form.get("state")
-    patient.zipcode = request.form.get("zipcode")
-    patient.phone = request.form.get("phone")
-    patient.birthdate = request.form.get("birthdate")
-
-    db.session.add(patient)
-    db.session.commit()
+    update_patient_account(patient_id, request.form)
     
     flash("Account successfully updated.")
     return redirect(f"/patient/{patient_id}/account")
 
 
 @app.route("/patient/<int:patient_id>/account/reset-password", methods=["GET"])
+@patient_auth
 def view_reset_patient_password_form(patient_id):
     """Reset a patient's password."""
-
-    if not check_patient_authorization(patient_id):
-        return render_template("unauthorized.html")
 
     patient = get_current_patient()
 
@@ -335,21 +317,19 @@ def reset_patient_password(patient_id):
 
     password = request.form.get("password")
     patient = Patient.query.get(patient_id)
-    reset_password(password, patient)
+    reset = reset_password(password, patient)
 
     flash("Password successfully reset.")
     return redirect(f"/patient/{patient_id}/account")
 
 
 @app.route("/patient/<int:patient_id>/account/customize-posts")
+@patient_belongs_to_dietitian
 def customize_patient_post_form(patient_id):
     """Allow dietitian to select form fields available on a patient's post."""
 
     diet_and_pats = get_dietitian_and_patients_list()
     patient = Patient.query.get(patient_id)
-
-    if not patient in diet_and_pats["sorted_patients"]:
-        return render_template("unauthorized.html")
 
     return render_template("dietitian-customize-post-form.html",
                             dietitian=diet_and_pats["dietitian"],
@@ -357,18 +337,11 @@ def customize_patient_post_form(patient_id):
                             patient=patient)
 
 
-@app.route("/patient/<int:patient_id>/account/customize-posts", methods = ["POST"])
-def save_customized_patient_post_form(patient_id):
-    """Save which form fields the dietitian selected for a specific patient."""
+@app.route("/patient/<int:patient_id>/account/customize-posts", methods=["POST"])
+def process_customized_patient_post_form(patient_id):
+    """Process customize post form and redirect to patient's account."""
 
-    patient = Patient.query.get(patient_id)
-
-    patient.hunger_visible = bool(request.form.get("hunger-visible"))
-    patient.fullness_visible = bool(request.form.get("fullness-visible"))
-    patient.satisfaction_visible = bool(request.form.get("satisfaction-visible"))
-
-    db.session.add(patient)
-    db.session.commit()
+    save_customized_patient_post_form(patient_id, request.form)
 
     flash("Form customization saved.")
     return redirect(f"/patient/{patient_id}/account")
@@ -404,37 +377,16 @@ def show_patient_goals(patient_id):
 def add_new_patient_goal(patient_id):
     """Process form to add a new goal."""
 
-    # Get list of the patient's goals before new goal is added to check if 
-    # there's a previous current goal that needs to be moved to the past 
-    # goals section.
-    patient = Patient.query.get(patient_id)
-    sorted_goals = sort_date_desc(patient.goals)
-
-    time_stamp = datetime.now()
-    goal_body = request.form.get("goal-body")
-    new_goal = create_new_goal(patient_id, time_stamp, goal_body)
-
-    goals = create_goal_dict("current_goal", new_goal)
-    
-    if sorted_goals:
-        new_past_goal = sorted_goals[0]
-        goals = create_goal_dict("goal", new_past_goal, goals)
+    goals = add_goal_and_get_dict(patient_id, request.form)
 
     return jsonify(goals)
 
 
 @app.route("/goal/<int:goal_id>/edit.json", methods=["POST"])
-def edit_patient_goal(goal_id):
+def proccess_edit_of_a_patient_goal(goal_id):
     """Edit a patient goal."""
 
-    goal = Goal.query.get(goal_id)
-    goal_body = request.form.get("goal-body")
-
-    goal.goal_body = goal_body
-    goal.edited = True
-
-    db.session.add(goal)
-    db.session.commit()
+    goal = edit_patient_goal(goal_id, request.form)
 
     edited_goal_dict = {}
     goal_dict = create_goal_dict("current_goal", goal, edited_goal_dict)
@@ -443,17 +395,13 @@ def edit_patient_goal(goal_id):
 
 
 @app.route("/delete-goal", methods=["POST"])
-def delete_goal():
-    """Delete a goal."""
+def handle_delete_goal_process():
+    """Handle process to delete a goal."""
 
     goal_id = request.form.get("goal")
+    deleted = delete_goal(goal_id)
 
-    goal = Goal.query.get(goal_id)
-
-    db.session.delete(goal)
-    db.session.commit()
-
-    return "Success"
+    return deleted
 
 
 @app.route("/patient/<int:patient_id>/posts")
@@ -481,82 +429,40 @@ def show_single_patient_posts(patient_id):
 
 
 @app.route("/post/<int:post_id>/add-comment.json", methods=["POST"])
-def add_post_comment(post_id):
-    """Add a comment to a post."""
+def handle_adding_post_comment(post_id):
+    """Handle adding a comment to a post."""
 
-    time_stamp = datetime.now()
-    comment_body = request.form.get("comment")
-
-    user_type = get_user_type_from_session()
-
-    if user_type == "patient":
-        author_type = "pat"
-        patient = get_current_patient()
-        author_id = patient.patient_id
-
-    else:
-        author_type = "diet"
-        dietitian = get_current_dietitian()
-        author_id = dietitian.dietitian_id
-
-    new_comment = Comment(post_id=post_id,
-                          author_type=author_type,
-                          author_id=author_id,
-                          time_stamp=time_stamp,
-                          comment_body=comment_body)
-
-    db.session.add(new_comment)
-    db.session.commit()
-
+    new_comment = add_post_comment(post_id, request.form)
     comment_dict = create_comment_dict(new_comment)
 
     return jsonify(comment_dict)
 
 
 @app.route("/comment/<int:comment_id>/edit.json", methods=["POST"])
-def edit_post_comment(comment_id):
-    """Update a comment on a post."""
+def process_edit_post_comment_form(comment_id):
+    """Process update of a comment on a post."""
 
-    comment = Comment.query.get(comment_id)
-    comment_body = request.form.get("comment")
-
-    comment.comment_body = comment_body
-    comment.edited = True
-
-    db.session.add(comment)
-    db.session.commit()
-
+    comment = edit_post_comment(comment_id, request.form)
     comment_dict = create_comment_dict(comment)
 
     return jsonify(comment_dict)
 
 
 @app.route("/delete-comment", methods=["POST"])
-def delete_comment():
-    """Delete a comment."""
+def handle_delete_comment_process():
+    """Handle process to delete a comment."""
 
     comment_id = request.form.get("comment")
+    deleted = delete_comment(comment_id)
 
-    comment = Comment.query.get(comment_id)
-
-    db.session.delete(comment)
-    db.session.commit()
-
-    return "Success"
+    return deleted
 
 
 @app.route("/patient/<int:patient_id>")
+@dietitian_redirect
+@patient_auth
 def show_patient_homepage(patient_id):
     """Show a patient's homepage."""
-
-    user_type = get_user_type_from_session()
-
-    # If user is a dietitian, redirect to patient's account information.
-    if user_type == "dietitian":
-        return redirect(f"/patient/{patient_id}/account")
-
-    if not check_patient_authorization(patient_id):
-        return render_template("unauthorized.html")
 
     patient = get_current_patient()
     current_time = datetime.now().strftime("%Y-%m-%dT%H:%M")
@@ -571,96 +477,49 @@ def show_patient_homepage(patient_id):
 
 
 @app.route("/post/new-post", methods=["POST"])
-def add_new_post():
-    """Add a new post."""
+def process_new_post_form():
+    """Handle adding a new post."""
     
     img_path = save_image()
+    patient_id = session.get("patient_id")
 
     if img_path == "Bad Extension":
         flash("Only .png, .jpg, or .jpeg images are accepted.")
         return redirect(f"/patient/{patient_id}")
 
-    patient_id = session.get("patient_id")
-    time_stamp = datetime.now()
-    meal_time = request.form.get("meal-time")
-    meal_setting = request.form.get("meal-setting")
-    TEB = request.form.get("TEB")
-    hunger = request.form.get("hunger") or None
-    fullness = request.form.get("fullness") or None
-    satisfaction = request.form.get("satisfaction") or None
-    meal_notes = request.form.get("meal-notes")
+    create_new_post(patient_id, img_path, request.form)
 
-    new_post = Post(patient_id=patient_id,
-                    time_stamp=time_stamp,
-                    meal_time=meal_time,
-                    img_path=img_path,
-                    meal_setting=meal_setting,
-                    TEB=TEB,
-                    hunger=hunger,
-                    fullness=fullness,
-                    satisfaction=satisfaction,
-                    meal_notes=meal_notes)
-
-    db.session.add(new_post)
-    db.session.commit()
-
-    flash(Markup(f"""Post added successfully. <a href='/patient/{patient_id}/posts'>
-                    Click here to see it.</a>"""))
+    flash(Markup(f"""Post added successfully. 
+                     <a href='/patient/{patient_id}/posts'>
+                     Click here to see it.</a>"""))
     return redirect(f"/patient/{patient_id}")
 
 
 @app.route("/post/edit/<int:post_id>", methods=["POST"])
-def edit_post(post_id):
-    """Save edits made to a patient's post."""
-
-    post = Post.query.get(post_id)
-    patient_id = post.patient.patient_id
+def handle_edit_post_form(post_id):
+    """Handle edits made to a patient's post."""
 
     img_path = save_image()
+    patient_id = post.patient.patient_id
 
     if img_path == "Bad Extension":
         flash("Only .png, .jpg, or .jpeg images are accepted.")
         return redirect(f"/patient/{patient_id}/posts")
 
-    if img_path:
-        post.img_path = img_path
-
-    hunger = request.form.get("hunger")
-    fullness = request.form.get("fullness")
-    satisfaction = request.form.get("satisfaction")
-
-    post.meal_time = request.form.get("meal-time")
-    post.meal_setting = request.form.get("meal-setting")
-    post.TEB = request.form.get("TEB")
-    post.edited = True
-    post.meal_notes = request.form.get("meal-notes")
-    post.hunger = hunger if hunger else None
-    post.fullness = fullness if fullness else None
-    post.satisfaction = satisfaction if satisfaction else None
-    
-    db.session.add(post)
-    db.session.commit()
+    edit_post(post_id, img_path, request.form)
 
     flash("Post updated successfully.")
     return redirect(f"/patient/{patient_id}/posts")
 
 
 @app.route("/delete-post", methods=["POST"])
-def delete_post():
-    """Delete a post."""
+def handle_delete_post_process():
+    """Handle process to delete a post."""
 
     post_id = request.form.get("post")
+    delete = delete_post(post_id)
 
-    post = Post.query.get(post_id)
-    comments = post.comments
-
-    for comment in comments:
-        db.session.delete(comment)
-
-    db.session.delete(post)
-    db.session.commit()
-
-    return "Success"
+    return delete
 
 
 @app.route("/patient/<int:patient_id>/ratings-chart")
@@ -677,48 +536,41 @@ def get_ratings_chart_template(patient_id):
                             patient=patient)
 
 
-@app.route("/patient/<int:patient_id>/weekly-ratings.json")
+@app.route("/patient/<int:patient_id>/recent-ratings.json")
 def get_patients_weekly_ratings(patient_id):
     """Get a patient's hunger/fullness/satisfaction ratings from last 7 days."""
 
-    patient = Patient.query.get(patient_id)
+    # Assign start and end dates for ratings database query.
     now = datetime.now()
     one_week_ago = now - timedelta(days=7)
 
-    hunger_ratings_list = get_list_of_ratings(patient, Post.hunger, one_week_ago, now)
-    fullness_ratings_list = get_list_of_ratings(patient, Post.fullness, one_week_ago, now)
-    satisfaction_ratings_list = get_list_of_ratings(patient, Post.satisfaction, one_week_ago, now)
+    # Get a dictionary of hunger, fullness, and satisfaction ratings from a
+    # specific patient over the past week.
+    recent_ratings_dict = get_ratings_dict(patient_id, one_week_ago, now)
+    
+    # Get dates to populate dropdown menu for searching previous weeks'
+    # ratings data.
+    sundays_with_data = get_sundays_with_data(patient_id)
 
-    # Get dates to populate dropdown menu.
-    sundays_with_data = get_sundays_with_data(patient)
+    recent_ratings_dict["dropdown"] = {"dropdown_dates": sundays_with_data}
 
-    return jsonify({"data": {"hunger": hunger_ratings_list,
-                             "fullness": fullness_ratings_list,
-                             "satisfaction": satisfaction_ratings_list,
-                             "one_week_ago": one_week_ago.isoformat()},
-                    "dropdown": {"dropdown_dates": sundays_with_data}})
+    return jsonify(recent_ratings_dict)
 
 
 @app.route("/patient/<int:patient_id>/past-ratings.json")
 def get_patients_past_ratings(patient_id):
     """Get hunger/fullness/satisfaction ratings from a previous week."""
 
-    patient = Patient.query.get(patient_id)
+    # Assign start and end dates for ratings database query.
+    from_date_isoformat = request.args.get("chart-date")
+    from_date = datetime.strptime(from_date_isoformat, "%Y-%m-%d")
+    to_date = from_date + timedelta(days=7)
 
-    search_start_date_isoformat = request.args.get("chart-date")
-    search_start_date = datetime.strptime(search_start_date_isoformat, "%Y-%m-%d")
+    past_ratings_dict = get_ratings_dict(patient_id, from_date, to_date)
 
-    # Get the date one week from the start date.
-    search_end_date = search_start_date + timedelta(days=7)
+    past_ratings_dict["data"]["chart_start_date"] = from_date_isoformat
 
-    hunger_ratings_list = get_list_of_ratings(patient, Post.hunger, search_start_date, search_end_date)
-    fullness_ratings_list = get_list_of_ratings(patient, Post.fullness, search_start_date, search_end_date)
-    satisfaction_ratings_list = get_list_of_ratings(patient, Post.satisfaction, search_start_date, search_end_date)
-
-    return jsonify({"data": {"hunger": hunger_ratings_list,
-                             "fullness": fullness_ratings_list,
-                             "satisfaction": satisfaction_ratings_list,
-                             "search_start_date": search_start_date_isoformat}})
+    return jsonify(past_ratings_dict)
 
 
 @app.route("/patient/<int:patient_id>/get-post.json")

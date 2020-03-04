@@ -60,7 +60,6 @@ const getPastGoal = (res) => {
     };
     const timeStamp = (moment(res.goal.time_stamp).format("MMM D YYYY [at] h:mm A"));
     $("#past-goals-heading").show();
-    console.log("return div id...");
     return `<div id="goal-${res.goal.goal_id}">
                 <p>${timeStamp} ${res.goal.edited}</p>
                 <p>${res.goal.goal_body}</p>
