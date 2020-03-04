@@ -74,8 +74,8 @@
                                         <div class="hidden edit-comment-div" id="editable-comment-{{ comment.comment_id }}">
                                             <form class="edit-comment-form" id="edit-comment-form-{{ comment.comment_id }}" data-comment-id="{{ comment.comment_id }}">
                                                 <textarea required class="comment-box" name="comment">{{ comment.comment_body }}</textarea>
-                                                <button class="cancel-edit-btn btn btn-link btn-edit-cmt" data-comment-id="{{ comment.comment_id }}">Cancel</button>
-                                                <button class="btn btn-link btn-edit-cmt" type="submit">Save Changes</button>
+                                                <button class="cancel-edit-btn btn btn-edit-cmt btn-link" data-comment-id="{{ comment.comment_id }}">Cancel</button>
+                                                <button class="btn btn-edit-cmt btn-link" type="submit">Save Changes</button>
                                             </form>
                                         </div>
                                         {% endif %}

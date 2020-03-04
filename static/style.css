@@ -290,6 +290,11 @@ a:hover {
     max-width: 475px;
 }
 
+.btn:focus {
+    outline: none;
+    box-shadow: none;
+}
+
 .pt-btn {
     width: 140px !important;
 }

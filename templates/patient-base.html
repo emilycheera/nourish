@@ -15,7 +15,7 @@
                 <ul class="nav flex-column">
                     <li class="nav-item">
                         <a class="nav-link" href="/patient/{{ patient.patient_id }}">
-                            Main Page
+                            Dashboard Home
                         </a>
                     </li>
                     <li class="nav-item">
@@ -29,7 +29,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <button type="button" class="btn btn-primary pt-btn ratings-chart-btn mb-2" data-patient-id="{{ patient.patient_id }}">Ratings Chart</button>
+                        <button type="button" class="btn nav-link ratings-chart-btn mb-2 hidden" data-patient-id="{{ patient.patient_id }}">Ratings Chart</button>
                     </li>
                 </ul>
             </div>

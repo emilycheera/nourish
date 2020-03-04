@@ -51,7 +51,7 @@ const getDiv = (res) => {
                     <form class="edit-comment-form" id="edit-comment-form-${res.comment.comment_id}" data-comment-id="${res.comment.comment_id}">
                         <textarea required class="comment-box" name="comment">${res.comment.comment_body}</textarea>
                         <button class="cancel-edit-btn btn btn-link btn-edit-cmt" data-comment-id="${res.comment.comment_id}">Cancel</button>
-                        <button class="btn btn-link btn-edit-cmt" type="submit">Save Changes</button>
+                        <button class="btn btn-link btn-edit-cmt " type="submit">Save Changes</button>
                     </form>
                 </div>
             </div>`;
