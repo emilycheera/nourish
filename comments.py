@@ -1,5 +1,7 @@
 from datetime import datetime
 from model import db, Comment
+from users import (get_user_type_from_session, get_current_dietitian, 
+                   get_current_patient)
 
 
 def add_post_comment(post_id, form_data):

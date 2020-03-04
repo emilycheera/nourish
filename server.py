@@ -527,12 +527,18 @@ def handle_delete_post_process():
 def get_ratings_chart_template(patient_id):
     """Shows page containing rating chart div."""
 
-    diet_and_pats = get_dietitian_and_patients_list()
+    user_type = get_user_type_from_session()
     patient = Patient.query.get(patient_id)
 
-    return render_template("dietitian-ratings-chart.html",
-                            dietitian=diet_and_pats["dietitian"],
-                            patients=diet_and_pats["sorted_patients"],
+    if user_type == "dietitian":
+        diet_and_pats = get_dietitian_and_patients_list()
+
+        return render_template("dietitian-ratings-chart.html",
+                                dietitian=diet_and_pats["dietitian"],
+                                patients=diet_and_pats["sorted_patients"],
+                                patient=patient)
+
+    return render_template("patient-ratings-chart.html",
                             patient=patient)
 
 

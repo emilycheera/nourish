@@ -1,6 +1,7 @@
 from datetime import datetime
 from helpers import sort_date_asc
 from model import db, Patient, Dietitian, Post
+from users import get_user_type_from_session
 
 
 def create_new_post(patient_id, img_path, form_data):

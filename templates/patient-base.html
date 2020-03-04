@@ -28,6 +28,9 @@
                             View All Posts
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <button type="button" class="btn btn-primary pt-btn ratings-chart-btn mb-2" data-patient-id="{{ patient.patient_id }}">Ratings Chart</button>
+                    </li>
                 </ul>
             </div>
         </nav>
@@ -35,8 +38,12 @@
             <div>
                 {% block flash %} {{ super() }} {% endblock %}
             </div>
-            <div>{% block dashboard_content %}{% endblock %}</div>
+            <div id="patient-content">{% block dashboard_content %}{% endblock %}</div>
         </main>
     </div>
 </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.js"></script>
+<script src="/static/js/patient-chart-btn.js"></script>
+<script src="/static/js/ratings-chart.js"></script>
 {% endblock %}

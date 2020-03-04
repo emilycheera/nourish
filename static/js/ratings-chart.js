@@ -151,17 +151,7 @@ const getModal = (res) => {
     return modalHTML;
 };
 
-// Disable ratings chart button, enable tooltip if patient has no ratings data.
-$("document").ready( () => {
-    const pathArray = (window.location.pathname).split("/");
-    const patientId = pathArray[2];
-    $.get(`/patient/${patientId}/recent-ratings.json`, (res) => {
-        if (res.dropdown.dropdown_dates.length == 0) {
-            $(".ratings-chart-btn").prop("disabled", true);
-            $("#disabled-btn-tooltip").tooltip();
-        };
-    });
-});
+
 
 // When the ratings chart button is clicked, create "Ratings for Last 7 Days"
 // chart and a dropdown so the user can get charts for previous weeks" ratings 
@@ -216,7 +206,7 @@ $(".ratings-chart-btn").on("click", (evt) => {
                     </h4>
                     <p>
                         Hover over a point to see more information about a 
-                        rating. Click on a point to see the patient's post.
+                        rating. Click on a point to see the post.
                     </p>
                     <canvas id="ratings-chart-recent" class="ratings-chart" width="800" 
                         height="500"></canvas>
@@ -286,7 +276,7 @@ $("body").on("submit", "form.chart-date-form", (evt) => {
                                     </h4>
                                     <p>
                                         Hover over a point to see more information about a 
-                                        rating. Click on a point to see the patient's post.
+                                        rating. Click on a point to see the post.
                                     </p>
                                     <canvas id="ratings-chart-previous" class="ratings-chart" width="800" 
                                         height="500"></canvas>
