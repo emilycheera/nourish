@@ -32,7 +32,7 @@ $("body").on("click", "button.delete-goal-btn", (evt) => {
 
 
 const getCurrentGoal = (res) => {
-    const timeStamp = (moment(res.current_goal.time_stamp).format("MMM D YYYY [at] h:mm A"));
+    const timeStamp = (moment(res.current_goal.time_stamp).format("MMM D, YYYY [at] h:mm A"));
     return `<div id="current-goal-div">
                 <h3>Current Goal</h3>
                 <div id="goal-${res.current_goal.goal_id}">
@@ -58,7 +58,7 @@ const getPastGoal = (res) => {
         $("#past-goals-heading").hide()
         return "";
     };
-    const timeStamp = (moment(res.goal.time_stamp).format("MMM D YYYY [at] h:mm A"));
+    const timeStamp = (moment(res.goal.time_stamp).format("MMM D, YYYY [at] h:mm A"));
     $("#past-goals-heading").show();
     return `<div id="goal-${res.goal.goal_id}">
                 <p>${timeStamp} ${res.goal.edited}</p>

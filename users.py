@@ -88,15 +88,15 @@ def update_patient_account(patient_id, form_data):
 
     patient = Patient.query.get(patient_id)
 
-    patient.fname = request.form.get("fname")
-    patient.lname = request.form.get("lname")
-    patient.email = request.form.get("email")
-    patient.street_address = request.form.get("street-address")
-    patient.city = request.form.get("city")
-    patient.state = request.form.get("state")
-    patient.zipcode = request.form.get("zipcode")
-    patient.phone = request.form.get("phone")
-    patient.birthdate = request.form.get("birthdate")
+    patient.fname = form_data.get("fname")
+    patient.lname = form_data.get("lname")
+    patient.email = form_data.get("email")
+    patient.street_address = form_data.get("street-address")
+    patient.city = form_data.get("city")
+    patient.state = form_data.get("state")
+    patient.zipcode = form_data.get("zipcode")
+    patient.phone = form_data.get("phone")
+    patient.birthdate = form_data.get("birthdate")
 
     db.session.add(patient)
     db.session.commit()
@@ -119,6 +119,7 @@ def get_current_dietitian():
     """Returns dietitian object for current dietitian_id."""
 
     dietitian_id = session.get("dietitian_id")
+    print(f"********{dietitian_id}**********")
     return Dietitian.query.get(dietitian_id)
 
 

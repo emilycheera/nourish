@@ -139,6 +139,7 @@ def handle_dietitian_registration():
         return redirect("/register")
 
     form_data = request.form
+    print(form_data)
     dietitian_id = create_new_dietitian_account(form_data)
 
     # Log in new dietitian
@@ -546,18 +547,21 @@ def get_ratings_chart_template(patient_id):
 def get_patients_weekly_ratings(patient_id):
     """Get a patient's hunger/fullness/satisfaction ratings from last 7 days."""
 
-    # Assign start and end dates for ratings database query.
-    now = datetime.now()
-    one_week_ago = now - timedelta(days=7)
+    sundays_with_data = get_sundays_with_data(patient_id)
+
+    # Assign start and end dates for ratings database query to the most recent
+    # week that has ratings data.
+    from_date_isoformat = sundays_with_data[0]
+    from_date = datetime.strptime(from_date_isoformat, "%Y-%m-%d")
+    to_date = from_date + timedelta(days=7)
 
     # Get a dictionary of hunger, fullness, and satisfaction ratings from a
-    # specific patient over the past week.
-    recent_ratings_dict = get_ratings_dict(patient_id, one_week_ago, now)
+    # specific patient over a specific period of time.
+    recent_ratings_dict = get_ratings_dict(patient_id, from_date_isoformat, 
+                                           from_date, to_date)
     
     # Get dates to populate dropdown menu for searching previous weeks'
     # ratings data.
-    sundays_with_data = get_sundays_with_data(patient_id)
-
     recent_ratings_dict["dropdown"] = {"dropdown_dates": sundays_with_data}
 
     return jsonify(recent_ratings_dict)
@@ -572,9 +576,8 @@ def get_patients_past_ratings(patient_id):
     from_date = datetime.strptime(from_date_isoformat, "%Y-%m-%d")
     to_date = from_date + timedelta(days=7)
 
-    past_ratings_dict = get_ratings_dict(patient_id, from_date, to_date)
-
-    past_ratings_dict["data"]["chart_start_date"] = from_date_isoformat
+    past_ratings_dict = get_ratings_dict(patient_id, from_date_isoformat, 
+                                         from_date, to_date)
 
     return jsonify(past_ratings_dict)
 

@@ -174,6 +174,9 @@ $(".ratings-chart-btn").on("click", (evt) => {
         for (const post of res.data.satisfaction) {
             satisfactionData.push({x: post.meal_time, y: post.rating});
         }
+
+        const searchStartDate = (moment(res.data.chart_start_date)
+                                 .format("MMM D, YYYY"));
   
         // Get option elements for dropdown.
         let dateOptions;
@@ -202,7 +205,7 @@ $(".ratings-chart-btn").on("click", (evt) => {
                 </form>
                 <div id="chart-div">
                     <h4>
-                        Ratings for the Last 7 Days
+                        Most Recent Ratings: Week of ${searchStartDate}
                     </h4>
                     <p>
                         Hover over a point to see more information about a 

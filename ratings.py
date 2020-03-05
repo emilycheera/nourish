@@ -20,7 +20,7 @@ def query_for_ratings(patient_obj, post_rating, from_date, to_date):
     return dates_ratings_dicts
 
 
-def get_ratings_dict(patient_id, from_date, to_date):
+def get_ratings_dict(patient_id, from_date_isoformat, from_date, to_date):
     """Get a dictionary of ratings a patient made over a specific date range."""
 
     patient = Patient.query.get(patient_id)
@@ -35,7 +35,8 @@ def get_ratings_dict(patient_id, from_date, to_date):
 
     return {"data": {"hunger": hunger_ratings,
                      "fullness": fullness_ratings,
-                     "satisfaction": satisfaction_ratings}}
+                     "satisfaction": satisfaction_ratings,
+                     "chart_start_date": from_date_isoformat}}
 
 
 def get_sundays_with_data(patient_id):

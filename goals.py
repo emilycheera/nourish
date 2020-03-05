@@ -66,6 +66,7 @@ def create_goal_dict(key_name, goal_obj, current_dict=None):
 
 
 def add_goal_and_get_dict(patient_id, form_data):
+    """Add goal to the database. Return dictionary of new_goal/new_past_goal."""
 
     # Get list of the patient's goals before new goal is added to check if 
     # there's a previous current goal that needs to be moved to the past 
