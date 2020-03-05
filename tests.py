@@ -1,17 +1,18 @@
 import unittest
 from server import app
 
+from comments import (edit_post_comment, delete_comment,
+                      create_comment_dict)
 from model import (db, Dietitian, Patient, Comment, Goal, Post, connect_to_db,
                    load_test_data)
 from users import (create_new_dietitian_account, update_dietitian_account,
                    create_new_patient_account, update_patient_account,
-                   reset_password, get_current_dietitian, get_current_patient,
-                   get_user_type_from_session, get_dietitian_and_patients_list)
-from goals import (create_new_goal, edit_patient_goal, delete_goal, create_goal_dict,
-                   add_goal_and_get_dict)
+                   reset_password)
+from goals import (create_new_goal, edit_patient_goal, delete_goal,
+                   create_goal_dict, add_goal_and_get_dict)
 from posts import (create_new_post, edit_post, delete_post,
                    get_all_patients_posts, save_customized_patient_post_form,
-                   get_rating_label_to_search, get_post_object, create_post_dict)
+                   get_rating_label_to_search, get_post_object)
 
 class BasicTests(unittest.TestCase):
     """Test routes that don't require access to the database or session."""
@@ -300,14 +301,32 @@ class DatabaseTests(unittest.TestCase):
         self.assertEqual(post.meal_setting, "Home alone in kitchen")
 
 
-    def test_creating_post_dictionary(self):
-        """Test that function returns a dictionary of a post object."""
+    def test_editing_post_comment(self):
+        """Test process of editing a comment on a post."""
 
-        post = Post.query.get(1)
-        post_dict = create_post_dict(1, post)
+        form_data = {"comment": "Here's my new comment!"}
+        new_comment = edit_post_comment(1, form_data)
 
-        self.assertEqual(post_dict["patient"]["lname"], "Smith")
-        
+        self.assertIn("my new comment", new_comment.comment_body)
+
+
+    def test_deleting_comment(self):
+        """Test process of deleting a comment on a post."""
+
+        delete_comment(1)
+        comment = Comment.query.get(1)
+
+        self.assertEqual(comment, None)
+
+
+    def test_creating_comment_dict(self):
+        """Test process of creating a dictionary of a comment object."""
+
+        comment = Comment.query.get(1)
+        comment_dict = create_comment_dict(comment)
+
+        self.assertIsInstance(comment_dict, dict)
+        self.assertEqual(comment_dict["user"]["fname"], "Jane")
 
 
 
