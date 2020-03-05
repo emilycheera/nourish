@@ -13,6 +13,7 @@ from goals import (create_new_goal, edit_patient_goal, delete_goal,
 from posts import (create_new_post, edit_post, delete_post,
                    get_all_patients_posts, save_customized_patient_post_form,
                    get_rating_label_to_search, get_post_object)
+from ratings import query_for_ratings, get_ratings_dict, get_sundays_with_data
 
 class BasicTests(unittest.TestCase):
     """Test routes that don't require access to the database or session."""
@@ -329,6 +330,33 @@ class DatabaseTests(unittest.TestCase):
         self.assertEqual(comment_dict["user"]["fname"], "Jane")
 
 
+    def test_querying_for_ratings(self):
+        """Test that query for ratings returns correct list of data."""
+
+        patient = Patient.query.get(1)
+        dates_ratings = query_for_ratings(patient, Post.hunger, 
+                             "2020-02-19 08:00:00", "2020-02-21 08:00:00")
+
+        self.assertIsInstance(dates_ratings, list)
+        self.assertEqual(dates_ratings[0]["rating"], 2)
+
+
+    def test_getting_ratings_dict(self):
+        """Test that function returns dictionary of posts."""
+
+        ratings_dict = get_ratings_dict(1, "2020-02-19T08:00:00", 
+                       "2020-02-19 08:00:00", "2020-02-21 08:00:00")
+
+        self.assertIsInstance(ratings_dict, dict)
+        self.assertEqual(ratings_dict["data"]["fullness"][0]["rating"], 8)
+
+
+    def test_getting_sundays_with_data(self):
+        """Test that function returns correct list of dates."""
+
+        data = get_sundays_with_data(1)
+
+        self.assertIn(data[0], "2020-02-16")
 
 
 class DietitianDatabaseTests(unittest.TestCase):
