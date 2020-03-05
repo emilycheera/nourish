@@ -191,12 +191,17 @@ def load_test_data():
                  goal_body="Experiment with intuitive eating this week.")
 
     # Create a sample post.
-    post = Post(patient_id=1, time_stamp="2020-02-20 10:04:53", 
+    post1 = Post(patient_id=1, time_stamp="2020-02-20 10:04:53", 
                 meal_time="2020-02-20 08:00:00", 
                 img_path="/static/images/uploads/4.jpg", 
                 meal_setting="Home alone in kitchen", 
                 TEB="Not feeling hungry but food looks delicious.",
                 hunger=2, fullness=8, satisfaction=5)
+    post2 = Post(patient_id=1, time_stamp="2020-02-22 10:03:13", 
+                meal_time="2020-02-22 09:00:00", 
+                img_path="/static/images/uploads/7.jpg", 
+                meal_setting="At work.", 
+                TEB="I'm super tired.")
 
     # Create a sample comment for the sample post.
     comment = Comment(post_id=1, author_id=1, author_type="diet", 
@@ -207,8 +212,8 @@ def load_test_data():
     type1 = UserType(type_code="diet", user_type_name="dietitian")
     type2 = UserType(type_code="pat", user_type_name="patient")
     
-    db.session.add_all([dietitian, patient1, patient2, goal1, goal2, post, 
-                        comment, type1, type2])
+    db.session.add_all([dietitian, patient1, patient2, goal1, goal2, post1,
+                        post2, comment, type1, type2])
     db.session.commit()
 
 

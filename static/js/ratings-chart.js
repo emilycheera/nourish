@@ -1,6 +1,6 @@
 
 // Set default font family and legend position for all charts.
-Chart.defaults.global.defaultFontFamily = "Roboto";
+Chart.defaults.global.defaultFontFamily = "lato";
 Chart.defaults.global.legend.position = "bottom";
 
 // Set configuration for all charts.

@@ -9,6 +9,9 @@ from users import (create_new_dietitian_account, update_dietitian_account,
                    get_user_type_from_session, get_dietitian_and_patients_list)
 from goals import (create_new_goal, edit_patient_goal, delete_goal, create_goal_dict,
                    add_goal_and_get_dict)
+from posts import (create_new_post, edit_post, delete_post,
+                   get_all_patients_posts, save_customized_patient_post_form,
+                   get_rating_label_to_search, get_post_object, create_post_dict)
 
 class BasicTests(unittest.TestCase):
     """Test routes that don't require access to the database or session."""
@@ -219,6 +222,96 @@ class DatabaseTests(unittest.TestCase):
         self.assertIn("New goal", goal_dict["current_goal"]["goal_body"])
 
 
+    def test_creating_new_post(self):
+        """Test process of creating a post."""
+
+        form_data = {"meal-time": "2020-02-25 08:00:00", 
+                     "meal-setting": "At home!", "TEB": "Some thoughts..",
+                     "hunger": 2, "fullness": 8, "satisfaction": 5,
+                     "meal-notes": "Some notes."}
+        
+        create_new_post(1, "/static/images/uploads/2.jpg", form_data)
+
+        post = Post.query.get(3)
+
+        self.assertIsInstance(post, Post)
+        self.assertEqual(post.meal_setting, "At home!")
+
+
+    def test_editing_post(self):
+        """Test process of editing a post."""
+
+        form_data = {"meal-time": "2020-02-25 08:00:00", 
+                     "meal-setting": "At home!", "TEB": "Some thoughts..",
+                     "hunger": 2, "fullness": 3, "meal-notes": "Some notes."}
+
+        edit_post(1, "/static/images/uploads/2.jpg", form_data)
+
+        post = Post.query.get(1)
+        
+        self.assertEqual(post.meal_setting, "At home!")
+        self.assertEqual(post.satisfaction, None)
+        self.assertNotEqual(post.fullness, 8)
+
+
+    def test_deleting_post(self):
+        """Test process of deleting a post."""
+
+        delete_post(1)
+        post = Post.query.get(1)
+        self.assertEqual(post, None)
+
+
+    def test_getting_all_patient_posts(self):
+        """Test that query returns a list of a patient's posts."""
+
+        dietitian = Dietitian.query.get(1)
+        posts = get_all_patients_posts(dietitian)
+
+        self.assertIn("At work", posts[0].meal_setting)
+        self.assertIn("Home alone", posts[1].meal_setting)
+
+
+    def test_saving_customized_patient_post_form(self):
+        """Test that function saves correct information in the database."""
+
+        form_data = {"hunger-visible": None}
+        save_customized_patient_post_form(1, form_data)
+        
+        patient = Patient.query.get(1)
+        self.assertEqual(False, patient.hunger_visible)
+
+
+    def test_getting_rating_label_to_search(self):
+        """Test that function returns corrent label."""
+
+        rating = get_rating_label_to_search("Hunger Rating")
+        self.assertEqual(rating, Post.hunger)
+
+
+    def test_getting_post_object(self):
+        """Test that a post object is returned."""
+
+        point_data = {"ratingLabel": "Hunger Rating",
+                      "postDatetime": "2020-02-20T08:00:00",
+                      "ratingValue": 2}
+        post = get_post_object(point_data, 1)
+
+        self.assertEqual(post.meal_setting, "Home alone in kitchen")
+
+
+    def test_creating_post_dictionary(self):
+        """Test that function returns a dictionary of a post object."""
+
+        post = Post.query.get(1)
+        post_dict = create_post_dict(1, post)
+
+        self.assertEqual(post_dict["patient"]["lname"], "Smith")
+        
+
+
+
+
 class DietitianDatabaseTests(unittest.TestCase):
     """Test functions that require a logged-in dietitian and the database."""
 
@@ -250,14 +343,7 @@ class DietitianDatabaseTests(unittest.TestCase):
         db.drop_all()
 
 
-    def test_get_current_dietitian(self):
-        """Test if function returns the correct dietitian object."""
-        
-        with app.test_request_context():
-            dietitian = get_current_dietitian()
-        
-        self.assertIsInstance(dietitian, Dietitian)
-        self.assertEqual(1, dietitian.dietitian_id)
+
 
 
 

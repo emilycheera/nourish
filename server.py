@@ -139,7 +139,6 @@ def handle_dietitian_registration():
         return redirect("/register")
 
     form_data = request.form
-    print(form_data)
     dietitian_id = create_new_dietitian_account(form_data)
 
     # Log in new dietitian

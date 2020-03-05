@@ -41,15 +41,15 @@ def edit_post(post_id, img_path, form_data):
     if img_path:
         post.img_path = img_path
 
-    hunger = request.form.get("hunger")
-    fullness = request.form.get("fullness")
-    satisfaction = request.form.get("satisfaction")
+    hunger = form_data.get("hunger")
+    fullness = form_data.get("fullness")
+    satisfaction = form_data.get("satisfaction")
 
-    post.meal_time = request.form.get("meal-time")
-    post.meal_setting = request.form.get("meal-setting")
-    post.TEB = request.form.get("TEB")
+    post.meal_time = form_data.get("meal-time")
+    post.meal_setting = form_data.get("meal-setting")
+    post.TEB = form_data.get("TEB")
     post.edited = True
-    post.meal_notes = request.form.get("meal-notes")
+    post.meal_notes = form_data.get("meal-notes")
     post.hunger = hunger if hunger else None
     post.fullness = fullness if fullness else None
     post.satisfaction = satisfaction if satisfaction else None

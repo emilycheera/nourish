@@ -1,6 +1,6 @@
 body {
     padding-top: 150px;
-    font-family: roboto;
+    font-family: lato;
     padding-bottom: 75px;
 }
 
@@ -40,7 +40,7 @@ body {
 
 .sidebar .nav-link:hover,
 .sidebar .nav-link.active {
-    color: #e87e07;
+    color: #ef7f33;
 }
 
 .sidebar-heading {
@@ -48,7 +48,7 @@ body {
 }
 
 .bg-dark {
-    background-color: #54775e !important;
+    background-color: #1a3c34 !important;
 }
 
 .bg-light {
@@ -128,7 +128,7 @@ body {
 }
 
 a {
-    color: #e87e07;
+    color: #ef7f33;
 }
 
 a:hover {
@@ -148,7 +148,7 @@ a:hover {
     display: inline;
     padding-left: 5px;
     padding-right: 0;
-    color: #e87e07;
+    color: #ef7f33;
     margin-top: -2px;
 }
 
@@ -166,8 +166,8 @@ a:hover {
 }
 
 .btn-primary {
-    background: #e87e07;
-    border-color: #e87e07;
+    background: #ef7f33;
+    border-color: #ef7f33;
 }
 
 .btn-primary:hover {
@@ -176,14 +176,14 @@ a:hover {
 }
 
 .btn-primary:focus {
-    background-color: #e87e07 !important;
-    border-color: #e87e07 !important;
+    background-color: #ef7f33 !important;
+    border-color: #ef7f33 !important;
     box-shadow: none !important;
 }
 
 .btn-primary:active {
-    background-color: #e87e07 !important;
-    border-color: #e87e07!important;
+    background-color: #ef7f33 !important;
+    border-color: #ef7f33!important;
     box-shadow: none !important;
 }
 
@@ -211,27 +211,27 @@ a:hover {
 }
 
 .btn-outline-primary {
-    color: #e87e07;
-    border-color: #e87e07;
+    color: #ef7f33;
+    border-color: #ef7f33;
 }
 
 .btn-outline-primary:hover {
     color: #fff;
-    background-color: #e87e07;
-    border-color: #e87e07
+    background-color: #ef7f33;
+    border-color: #ef7f33
 }
 
 .btn-outline-primary:focus {
   color: #fff;
-  background-color: #e87e07 !important;
-  border-color: #e87e07 !important;
+  background-color: #ef7f33 !important;
+  border-color: #ef7f33 !important;
   box-shadow: none !important;
 }
 
 .btn-outline-primary:active {
   color: #fff;
-  background-color: #e87e07 !important;
-  border-color: #e87e07 !important;
+  background-color: #ef7f33 !important;
+  border-color: #ef7f33 !important;
   box-shadow: none !important;
 }
 
@@ -247,7 +247,7 @@ a:hover {
 .user-dashboard-tag {
     text-transform: uppercase;
     font-size: .7rem;
-    font-weight: 800;
+    font-weight: 700;
     letter-spacing: .05em;
 }
 
@@ -300,9 +300,12 @@ a:hover {
 }
 
 .tooltip {
-    font-family: roboto;
+    font-family: lato;
 }
 
 textarea:focus {
     outline: none;
 }
+
+
+

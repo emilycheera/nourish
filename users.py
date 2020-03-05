@@ -119,7 +119,6 @@ def get_current_dietitian():
     """Returns dietitian object for current dietitian_id."""
 
     dietitian_id = session.get("dietitian_id")
-    print(f"********{dietitian_id}**********")
     return Dietitian.query.get(dietitian_id)
 
 
