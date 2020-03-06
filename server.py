@@ -12,9 +12,9 @@ from flask_debugtoolbar import DebugToolbarExtension
 
 from comments import (add_post_comment, edit_post_comment, delete_comment,
                       create_comment_dict)
-from decorators import (dietitian_auth, patient_or_dietitian_auth, 
-                        patient_belongs_to_dietitian, patient_auth,
-                        dietitian_redirect)
+from decorators import (dietitian_auth, dietitians_only, 
+                        patient_or_dietitian_auth, patient_belongs_to_dietitian,
+                        patient_auth, dietitian_redirect)
 from goals import (edit_patient_goal, delete_goal, create_goal_dict,
                    add_goal_and_get_dict)
 from helpers import sort_date_desc
@@ -221,13 +221,9 @@ def reset_dietitian_password(dietitian_id):
 
 
 @app.route("/patient/new-patient", methods=["GET"])
+@dietitians_only
 def show_patient_registration_form():
     """Show form for new patient registration."""
-    
-    user_type = get_user_type_from_session()
-
-    if user_type != "dietitian":
-        return render_template("unauthorized.html")
 
     diet_and_pats = get_dietitian_and_patients_list()
 
@@ -500,6 +496,7 @@ def handle_edit_post_form(post_id):
     """Handle edits made to a patient's post."""
 
     img_path = save_image()
+    post = Post.query.get(post_id)
     patient_id = post.patient.patient_id
 
     if img_path == "Bad Extension":
@@ -543,7 +540,7 @@ def get_ratings_chart_template(patient_id):
 
 
 @app.route("/patient/<int:patient_id>/recent-ratings.json")
-def get_patients_weekly_ratings(patient_id):
+def get_patients_recent_ratings(patient_id):
     """Get a patient's hunger/fullness/satisfaction ratings from last 7 days."""
 
     sundays_with_data = get_sundays_with_data(patient_id)

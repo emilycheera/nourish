@@ -28,7 +28,7 @@ class Dietitian(db.Model):
 
     def __repr__(self):
 
-        return f"<Dietitian id={self.dietitian_id}, email={self.email}>"
+        return f"<Dietitian id={self.dietitian_id}, email={self.email}>" # pragma: no cover
 
 
 class Patient(db.Model):
@@ -65,7 +65,7 @@ class Patient(db.Model):
     
     def __repr__(self):
 
-        return f"<Patient id={self.patient_id}, email={self.email}>"
+        return f"<Patient id={self.patient_id}, email={self.email}>" # pragma: no cover
 
 
 class Goal(db.Model):
@@ -83,14 +83,9 @@ class Goal(db.Model):
     # Define relationship to patient
     patient = db.relationship("Patient", backref=db.backref("goals"))
 
-    def sort_date_desc(self, goals_list):
-        return sorted(goals_list,
-                      key=lambda x: x.time_stamp,
-                      reverse=True)
-
     def __repr__(self):
 
-        return f"""<Goal id={self.goal_id}, patient={self.patient_id}, time={self.time_stamp}>"""
+        return f"""<Goal id={self.goal_id}, patient={self.patient_id}, time={self.time_stamp}>""" # pragma: no cover
 
 
 class Post(db.Model):
@@ -117,7 +112,7 @@ class Post(db.Model):
 
     def __repr__(self):
 
-        return f"""<Post id={self.post_id}, patient={self.patient_id}, time={self.time_stamp}>"""
+        return f"""<Post id={self.post_id}, patient={self.patient_id}, time={self.time_stamp}>""" # pragma: no cover
 
 
 class Comment(db.Model):
@@ -138,7 +133,7 @@ class Comment(db.Model):
 
     def __repr__(self):
 
-        return f"""<Comment id={self.comment_id}, post={self.post_id}, time={self.time_stamp}>"""
+        return f"""<Comment id={self.comment_id}, post={self.post_id}, time={self.time_stamp}>""" # pragma: no cover
 
 
 class UserType(db.Model):

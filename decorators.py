@@ -17,6 +17,16 @@ def dietitian_auth(fn):
     return decorated_view
 
 
+def dietitians_only(fn):    
+    @wraps(fn)
+    def decorated_view(*args, **kwargs):
+        user_type = get_user_type_from_session()
+        if user_type != "dietitian":
+            return render_template("unauthorized.html")
+        return fn(*args, **kwargs)
+    return decorated_view
+
+
 def patient_or_dietitian_auth(fn):
     @wraps(fn)
     def decorated_view(*args, **kwargs):

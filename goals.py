@@ -31,7 +31,7 @@ def edit_patient_goal(goal_id, form_data):
     db.session.add(goal)
     db.session.commit()
 
-    return "Success"
+    return goal
 
 
 def delete_goal(goal_id):

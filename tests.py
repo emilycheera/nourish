@@ -40,6 +40,7 @@ class BasicTests(unittest.TestCase):
         self.assertIn(b"Dietitian Registration", result.data)
 
 
+
 class DietitianSessionTests(unittest.TestCase):
     """Test routes that require a logged-in dietitian."""
 
@@ -95,22 +96,91 @@ class DatabaseTests(unittest.TestCase):
         """Make sure login works for a dietitian."""
 
         data = {"email": "jdoe@gmail.com", "password": "password"}
-
         result = self.client.post("/dietitian-login", data=data,
                                   follow_redirects=True)
-
+        self.assertEqual(result.status_code, 200)
         self.assertIn(b"Dietitian Dashboard", result.data)
+
+        data = {"email": "jdoe@gmail.com", "password": "pass"}
+        result = self.client.post("/dietitian-login", data=data,
+                                  follow_redirects=True)
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"Incorrect password", result.data)
+
+        data = {"email": "jdoe33@gmail.com", "password": "password"}
+        result = self.client.post("/dietitian-login", data=data,
+                                  follow_redirects=True)
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"No account with", result.data)
 
 
     def test_patient_login(self):
         """Make sure login works for a patient."""
 
         data = {"email": "jsmith@gmail.com", "password": "password"}
-
         result = self.client.post("/patient-login", data=data,
                                   follow_redirects=True)
-
+        self.assertEqual(result.status_code, 200)
         self.assertIn(b"Patient Dashboard", result.data)
+
+        data = {"email": "jsmith@gmail.com", "password": "pass"}
+        result = self.client.post("/patient-login", data=data,
+                                  follow_redirects=True)
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"Incorrect password", result.data)
+
+        data = {"email": "jsmith33@gmail.com", "password": "password"}
+        result = self.client.post("/patient-login", data=data,
+                                  follow_redirects=True)
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"No account with", result.data)
+
+
+    def test_dietitian_registration(self):
+        """Test that registration route works correctly with POST method."""
+
+        data = {"fname": "Jill", "lname": "Jones", 
+                "email": "jill23@gmail.com", "password": "password", 
+                "street-address": "33 Blue St", "city": "San Francisco", 
+                "state": "CA", "zipcode": "43223"}
+        result = self.client.post("/register", data=data,
+                                  follow_redirects=True)
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"Successfully registered", result.data)
+
+        data = {"fname": "Jill", "lname": "Doe", 
+                "email": "jdoe@gmail.com", "password": "password", 
+                "street-address": "33 Blue St", "city": "San Francisco", 
+                "state": "CA", "zipcode": "43223"}
+        result = self.client.post("/register", data=data,
+                                  follow_redirects=True)
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"email address already exists", result.data)
+
+
+    def test_getting_patients_recent_ratings(self):
+        """Test that route returns correct JSON."""
+
+        result = self.client.get("/patient/1/recent-ratings.json")
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"fullness", result.data)
+
+
+    def test_getting_patients_past_ratings(self):
+        """Test that route returns correct JSON."""
+
+        result = self.client.get("/patient/1/past-ratings.json?chart-date=2020-02-20")
+        
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"fullness", result.data)
+
+
+    def test_getting_post_from_chart(self):
+        """Test that route returns correct JSON."""
+
+        result = self.client.get("/patient/1/get-post.json?ratingLabel=Hunger%20Rating&postDatetime=2020-02-20T08:00:00&ratingValue=2")
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"hunger", result.data)
 
 
     def test_creating_new_dietitian(self):
@@ -190,8 +260,7 @@ class DatabaseTests(unittest.TestCase):
         """Test process of editing a goal."""
 
         form_data = {"goal-body": "Goal body edit."}
-        edit_patient_goal(1, form_data)
-        goal = Goal.query.get(1)
+        goal = edit_patient_goal(1, form_data)
 
         self.assertEqual("Goal body edit.", goal.goal_body)
 
@@ -390,15 +459,517 @@ class DietitianDatabaseTests(unittest.TestCase):
         db.drop_all()
 
 
+    def test_homepage_redirect_patient(self):
+        """Test redirect when patient is logged in and visits index route."""
+
+        result = self.client.get("/", follow_redirects=True)
+
+        self.assertIn(b"Dietitian Dashboard", result.data)
+
+
+    def test_showing_dietitian_homepage(self):
+        """Test rendering of the dietitian homepage."""
+
+        result = self.client.get("/dietitian/1")
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"Dietitian Dashboard", result.data)
+
+        result = self.client.get("/dietitian/2", follow_redirects=True)
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"not authorized", result.data)
+
+
+    def test_showing_dietitian_account(self):
+        """Test rendering of the dietitian account page."""
+
+        result = self.client.get("/dietitian/1/account")
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"Account Details", result.data)
+
+        result = self.client.get("/dietitian/2/account", follow_redirects=True)
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"not authorized", result.data)
+
+
+    def test_showing_edit_dietitian_account(self):
+        """Test rendering of the dietitian edit account page."""
+
+        result = self.client.get("/dietitian/1/account/edit")
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"Edit your information", result.data)
+
+        result = self.client.get("/dietitian/2/account/edit",
+                                 follow_redirects=True)
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"not authorized", result.data)
+
+
+    def test_dietitian_edit_account(self):
+        """Test that edit dietitian account route works with POST method."""
+
+        data = {"fname": "Jill", "lname": "Jones", 
+                "email": "jill23@gmail.com", "street-address": "33 Blue St", 
+                "city": "San Francisco", "state": "CA", "zipcode": "43223"}
+
+        result = self.client.post("/dietitian/1/account/edit", data=data,
+                                  follow_redirects=True)
+
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"successfully updated", result.data)
+
+
+    def test_showing_dietitian_reset_password(self):
+        """Test rendering of showing dietitian reset password page."""
+
+        result = self.client.get("/dietitian/1/account/reset-password")
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"Type in a new password", result.data)
+
+        result = self.client.get("/dietitian/4/account/reset-password",
+                                 follow_redirects=True)
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"not authorized", result.data)
+
+
+    def test_dietitian_reset_password(self):
+        """Test that reset dietitian password route works with POST method."""
+
+        data = {"password": "newpass"}
+        result = self.client.post("/dietitian/1/account/reset-password", 
+                                  data=data, follow_redirects=True)
+
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"successfully reset", result.data)
+
+
+    def test_showing_patient_registration(self):
+        """Test rendering of the patient registration page."""
+
+        result = self.client.get("/patient/new-patient")
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"Register a New Patient", result.data)
+
+
+    def test_adding_new_patient(self):
+        """Test that registering a new patient route works correctly."""
+
+        data = {"dietitian_id": 1, "fname": "Jill", "lname": "Jones", 
+                "email": "jill237@gmail.com", "password": "password", 
+                "street-address": "33 Blue St", "city": "San Francisco", 
+                "state": "CA", "zipcode": "43223", "phone": "8884445555",
+                "birthdate":"1984-05-05"}
+        result = self.client.post("/patient/new-patient", data=data,
+                                  follow_redirects=True)
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"registered new patient", result.data)
+
+        data = {"dietitian_id": 1, "fname": "Jill", "lname": "Jones", 
+                "email": "jsmith@gmail.com", "password": "password", 
+                "street-address": "33 Blue St", "city": "San Francisco", 
+                "state": "CA", "zipcode": "43223", "phone": "8884445555",
+                "birthdate":"1984-05-05"}
+        result = self.client.post("/patient/new-patient", data=data,
+                                  follow_redirects=True)
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"email address already exists", result.data)
+
+
+    def test_showing_single_patient_overview(self):
+        """Test rendering of a single patient overview page."""
+
+        result = self.client.get("/patient/1/account")
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"Birthdate", result.data)
+
+        result = self.client.get("/patient/4/account",
+                                 follow_redirects=True)
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"not authorized", result.data)
+
+
+    def test_showing_edit_single_patient_account(self):
+        """Test rendering of a single patient account edit page."""
+
+        result = self.client.get("/patient/1/account/edit")
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"Edit the information below.", result.data)
+
+        result = self.client.get("/patient/4/account/edit",
+                                 follow_redirects=True)
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"not authorized", result.data)
+
+
+    def test_patient_edit_account(self):
+        """Test that edit patient account route works with POST method."""
+
+        data = {"fname": "Jill", "lname": "Jones", "email": "jill23@gmail.com",
+                "street-address": "33 Blue St", "city": "San Francisco", 
+                "state": "CA", "zipcode": "43223", "phone": "8884445555",
+                "birthdate":"1984-05-05"}
+
+        result = self.client.post("/patient/1/account/edit", data=data,
+                                  follow_redirects=True)
+
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"successfully updated", result.data)
+
+
+    def test_not_authorized_to_reset_patient_password(self):
+        """Test that a dietitian can't reset a patient's password."""
+
+        result = self.client.get("/patient/1/account/reset-password",
+                                 follow_redirects=True)
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"not authorized", result.data)
+
+
+    def test_showing_customize_post_form(self):
+        """Test rendering of the customize posts page."""
+
+        result = self.client.get("/patient/1/account/customize-posts")
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"Place a check", result.data)
+
+        result = self.client.get("/patient/4/account/customize-posts",
+                                 follow_redirects=True)
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"not authorized", result.data)
+
+
+    def test_customize_post_form(self):
+        """Test that customizing patient form route works for POST method."""
+
+        data = {"hunger-visible": None}
+        result = self.client.post("/patient/1/account/customize-posts", 
+                                  data=data, follow_redirects=True)
+
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"customization saved", result.data)
+
+
+    def test_showing_patient_goals(self):
+        """Test rendering of the show a patient's goals page."""
+
+        result = self.client.get("/patient/1/goals")
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"Add a new goal", result.data)
+
+        result = self.client.get("/patient/4/goals", follow_redirects=True)
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"not authorized", result.data)
+
+
+    def test_adding_patient_goals(self):
+        """Test that adding new patient goal route works with POST method."""
+
+        data = {"goal-body": "New goal body."}
+        result = self.client.post("/patient/1/add-goal.json", data=data)
+
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"New goal", result.data)
+
+
+    def test_editing_patient_goals(self):
+        """Test that editing a patient goal route works with POST method."""
+
+        data = {"goal-body": "Edited goal body."}
+        result = self.client.post("/goal/1/edit.json", data=data)
+
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"Edited goal", result.data)
+
+
+    def test_deleting_patient_goals(self):
+        """Test that deleting a patient goal route works with POST method."""
+
+        data = {"goal": 1}
+        result = self.client.post("/delete-goal", data=data)
+        goal = Goal.query.get(1)
+
+        self.assertEqual(result.status_code, 200)
+        self.assertIsNone(goal)
+
+
+    def test_showing_single_patient_posts(self):
+        """Test rendering of the show a single patient's posts page."""
+
+        result = self.client.get("/patient/1/posts")
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"Setting:", result.data)
+
+        result = self.client.get("/patient/4/posts", follow_redirects=True)
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"not authorized", result.data)
+
+
+    def test_adding_comment(self):
+        """Test that adding new comment route works with POST method."""
+
+        data = {"comment": "New comment body."}
+        result = self.client.post("/post/1/add-comment.json", data=data)
+
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"New comment", result.data)
+
+
+    def test_editing_comment(self):
+        """Test that editing a comment route works with POST method."""
+
+        data = {"comment": "Edited comment body."}
+        result = self.client.post("/comment/1/edit.json", data=data)
+
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"Edited comment", result.data)
+
+
+    def test_deleting_comment_route(self):
+        """Test that deleting a comment route works with POST method."""
+
+        data = {"comment": 1}
+        result = self.client.post("/delete-comment", data=data)
+        comment = Comment.query.get(1)
+
+        self.assertEqual(result.status_code, 200)
+        self.assertIsNone(comment)
+
+
+    def test_redirect_for_patient_home_route(self):
+        """Test that URL redirects to patient's account page."""
+
+        result = self.client.get("/patient/1", follow_redirects=True)
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"Account Details", result.data)
+
+        result = self.client.get("/patient/4", follow_redirects=True)
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"not authorized", result.data)
+
+
+    def test_showing_patient_ratings_chart(self):
+        """Test rendering of patient's rating chart."""
+
+        result = self.client.get("/patient/1/ratings-chart")
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"view the ratings chart", result.data)
+
+        result = self.client.get("/patient/4/ratings-chart",
+                                 follow_redirects=True)
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"not authorized", result.data)
 
 
 
+class PatientDatabaseTests(unittest.TestCase):
+    """Test functions that require a logged-in patient and the database."""
+
+    def setUp(self):
+        """Setup for database function testing."""
+
+        # Get the Flask test client.
+        self.client = app.test_client()
+        app.config["TESTING"] = True
+        app.config["SECRET_KEY"] = "key"
+        app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess["patient_id"] = 1
+
+        # Connect to the test database.
+        connect_to_db(app, db_uri="postgresql:///testnourish") 
+
+        # Create the tables and add the sample data.
+        db.create_all()
+        load_test_data()
+        
+
+    def tearDown(self):
+        """Do this after each test."""
+
+        db.session.close()
+        db.drop_all()
 
 
+    def test_homepage_redirect_patient(self):
+        """Test redirect when patient is logged in and visits index route."""
+
+        result = self.client.get("/", follow_redirects=True)
+
+        self.assertIn(b"Patient Dashboard", result.data)
     
 
+    def test_showing_patient_homepage(self):
+        """Test rendering of the patient homepage."""
 
-    
+        result = self.client.get("/patient/1")
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"Patient Dashboard", result.data)
+
+        result = self.client.get("/patient/2", follow_redirects=True)
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"not authorized", result.data)
+
+
+    def test_showing_patient_account(self):
+        """Test rendering of a single patient overview page."""
+
+        result = self.client.get("/patient/1/account")
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"Birthdate", result.data)
+
+        result = self.client.get("/patient/4/account",
+                                 follow_redirects=True)
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"not authorized", result.data)
+
+
+    def test_showing_edit_patient_account(self):
+        """Test rendering of a single patient account edit page."""
+
+        result = self.client.get("/patient/1/account/edit")
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"Edit the information below.", result.data)
+
+        result = self.client.get("/patient/4/account/edit",
+                                 follow_redirects=True)
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"not authorized", result.data)
+
+
+    def test_patient_edit_account_as_patient(self):
+        """Test that edit patient account route works with POST method."""
+
+        data = {"fname": "Jill", "lname": "Jones", "email": "jill23@gmail.com", 
+                "street-address": "33 Blue St", "city": "San Francisco", 
+                "state": "CA", "zipcode": "43223", "phone": "8884445555", 
+                "birthdate":"1984-05-05"}
+
+        result = self.client.post("/patient/1/account/edit", data=data,
+                                  follow_redirects=True)
+
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"successfully updated", result.data)
+
+
+    def test_showing_patient_reset_password(self):
+        """Test rendering of showing patient reset password page."""
+
+        result = self.client.get("/patient/1/account/reset-password")
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"Type in a new password", result.data)
+
+        result = self.client.get("/patient/4/account/reset-password",
+                                 follow_redirects=True)
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"not authorized", result.data)
+
+
+    def test_patient_reset_password(self):
+        """Test that reset patient password route works with POST method."""
+
+        data = {"password": "newpass"}
+        result = self.client.post("/patient/1/account/reset-password", 
+                                  data=data, follow_redirects=True)
+
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"successfully reset", result.data)
+
+
+    def test_adding_patient_posts(self):
+        """Test that adding new patient post route works with POST method."""
+
+        data = {"meal-time": "2020-02-25 08:00:00", 
+                "meal-setting": "At home!", "TEB": "Some thoughts..",
+                "hunger": 2, "fullness": 8, "satisfaction": 5,
+                "meal-notes": "Some notes."}
+        
+        result = self.client.post("/post/new-post", data=data,
+                                  follow_redirects=True)
+
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"Post added successfully", result.data)
+
+
+    def test_editing_patient_posts(self):
+        """Test that editing a patient post route works with POST method."""
+
+        data = {"meal-time": "2020-02-25 08:00:00", 
+                "meal-setting": "At home!", "TEB": "Some thoughts..",
+                "hunger": 2, "fullness": 3, "meal-notes": "Some notes."}
+        
+        result = self.client.post("/post/edit/1", data=data,
+                                  follow_redirects=True)
+
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"Post updated successfully", result.data)
+
+
+    def test_deleting_patient_posts(self):
+        """Test that deleting a patient post route works with POST method."""
+
+        data = {"post": 1}
+        result = self.client.post("/delete-post", data=data)
+        post = Post.query.get(1)
+
+        self.assertEqual(result.status_code, 200)
+        self.assertIsNone(post)
+
+    def test_adding_comment(self):
+        """Test that adding new comment route works with POST method."""
+
+        data = {"comment": "New comment body."}
+        result = self.client.post("/post/1/add-comment.json", data=data)
+
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"New comment", result.data)
+
+
+    def test_showing_patient_goals_as_patient(self):
+        """Test rendering of the show a patient's goals page."""
+
+        result = self.client.get("/patient/1/goals")
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"Goals", result.data)
+
+        result = self.client.get("/patient/4/goals", follow_redirects=True)
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"not authorized", result.data)
+
+
+    def test_showing_patient_posts(self):
+        """Test rendering of the show a patient's posts page."""
+
+        result = self.client.get("/patient/1/posts")
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"Setting:", result.data)
+
+        result = self.client.get("/patient/4/posts", follow_redirects=True)
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"not authorized", result.data)
+
+
+    def test_showing_patient_ratings_chart_as_patient(self):
+        """Test rendering of patient's rating chart."""
+
+        result = self.client.get("/patient/1/ratings-chart")
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"button in the sidebar", result.data)
+
+        result = self.client.get("/patient/4/ratings-chart",
+                                 follow_redirects=True)
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"not authorized", result.data)
+
+
+    def test_patient_new_patient_unauthorized(self):
+        """Test that a patient is unauthorized to vist new patient route."""
+
+        result = self.client.get("/patient/new-patient")
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(b"not authorized", result.data)
+
+
 
 
 
