@@ -18,7 +18,8 @@ from decorators import (dietitian_auth, dietitians_only,
 from goals import (edit_patient_goal, delete_goal, create_goal_dict,
                    add_goal_and_get_dict)
 from helpers import sort_date_desc
-from jinja_filters import datetimeformat, dateformat, htmldateformat
+from jinja_filters import (datetimeformat, datecommaformat, dateformat,
+                           htmldateformat)
 from model import connect_to_db, db, Dietitian, Patient, Goal, Post, Comment
 from posts import (create_new_post, edit_post, delete_post,
                    get_all_patients_posts, save_customized_patient_post_form,
@@ -34,16 +35,17 @@ from users import (create_new_dietitian_account, update_dietitian_account,
 app = Flask(__name__)
 app.secret_key = "b_xd3xf9095~xa68x90E^O1xd3R"
 
-app.jinja_env.filters['datetime'] = datetimeformat
-app.jinja_env.filters['date'] = dateformat
-app.jinja_env.filters['htmldatetime'] = htmldateformat
+app.jinja_env.filters["datetime"] = datetimeformat
+app.jinja_env.filters["datecomma"] = datecommaformat
+app.jinja_env.filters["date"] = dateformat
+app.jinja_env.filters["htmldatetime"] = htmldateformat
 app.jinja_env.undefined = StrictUndefined
 
 UPLOAD_FOLDER = "static/images/uploads/"
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg"}
 
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024
 
 
 @app.route("/", methods=["GET"])
@@ -80,7 +82,6 @@ def handle_patient_login():
         return redirect("/")
 
     session["patient_id"] = patient.patient_id
-    flash("Login successful.")
     return redirect(f"/patient/{patient.patient_id}")
 
 
@@ -103,7 +104,6 @@ def handle_dietitian_login():
         return redirect("/")
 
     session["dietitian_id"] = dietitian.dietitian_id
-    flash("Login successful.")
     return redirect(f"/dietitian/{dietitian.dietitian_id}")
 
 
@@ -422,6 +422,7 @@ def show_single_patient_posts(patient_id):
                             patient=patient,
                             dietitian=dietitian,
                             posts=sorted_posts)
+
 
 
 @app.route("/post/<int:post_id>/add-comment.json", methods=["POST"])

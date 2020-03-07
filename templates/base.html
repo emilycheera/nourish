@@ -46,14 +46,19 @@
         </div>
       {% endif %}
     </nav>
-    <div id="content">
+    <div id="content" class="h-100">
         {% block content %}
             <div id="flash-messages">
                 {% block flash %}
                     {% with messages = get_flashed_messages() %}
                       {% if messages %}
                         {% for message in messages %}
-                          <p>{{ message }}</p>
+                          <div class="alert alert-light alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                              <span aria-hidden="true">&times;</span>
+                            </button>
+                          </div>
                         {% endfor %}
                       {% endif %}
                     {% endwith %}

@@ -1,4 +1,4 @@
-// Disable ratings chart button, enable tooltip if patient has no ratings data.
+// Show ratings chart button if patient has ratings data.
 $("document").ready( () => {
     const pathArray = (window.location.pathname).split("/");
     const patientId = pathArray[2];

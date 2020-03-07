@@ -153,8 +153,8 @@ const getModal = (res) => {
 
 
 
-// When the ratings chart button is clicked, create "Ratings for Last 7 Days"
-// chart and a dropdown so the user can get charts for previous weeks" ratings 
+// When the ratings chart button is clicked, create "Recent Ratings"
+// chart and a dropdown so the user can get charts of previous weeks' ratings 
 // data.
 $(".ratings-chart-btn").on("click", (evt) => {
     evt.preventDefault();

@@ -1,40 +1,47 @@
 {% extends "base.html" %}
 {% block title %}Home{% endblock %}
 {% block content %}
-    <div>
-        <h1>
-            Nourish Tagline
-        </h1>
-        <h2>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation.
-        </h2>
-        <img src="">
+<div class="container-fluid h-100">
+    <div class="row h-100">
+        <div class="mx-auto col-10 col-md-8 order-md-2 home-img">
+            <h3>I'm baby chartreuse shoreditch distillery, crucifix ramps umami put a bird on it single-origin coffee paleo before they sold out.</h3>
+            <img src="">
+        </div>
+        <div class="mx-auto col-10 col-md-4 order-md-1 pl-5 pr-5">
+            <div>
+                {% block flash %} {{ super() }} {% endblock %}
+            </div>
+            <h1 class="mb-3">Get Started</h1>
+            <h5>What type of user are you?</h5>
+            <button id="patient-login-btn" class="btn btn-outline-primary btn-block">Patient</button>
+            <button id="dietitian-login-btn" class="btn btn-outline-primary btn-block">Dietitian</button>
+            <div class="hidden mt-4" id="patient-login" >
+                <h4 class="mb-2">Patient Login</h4>
+                <form action="/patient-login" class="form-signin" method="POST">
+                    <label for="email" class="sr-only">Email address</label>
+                    <input type="email" class="form-control" required name="email" id="email" placeholder="Email address">
+                    <label for="password" class="sr-only">Password</label>
+                    <input type="password" class="form-control" required name="password" id="password" placeholder="Password">
+                    <button class="btn btn-primary btn-block" type="submit">Sign in</button>
+                </form>
+            </div>
+            <div class="hidden mt-4" id="dietitian-login">
+                <h4 class="mb-2">Dietitian Login</h4>
+                <form action="/dietitian-login" class="form-signin mb-3" method="POST" class="mb-2">
+                    <label for="email" class="sr-only">Email address</label>
+                    <input type="email" class="form-control" required name="email" id="email" placeholder="Email address">
+                    <label for="password" class="sr-only">Password</label>
+                    <input type="password" class="form-control" required name="password" id="password" placeholder="Password">
+                    <button class="btn btn-primary btn-block" type="submit">Sign in</button>
+                </form>
+                <p>
+                    New to Nourish?
+                    <a href="/register">Create a Dietitian Account</a>
+                </p>
+            </div>
+        </div>
     </div>
-    <div>
-        <div>
-            {% block flash %} {{ super() }} {% endblock %}
-        </div>
-        <h3>What type of user are you?</h3>
-        <button id="patient-login-btn">Patient</button>
-        <button id="dietitian-login-btn">Dietitian</button>
-        <div class="hidden" id="patient-login" >
-            <h4>Patient Login</h4>
-            <form action="/patient-login" method="POST">
-                <input type="email" required name="email" placeholder="Email address">
-                <input type="password" required name="password" placeholder="Password">
-                <input type="submit" value="Log In">
-            </form>
-        </div>
-        <div class="hidden" id="dietitian-login">
-            <h4>Dietitian Login</h4>
-            <form action="/dietitian-login" method="POST">
-                <input type="email" required name="email" placeholder="Email address">
-                <input type="password" required name="password" placeholder="Password">
-                <input type="submit" value="Log In">
-            </form>
-            <a href="/register">Create a Dietitian Account</a>
-        </div>
-    </div>
+</div>
 {% endblock %}
 {% block script %}
     <script src="/static/js/homepage.js"></script>

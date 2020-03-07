@@ -1,17 +1,23 @@
 {% extends "patient-base.html" %}
 {% block dashboard_content %}
     <div>
-        <h2>Goals</h2>
-        {% if not goals %}
+<!--         <h2 class="mb-4">Goals</h2>
+ -->        {% if not goals %}
             <p>
                 Your dietitian hasn't created any goals yet.
             </p>
         {% endif %}
         {% if goals %}
+        <div class="patient-goals-list">
             {% for goal in goals %}
-                <p>{{ goal.time_stamp|datetime }} {% if goal.edited %}(edited){% endif %}</p>
-                <p>{{ goal.goal_body }}</p>
+            <div class="goal-container">
+                <div class="goal-content">
+                    <p class="post-time mb-2">{{ goal.time_stamp|datecomma }} {% if goal.edited %}(edited){% endif %}</p>
+                    <p>{{ goal.goal_body }}</p>
+                </div>
+            </div>
             {% endfor %}
+        </div>
         {% endif %}
     </div>
 {% endblock %}
