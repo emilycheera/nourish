@@ -546,20 +546,23 @@ def get_patients_recent_ratings(patient_id):
 
     sundays_with_data = get_sundays_with_data(patient_id)
 
+    recent_ratings_dict = {}
+
     # Assign start and end dates for ratings database query to the most recent
     # week that has ratings data.
-    from_date_isoformat = sundays_with_data[0]
-    from_date = datetime.strptime(from_date_isoformat, "%Y-%m-%d")
-    to_date = from_date + timedelta(days=7)
+    if sundays_with_data:
+        from_date_isoformat = sundays_with_data[0]
+        from_date = datetime.strptime(from_date_isoformat, "%Y-%m-%d")
+        to_date = from_date + timedelta(days=7)
 
-    # Get a dictionary of hunger, fullness, and satisfaction ratings from a
-    # specific patient over a specific period of time.
-    recent_ratings_dict = get_ratings_dict(patient_id, from_date_isoformat, 
-                                           from_date, to_date)
-    
-    # Get dates to populate dropdown menu for searching previous weeks'
-    # ratings data.
-    recent_ratings_dict["dropdown"] = {"dropdown_dates": sundays_with_data}
+        # Get a dictionary of hunger, fullness, and satisfaction ratings from a
+        # specific patient over a specific period of time.
+        recent_ratings_dict = get_ratings_dict(patient_id, from_date_isoformat, 
+                                               from_date, to_date)
+        
+        # Get dates to populate dropdown menu for searching previous weeks'
+        # ratings data.
+        recent_ratings_dict["dropdown"] = {"dropdown_dates": sundays_with_data}
 
     return jsonify(recent_ratings_dict)
 

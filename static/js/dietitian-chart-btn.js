@@ -3,9 +3,10 @@ $("document").ready( () => {
     const pathArray = (window.location.pathname).split("/");
     const patientId = pathArray[2];
     $.get(`/patient/${patientId}/recent-ratings.json`, (res) => {
-        if (res.dropdown.dropdown_dates.length == 0) {
+        if (jQuery.isEmptyObject(res)) {
             $(".ratings-chart-btn").prop("disabled", true);
-            $("#disabled-btn-tooltip").tooltip();
+            $("#disabled-btn-tooltip").attr("title", "Patient has no ratings data.").tooltip();
+
         };
     });
 });
