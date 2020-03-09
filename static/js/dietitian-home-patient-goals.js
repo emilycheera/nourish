@@ -32,23 +32,33 @@ $("body").on("click", "button.delete-goal-btn", (evt) => {
 
 
 const getCurrentGoal = (res) => {
-    const timeStamp = (moment(res.current_goal.time_stamp).format("MMM D, YYYY [at] h:mm A"));
-    return `<div id="current-goal-div">
-                <h3>Current Goal</h3>
+    const timeStamp = (moment(res.current_goal.time_stamp).format("MMM D, YYYY"));
+    return `<div id="current-goal-div" class="patient-goals-list mb-5">
+                <h3 class="mb-3">Current Goal</h3>
                 <div id="goal-${res.current_goal.goal_id}">
-                    <p>${timeStamp} ${res.current_goal.edited}</p>
-                    <p>${res.current_goal.goal_body}</p>
-                    <button class="edit-goal-btn" data-goal-id="${res.current_goal.goal_id}">Edit</button>
-                    <button class="delete-goal-btn" data-goal-id="${res.current_goal.goal_id}">Delete</button>
+                    <div class="goal-container">
+                        <div class="goal-content">
+                            <p class="post-time mb-2">${timeStamp} ${res.current_goal.edited}</p>
+                            <p class="mb-1">${res.current_goal.goal_body}</p>
+                            <button class="btn btn-link edit-goal-btn pl-0" data-goal-id="${res.current_goal.goal_id}">Edit</button>
+                            <button class="btn btn-link delete-goal-btn" data-goal-id="${res.current_goal.goal_id}">Delete</button>
+                        </div>
+                    </div>
                 </div>
                 <div id="editable-goal-${res.current_goal.goal_id}" class="hidden">
-                    <form class="edit-goal-form" id="edit-goal-form-${res.current_goal.goal_id}" data-goal-id="${res.current_goal.goal_id}">
-                        <textarea name="goal-body" required rows="4" cols="48">${res.current_goal.goal_body}</textarea>
-                        <div>
-                            <button class="cancel-edit-btn" data-goal-id="${res.current_goal.goal_id}">Cancel</button>
-                            <button type="submit">Update Goal</button>
+                    <div class="goal-container">
+                        <div class="goal-content">
+                            <form class="edit-goal-form" id="edit-goal-form-${res.current_goal.goal_id}" data-goal-id="${res.current_goal.goal_id}">
+                                <div class="form-group mb-1">
+                                    <textarea name="goal-body" required class="form-control" rows="4">${res.current_goal.goal_body}</textarea>
+                                </div>
+                                <div>
+                                    <button class="cancel-edit-btn btn btn-link" data-goal-id="${res.current_goal.goal_id}">Cancel</button>
+                                    <button type="submit" class="btn btn-link">Save Changes</button>
+                                </div>
+                            </form>
                         </div>
-                    </form>
+                    </div>
                 </div>
             </div>`;
 }
@@ -58,12 +68,16 @@ const getPastGoal = (res) => {
         $("#past-goals-heading").hide()
         return "";
     };
-    const timeStamp = (moment(res.goal.time_stamp).format("MMM D, YYYY [at] h:mm A"));
+    const timeStamp = (moment(res.goal.time_stamp).format("MMM D, YYYY"));
     $("#past-goals-heading").show();
     return `<div id="goal-${res.goal.goal_id}">
-                <p>${timeStamp} ${res.goal.edited}</p>
-                <p>${res.goal.goal_body}</p>
-                <button class="delete-goal-btn" data-goal-id="${res.goal.goal_id}">Delete</button>
+                <div class="goal-container">
+                    <div class="goal-content">
+                        <p class="post-time mb-2">${timeStamp} ${res.goal.edited}</p>
+                        <p class="mb-1">${res.goal.goal_body}</p>
+                        <button class="delete-goal-btn btn btn-link pl-0" data-goal-id="${res.goal.goal_id}">Delete</button>
+                    </div>
+                </div>
             </div>`;
 }
 
