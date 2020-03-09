@@ -1,54 +1,66 @@
 <div class="account-edit-page">
-    <div class="mb-4">
-        <h4>Account Details</h4>
-        <p>Edit the information below. Click the button to save your changes.</p>
+  <div class="mb-4">
+    <h4>Account Details</h4>
+    <p>Edit the information below. Click the button to save your changes.</p>
+  </div>
+  <form action="/patient/{{ patient.patient_id }}/account/edit" method="POST">
+    <div class="form-row">
+      <div class="form-group col-md-3">
+        <label for="pt-fname-input">First name</label>
+        <input type="text" required id="pt-fname-input" class="form-control" 
+               name="fname" maxlength="50" value="{{ patient.fname }}">
+      </div>
+      <div class="form-group col-md-3">
+        <label for="pt-lname-input">Last name</label>
+        <input type="text" required id="pt-lname-input" class="form-control" 
+               name="lname" maxlength="50" value="{{ patient.lname }}">
+      </div>
+      <div class="form-group col-md-6">
+        <label for="pt-email-input">Email address</label>
+        <input type="email" required id="pt-email-input" class="form-control" 
+               name="email" maxlength="120" value="{{ patient.email }}">
+      </div>
     </div>
-    <form action="/patient/{{ patient.patient_id }}/account/edit" method="POST">
-        <div class="form-row">
-            <div class="form-group col-md-3">
-                <label for="pt-fname-input">First name</label>
-                <input type="text" required id="pt-fname-input" class="form-control" name="fname" maxlength="50" value="{{ patient.fname }}">
-            </div>
-            <div class="form-group col-md-3">
-                <label for="pt-lname-input">Last name</label>
-                <input type="text" required id="pt-lname-input" class="form-control" name="lname" maxlength="50" value="{{ patient.lname }}">
-            </div>
-            <div class="form-group col-md-6">
-                <label for="pt-email-input">Email address</label>
-                <input type="email" required id="pt-email-input" class="form-control" name="email" maxlength="120" value="{{ patient.email }}">
-            </div>
-        </div>
-        <div class="form-group">
-            <label for="pt-street-address">Street address</label>
-            <input type="text" required id="pt-street-address" class="form-control" name="street-address" size="50" maxlength="100" value="{{ patient.street_address }}">
-        </div>
-        <div class="form-row">
-            <div class="form-group col-md-6">
-                <label for="pt-city-input">City</label>
-                <input type="text" required id="pt-city-input" class="form-control" name="city" maxlength="40" value="{{ patient.city }}">
-            </div>
-            <div class="form-group col-md-2">
-                <label for="pt-state-input">State</label>
-                <input type="text" required id="pt-state-input" class="form-control" name="state" maxlength="2" value="{{ patient.state }}">
-            </div>
-            <div class="form-group col-md-4">
-                <label for="pt-zip-input">Zipcode</label>
-                <input type="text" required id="pt-zip-input" class="form-control" name="zipcode" maxlength="11" value="{{ patient.zipcode }}">
-            </div>
-        </div>
-        <div class="form-row">
-            <div class="form-group col-md-6">
-                <label for="pt-tel-input">Phone number</label>
-                <input type="tel" required id="pt-tel-input" class="form-control" name="phone" maxlength="15" value="{{ patient.phone }}">
-            </div>
-            <div class="form-group col-md-6">
-                <label for="pt-bd-input">Birthdate</label>
-                <input type="date" required id="pt-bd-input" class="form-control" name="birthdate" value={{ patient.birthdate }}>
-            </div>
-        </div>
-        <div>
-            <a href="/patient/{{ patient.patient_id }}/account" class="btn btn-outline-primary">Cancel</a>
-            <button type="submit" class="btn btn-primary">Save Changes</button>
-        </div>
-    </form>
+    <div class="form-group">
+        <label for="pt-street-address">Street address</label>
+        <input type="text" required id="pt-street-address" class="form-control" 
+               name="street-address" maxlength="100" value="{{ patient.street_address }}">
+    </div>
+    <div class="form-row">
+      <div class="form-group col-md-6">
+        <label for="pt-city-input">City</label>
+        <input type="text" required id="pt-city-input" class="form-control" 
+               name="city" maxlength="40" value="{{ patient.city }}">
+      </div>
+      <div class="form-group col-md-2">
+        <label for="pt-state-input">State</label>
+        <input type="text" required id="pt-state-input" class="form-control" 
+               name="state" maxlength="2" value="{{ patient.state }}">
+      </div>
+      <div class="form-group col-md-4">
+        <label for="pt-zip-input">Zipcode</label>
+        <input type="text" required id="pt-zip-input" class="form-control" 
+               name="zipcode" maxlength="11" value="{{ patient.zipcode }}">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group col-md-6">
+        <label for="pt-tel-input">Phone number</label>
+        <input type="tel" required id="pt-tel-input" class="form-control" 
+               name="phone" maxlength="15" value="{{ patient.phone }}">
+      </div>
+      <div class="form-group col-md-6">
+        <label for="pt-bd-input">Birthdate</label>
+        <input type="date" required id="pt-bd-input" class="form-control" 
+               name="birthdate" value={{ patient.birthdate }}>
+      </div>
+    </div>
+    <div>
+      <a href="/patient/{{ patient.patient_id }}/account" 
+         class="btn btn-outline-primary">
+        Cancel
+      </a>
+      <button type="submit" class="btn btn-primary">Save Changes</button>
+    </div>
+  </form>
 </div>

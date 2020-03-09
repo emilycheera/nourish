@@ -1,68 +1,84 @@
 {% extends "patient-base.html" %}
 {% block dashboard_content %}
-    <div id="patient-main-content">
-        <div class="current-goal-div mb-5">
-            <h3 class="mb-4"><b>Current Goal</b></h3>
-            {% if not goal %}
-                <p>No goal to display.</p>
-            {% endif %}
-            {% if goal %}
-                <p class="text-muted post-time mb-2">{{ goal.time_stamp|datecomma }} {% if goal.edited %}(edited){% endif %}</p>
-                <p>{{ goal.goal_body }}</p>
-            {% endif %}
-        </div>
-        <div>
-            <h3 class="mb-4"><b>Add a New Post</b></h3>
-            <form class="new-post-form" enctype="multipart/form-data" action="/post/new-post" method="POST">
-                <input type="hidden" name="patient-id" value={{ patient.patient_id }}>
-                <div class="form-row">
-                    <div class="form-group col-md-6">
-                        <label for="meal-time-input">Time of Meal/Snack*</label>
-                        <input type="datetime-local" required name="meal-time" id="meal-time-input" class="form-control" value={{ current_time }}>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="w-100">Add an Image
-                            <div class="custom-file">
-                                <input type="file" name="meal-image" accept="image/png, image/jpeg, image/jpg" class="custom-file-input" id="custom-file">
-                                <label class="custom-file-label" for="custom-file">Choose file</label>
-                            </div>
-                        </label>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="meal-setting-input">Where did you eat and with whom?*</label>
-                    <input type="text" name="meal-setting" required id="meal-setting-input" class="form-control" maxlength="200">
-                </div>
-                <div class="form-group">
-                    <label for="TEB-input">What thoughts, emotions, behaviors did you notice?*</label>
-                    <textarea id="TEB-input" class="form-control" name="TEB" required></textarea>
-                </div>
-                <div class="form-row">
-                    {% if patient.hunger_visible %}
-                    <div class="form-group col-md-4">
-                        <label for="hunger-input">Hunger Rating</label>
-                        <input type="number" id="hunger-input" class="form-control" name="hunger" min="0" max="10" step="1">
-                    </div>
-                    {% endif %}
-                    {% if patient.fullness_visible %}
-                    <div class="form-group col-md-4">
-                        <label for="fullness-input">Fullness Rating</label>
-                        <input type="number" id="fullness-input" class="form-control" name="fullness" min="0" max="10" step="1">
-                    </div>
-                    {% endif %}
-                    {% if patient.satisfaction_visible %}
-                    <div class="form-group col-md-4">
-                        <label for="satisfaction-input">Satisfaction Rating</label>
-                        <input type="number" id="satisfaction-input" class="form-control" name="satisfaction" min="0" max="10" step="1">
-                    </div>
-                    {% endif %}
-                </div>
-                <div class="form-group">
-                    <label for="meal-notes-input">Anything else you'd like to share?</label>
-                    <input type="text" name="meal-notes" id="meal-notes-input" class="form-control">
-                </div>
-                <button type="submit" class="btn btn-primary btn-block">Submit</button>
-            </form>
-        </div>
+  <div id="patient-main-content">
+    <div class="current-goal-div mb-5">
+      <h3 class="mb-4"><b>Current Goal</b></h3>
+      {% if not goal %}
+        <p>No goal to display.</p>
+      {% endif %}
+      {% if goal %}
+        <p class="text-muted post-time mb-2">
+          {{ goal.time_stamp|datecomma }} {% if goal.edited %}(edited){% endif %}
+        </p>
+        <p>{{ goal.goal_body }}</p>
+      {% endif %}
     </div>
+    <div>
+      <h3 class="mb-4"><b>Add a New Post</b></h3>
+      <form class="new-post-form" enctype="multipart/form-data" 
+            action="/post/new-post" method="POST">
+        <input type="hidden" name="patient-id" value={{ patient.patient_id }}>
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="meal-time-input">Time of Meal/Snack</label>
+            <input type="datetime-local" required name="meal-time" 
+                   id="meal-time-input" class="form-control" 
+                   value={{ current_time }}>
+          </div>
+          <div class="col-md-6">
+            <label class="w-100">Add an Image
+              <div class="custom-file">
+                <input type="file" accept="image/png, image/jpeg, image/jpg" 
+                       name="meal-image" class="custom-file-input" id="custom-file">
+                <label class="custom-file-label" for="custom-file">
+                  Choose file
+                </label>
+              </div>
+            </label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="meal-setting-input">
+            Where did you eat and with whom?
+          </label>
+          <input type="text" name="meal-setting" required id="meal-setting-input" 
+                 class="form-control" maxlength="200">
+        </div>
+        <div class="form-group">
+          <label for="TEB-input">
+            What thoughts, emotions, behaviors did you notice?
+          </label>
+          <textarea id="TEB-input" class="form-control" name="TEB" required></textarea>
+        </div>
+        <div class="form-row">
+            {% if patient.hunger_visible %}
+            <div class="form-group col-md-4">
+              <label for="hunger-input">Hunger Rating</label>
+              <input type="number" id="hunger-input" class="form-control" 
+                     name="hunger" min="0" max="10" step="1">
+            </div>
+            {% endif %}
+            {% if patient.fullness_visible %}
+            <div class="form-group col-md-4">
+              <label for="fullness-input">Fullness Rating</label>
+              <input type="number" id="fullness-input" class="form-control" 
+                     name="fullness" min="0" max="10" step="1">
+            </div>
+            {% endif %}
+            {% if patient.satisfaction_visible %}
+            <div class="form-group col-md-4">
+              <label for="satisfaction-input">Satisfaction Rating</label>
+              <input type="number" id="satisfaction-input" class="form-control" 
+                     name="satisfaction" min="0" max="10" step="1">
+            </div>
+            {% endif %}
+        </div>
+        <div class="form-group">
+          <label for="meal-notes-input">Anything else you'd like to share?</label>
+          <input type="text" name="meal-notes" id="meal-notes-input" class="form-control">
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Submit</button>
+      </form>
+    </div>
+  </div>
 {% endblock %}

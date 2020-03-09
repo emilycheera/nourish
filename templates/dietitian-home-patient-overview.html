@@ -1,9 +1,13 @@
 {% extends "dietitian-single-patient-base.html" %}
 {% block patient_content %}
-    <div class="mb-3">
-        <h4>Account Details</h4>
-        <a href="/patient/{{ patient.patient_id }}/account/edit" class="mr-3">Edit Account</a>
-        <a href="/patient/{{ patient.patient_id }}/account/customize-posts">Customize Posts</a>
-    </div>
-        {% include "patient-account-details.html" %}
+<div class="mb-3">
+  <h4>Account Details</h4>
+  <a href="/patient/{{ patient.patient_id }}/account/edit" class="mr-3">
+    Edit Account
+  </a>
+  <a href="/patient/{{ patient.patient_id }}/account/customize-posts">
+    Customize Posts
+  </a>
+</div>
+  {% include "patient-account-details.html" %}
 {% endblock %}

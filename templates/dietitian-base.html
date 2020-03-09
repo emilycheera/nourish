@@ -2,52 +2,59 @@
 {% block title %}Dietitian Dashboard{% endblock %}
 {% block content %}
 <div class="container-fluid">
-    <div =class="row">
-        <nav class="d-none d-md-block bg-light sidebar">
-            <div class="sidebar-sticky">
-                <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-3">
-                    <span class="border-bottom">{{ dietitian.fname }} {{ dietitian.lname }}</span>
-                </h6>
-                <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mb-4">
-                    <span class="user-dashboard-tag">Dietitian Dashboard</span>
-                </h6>
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a class="nav-link disabled" href="/patient/new-patient">
-                            Patient Search:
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <h6 class="d-flex justify-content-between align-items-center px-3 mb-3">
-                        <select id="patient" class="patient-search">
-                            <option></option>
-                            {% for patient in patients %}
-                                <option value ="/patient/{{ patient.patient_id }}">
-                                {{ patient.fname }} {{ patient.lname }}</option>
-                            {% endfor %}
-                        </select>
-                        </h6>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/dietitian/{{ dietitian.dietitian_id }}">
-                            All Patient Posts
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/patient/new-patient">
-                            Register a New Patient
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </nav>
-        <main class="col-md-8 col-lg-9 ml-auto pb-5">
-            <div>
-                {% block flash %} {{ super() }} {% endblock %}
-            </div>
-            <div>{% block dashboard_content %}{% endblock %}</div>
-        </main>
-    </div>
+  <div =class="row">
+    <nav class="d-none d-md-block bg-light sidebar">
+      <div class="sidebar-sticky">
+        <h6 class="sidebar-heading d-flex justify-content-between 
+                   align-items-center px-3 mt-3">
+          <span class="border-bottom">
+            {{ dietitian.fname }} {{ dietitian.lname }}
+          </span>
+        </h6>
+        <h6 class="sidebar-heading d-flex justify-content-between 
+                   align-items-center px-3 mb-4">
+          <span class="user-dashboard-tag">Dietitian Dashboard</span>
+        </h6>
+        <ul class="nav flex-column">
+          <li class="nav-item">
+            <a class="nav-link disabled" href="/patient/new-patient">
+              Patient Search:
+            </a>
+          </li>
+          <li class="nav-item">
+            <h6 class="d-flex justify-content-between align-items-center 
+                       px-3 mb-3">
+            <select id="patient" class="patient-search">
+              <option></option>
+              {% for patient in patients %}
+                <option value ="/patient/{{ patient.patient_id }}">
+                {{ patient.fname }} {{ patient.lname }}</option>
+              {% endfor %}
+            </select>
+            </h6>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/dietitian/{{ dietitian.dietitian_id }}">
+              All Patient Posts
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/patient/new-patient">
+              Register a New Patient
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+    <main class="col-md-8 col-lg-9 ml-auto pb-5">
+      <div>
+        {% block flash %} {{ super() }} {% endblock %}
+      </div>
+      <div>
+        {% block dashboard_content %}{% endblock %}
+      </div>
+    </main>
+  </div>
 </div>
 {% endblock %}
     

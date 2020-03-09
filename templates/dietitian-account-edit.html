@@ -1,47 +1,55 @@
 {% extends "dietitian-base.html" %}
 {% block dashboard_content %}
 <div class="account-edit-page">
-    <div class="mb-4">
-        <h4>Account Details</h4>
-        <p>Edit your information below. Click the button to save your changes.</p>
+  <div class="mb-4">
+    <h4>Account Details</h4>
+    <p>Edit your information below. Click the button to save your changes.</p>
+  </div>
+  <form action="/dietitian/{{ dietitian.dietitian_id }}/account/edit" method="POST">
+    <div class="form-row">
+      <div class="form-group col-md-3">
+        <label for="rd-fname-input">First name</label>
+        <input type="text" required id="rd-fname-input" class="form-control" 
+        name="fname" maxlength="50" value="{{ dietitian.fname }}">
+      </div>
+      <div class="form-group col-md-3">
+        <label for="rd-lname-input">Last name</label>
+        <input type="text" required id="rd-lname-input" class="form-control" 
+        name="lname" maxlength="50" value="{{ dietitian.lname }}">
+      </div>
+      <div class="form-group col-md-6">
+        <label for="rd-email-input">Email address</label>
+        <input type="email" required id="rd-email-input" class="form-control" 
+        name="email" maxlength="120" value="{{ dietitian.email }}">
+      </div>
     </div>
-    <form action="/dietitian/{{ dietitian.dietitian_id }}/account/edit" method="POST">
-        <div class="form-row">
-            <div class="form-group col-md-3">
-                <label for="rd-fname-input">First name</label>
-                <input type="text" required id="rd-fname-input" class="form-control" name="fname" maxlength="50" value="{{ dietitian.fname }}">
-            </div>
-            <div class="form-group col-md-3">
-                <label for="rd-lname-input">Last name</label>
-                <input type="text" required id="rd-lname-input" class="form-control" name="lname" maxlength="50" value="{{ dietitian.lname }}">
-            </div>
-            <div class="form-group col-md-6">
-                <label for="rd-email-input">Email address</label>
-                <input type="email" required id="rd-email-input" class="form-control" name="email" maxlength="120" value="{{ dietitian.email }}">
-            </div>
-        </div>
-        <div class="form-group">
-            <label for="rd-street-address">Street address</label>
-            <input type="text" required id="rd-street-address" class="form-control" name="street-address" maxlength="100" value="{{ dietitian.street_address }}">
-        </div>
-        <div class="form-row">
-            <div class="form-group col-md-6">
-                <label for="rd-city-input">City</label>
-                <input type="text" required id="rd-city-input" class="form-control" name="city" maxlength="40" value="{{ dietitian.city }}">
-            </div>
-            <div class="form-group col-md-2">
-                <label for="rd-state-input">State</label>
-                <input type="text" required id="rd-state-input" class="form-control" name="state" maxlength="2" value="{{ dietitian.state }}">
-            </div>
-            <div class="form-group col-md-4">
-                <label for="rd-zip-input">Zipcode</label>
-                <input type="text" required id="rd-zip-input" class="form-control" name="zipcode" maxlength="11" value="{{ dietitian.zipcode }}">
-            </div>
-        </div>
-        <div>
-            <a href="/dietitian/{{ dietitian.dietitian_id }}/account" class="btn btn-outline-primary">Cancel</a>
-            <button type="submit" class="btn btn-primary">Save Changes</button>
-        </div>
-    </form>
+    <div class="form-group">
+        <label for="rd-street-address">Street address</label>
+        <input type="text" required id="rd-street-address" class="form-control" 
+        name="street-address" maxlength="100" value="{{ dietitian.street_address }}">
+    </div>
+    <div class="form-row">
+      <div class="form-group col-md-6">
+        <label for="rd-city-input">City</label>
+        <input type="text" required id="rd-city-input" class="form-control" 
+        name="city" maxlength="40" value="{{ dietitian.city }}">
+      </div>
+      <div class="form-group col-md-2">
+        <label for="rd-state-input">State</label>
+        <input type="text" required id="rd-state-input" class="form-control" 
+        name="state" maxlength="2" value="{{ dietitian.state }}">
+      </div>
+      <div class="form-group col-md-4">
+        <label for="rd-zip-input">Zipcode</label>
+        <input type="text" required id="rd-zip-input" class="form-control" 
+        name="zipcode" maxlength="11" value="{{ dietitian.zipcode }}">
+      </div>
+    </div>
+    <div>
+      <a href="/dietitian/{{ dietitian.dietitian_id }}/account" 
+         class="btn btn-outline-primary">Cancel</a>
+      <button type="submit" class="btn btn-primary">Save Changes</button>
+    </div>
+  </form>
 </div>
 {% endblock %}

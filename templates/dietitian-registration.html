@@ -2,66 +2,73 @@
 {% block title %}Dietitian Registration{% endblock %}
 {% block content %}
 <div class="container">    
-    <div class="mb-4">
-        <h1>
-            Dietitian Registration
-        </h1>
-        <h3>
-            Complete the form below to start using
-            Nourish with your patients.
-        </h3>
+  <div class="mb-4">
+    <h1>
+      Dietitian Registration
+    </h1>
+    <h3>
+      Complete the form below to start using Nourish with your patients.
+    </h3>
+  </div>
+  <div class="rd-reg-page">
+    <div>
+      {% block flash %} {{ super() }} {% endblock %}
     </div>
-    <div class="rd-reg-page">
-        <div>
-            {% block flash %} {{ super() }} {% endblock %}
+    <form action="/register" method="POST">
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <label for="rd-fname-input">First name</label>
+          <input type="text" required id="rd-fname-input" class="form-control" 
+                 name="fname" placeholder="Jane" maxlength="50">
         </div>
-        <form action="/register" method="POST">
-            <div class="form-row">
-                <div class="form-group col-md-6">
-                    <label for="rd-fname-input">First name</label>
-                    <input type="text" required id="rd-fname-input" class="form-control" name="fname" placeholder="Jane" maxlength="50">
-                </div>
-                <div class="form-group col-md-6">
-                    <label for="rd-lname-input">Last name</label>
-                    <input type="text" required id="rd-lname-input" class="form-control" name="lname" placeholder="Doe" maxlength="50">
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group col-md-6">
-                    <label for="rd-email-input">Email address</label>
-                    <input type="email" required id="rd-email-input" class="form-control" name="email" placeholder="jdoe@gmail.com" maxlength="120">
-                </div>
-                <div class="form-group col-md-6">
-                    <label for="rd-pw-input">Password</label>
-                    <input type="password" id="rd-pw-input" class="form-control" required minlength="6" maxlength="20" name="password">
-                    <small id="passwordHelpBlock" class="form-text text-muted">
-                        Your password must be 6-20 characters long.
-                    </small>
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="rd-street-address">Street address</label>
-                <input type="text" required id="rd-street-address" class="form-control" name="street-address" placeholder="123 Main St." maxlength="100">
-            </div>
-            <div class="form-row">
-                <div class="form-group col-md-6">
-                    <label for="rd-city-input">City</label>
-                    <input type="text" required id="rd-city-input" class="form-control" name="city" placeholder="New York City" maxlength="40">
-                </div>
-                <div class="form-group col-md-2">
-                    <label for="rd-state-input">State</label>
-                    <input type="text" required id="rd-state-input" class="form-control" name="state" placeholder="NY" maxlength="2">
-                </div>
-                <div class="form-group col-md-4">
-                    <label for="rd-zip-input">Zipcode</label>
-                    <input type="text" required id="rd-zip-input" class="form-control" name="zipcode" placeholder="54321" maxlength="11">
-                </div>
-            </div>
-            <div>
-                <a href="/" class="btn btn-outline-primary">Cancel</a>
-                <button type="submit" class="btn btn-primary">Register Now</button>
-            </div>
-        </form>
-    </div>
+        <div class="form-group col-md-6">
+          <label for="rd-lname-input">Last name</label>
+          <input type="text" required id="rd-lname-input" class="form-control" 
+                 name="lname" placeholder="Doe" maxlength="50">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <label for="rd-email-input">Email address</label>
+          <input type="email" required id="rd-email-input" class="form-control" 
+                 name="email" placeholder="jdoe@gmail.com" maxlength="120">
+        </div>
+        <div class="form-group col-md-6">
+          <label for="rd-pw-input">Password</label>
+          <input type="password" id="rd-pw-input" class="form-control" required 
+                 minlength="6" maxlength="20" name="password">
+          <small id="passwordHelpBlock" class="form-text text-muted">
+            Your password must be 6-20 characters long.
+          </small>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="rd-street-address">Street address</label>
+        <input type="text" required id="rd-street-address" class="form-control" 
+               name="street-address" placeholder="123 Main St." maxlength="100">
+      </div>
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <label for="rd-city-input">City</label>
+          <input type="text" required id="rd-city-input" class="form-control" 
+                 name="city" placeholder="New York City" maxlength="40">
+        </div>
+        <div class="form-group col-md-2">
+          <label for="rd-state-input">State</label>
+          <input type="text" required id="rd-state-input" class="form-control" 
+                 name="state" placeholder="NY" maxlength="2">
+        </div>
+        <div class="form-group col-md-4">
+          <label for="rd-zip-input">Zipcode</label>
+          <input type="text" required id="rd-zip-input" class="form-control" 
+                 name="zipcode" placeholder="54321" maxlength="11">
+        </div>
+      </div>
+      <div>
+        <a href="/" class="btn btn-outline-primary">Cancel</a>
+        <button type="submit" class="btn btn-primary">Register Now</button>
+      </div>
+    </form>
+  </div>
 </div>
 {% endblock %}

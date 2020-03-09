@@ -1,48 +1,55 @@
 {% extends "base.html" %}
 {% block title %}Patient Dashboard{% endblock %}
 {% block content %}
-
 <div class="container-fluid">
-    <div =class="row">
-        <nav class="d-none d-md-block bg-light sidebar">
-            <div class="sidebar-sticky">
-                <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-3">
-                    <span class="border-bottom">{{ patient.fname }} {{ patient.lname }}</span>
-                </h6>
-                <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mb-4">
-                    <span class="user-dashboard-tag">Patient Dashboard</span>
-                </h6>
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/patient/{{ patient.patient_id }}">
-                            Dashboard Home
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/patient/{{ patient.patient_id }}/goals">
-                            View All Goals
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/patient/{{ patient.patient_id }}/posts">
-                            View All Posts
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <button type="button" class="btn nav-link ratings-chart-btn mb-2 hidden" data-patient-id="{{ patient.patient_id }}">Ratings Chart</button>
-                    </li>
-                </ul>
-            </div>
-        </nav>
-        <main class="col-md-8 col-lg-9 ml-auto pb-5">
-            <div>
-                {% block flash %} {{ super() }} {% endblock %}
-            </div>
-            <div id="patient-content">{% block dashboard_content %}{% endblock %}</div>
-        </main>
-    </div>
+  <div =class="row">
+    <nav class="d-none d-md-block bg-light sidebar">
+      <div class="sidebar-sticky">
+        <h6 class="sidebar-heading d-flex justify-content-between 
+                   align-items-center px-3 mt-3">
+          <span class="border-bottom">
+            {{ patient.fname }} {{ patient.lname }}
+          </span>
+        </h6>
+        <h6 class="sidebar-heading d-flex justify-content-between 
+                   align-items-center px-3 mb-4">
+          <span class="user-dashboard-tag">
+            Patient Dashboard
+          </span>
+        </h6>
+        <ul class="nav flex-column">
+          <li class="nav-item">
+            <a class="nav-link" href="/patient/{{ patient.patient_id }}">
+              Dashboard Home
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/patient/{{ patient.patient_id }}/goals">
+              View All Goals
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/patient/{{ patient.patient_id }}/posts">
+              View All Posts
+            </a>
+          </li>
+          <li class="nav-item">
+            <button type="button" class="btn nav-link ratings-chart-btn mb-2 hidden" 
+                    data-patient-id="{{ patient.patient_id }}">
+              Ratings Chart
+            </button>
+          </li>
+        </ul>
+      </div>
+    </nav>
+    <main class="col-md-8 col-lg-9 ml-auto pb-5">
+      <div>
+        {% block flash %} {{ super() }} {% endblock %}
+      </div>
+      <div id="patient-content">{% block dashboard_content %}{% endblock %}</div>
+    </main>
+  </div>
 </div>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.js"></script>
 <script src="/static/js/patient-chart-btn.js"></script>
 <script src="/static/js/ratings-chart.js"></script>

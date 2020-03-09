@@ -8,6 +8,7 @@ from model import Patient
 
 
 def dietitian_auth(fn):
+    """Check if a logged in dietitian is authorized to view the current page."""
     @wraps(fn)
     def decorated_view(*args, **kwargs):
         dietitian_id = kwargs["dietitian_id"]
@@ -17,7 +18,8 @@ def dietitian_auth(fn):
     return decorated_view
 
 
-def dietitians_only(fn):    
+def dietitians_only(fn): 
+    """Check if a dietitian is logged in to the session."""   
     @wraps(fn)
     def decorated_view(*args, **kwargs):
         user_type = get_user_type_from_session()
@@ -28,6 +30,7 @@ def dietitians_only(fn):
 
 
 def patient_or_dietitian_auth(fn):
+    """Check if a patient or dietitian is authorized to view the page."""
     @wraps(fn)
     def decorated_view(*args, **kwargs):
         
@@ -49,6 +52,7 @@ def patient_or_dietitian_auth(fn):
 
 
 def patient_belongs_to_dietitian(fn):
+    """Check that a dietitian is authorized to view a certain patient's page."""
     @wraps(fn)
     def decorated_view(*args, **kwargs):
         
@@ -63,6 +67,7 @@ def patient_belongs_to_dietitian(fn):
 
 
 def patient_auth(fn):
+    """Check that the page is being visited by the logged in patient."""
     @wraps(fn)
     def decorated_view(*args, **kwargs):
         patient_id = kwargs["patient_id"]
@@ -74,7 +79,6 @@ def patient_auth(fn):
 
 def dietitian_redirect(fn):
     """If user is a dietitian, redirect to patient's account information."""
-    
     @wraps(fn)
     def decorated_view(*args, **kwargs):
         user_type = get_user_type_from_session()

@@ -1,69 +1,84 @@
 {% extends "dietitian-base.html" %}
 {% block dashboard_content %}
 <div class="pt-reg-page">
-    <div class="mb-4">
-        <h3>Register a New Patient</h3>
-        <p class="reg-instruct">
-           <b>Instructions:</b> Patients must be registered by their dietitian. Please enter a default password and ask your patient to reset their password when they log into their account for the first time.
-        </p>
+  <div class="mb-4">
+    <h3>Register a New Patient</h3>
+    <p class="reg-instruct">
+      <b>Instructions:</b> Patients must be registered by their dietitian. 
+      Please enter a default password and ask your patient to reset their 
+      password when they log into their account for the first time.
+    </p>
+  </div>
+  <form action="/patient/new-patient" method="POST">
+    <input type="hidden" name="dietitian_id" value={{ dietitian.dietitian_id }}>
+    <div class="form-row">
+      <div class="form-group col-md-6">
+        <label for="pt-fname-input">First name</label>
+        <input type="text" required id="pt-fname-input" class="form-control" 
+               name="fname" maxlength="50" placeholder="Jill">
+      </div>
+      <div class="form-group col-md-6">
+        <label for="pt-lname-input">Last name</label>
+        <input type="text" required id="pt-lname-input" class="form-control" 
+               name="lname" maxlength="50" placeholder="Smith">
+      </div>
     </div>
-    <form action="/patient/new-patient" method="POST">
-        <input type="hidden" name="dietitian_id" value={{ dietitian.dietitian_id }}>
-        <div class="form-row">
-            <div class="form-group col-md-6">
-                <label for="pt-fname-input">First name</label>
-                <input type="text" required id="pt-fname-input" class="form-control" name="fname" maxlength="50" placeholder="Jill">
-            </div>
-            <div class="form-group col-md-6">
-                <label for="pt-lname-input">Last name</label>
-                <input type="text" required id="pt-lname-input" class="form-control" name="lname" maxlength="50" placeholder="Smith">
-            </div>
-        </div>
-        <div class="form-row">
-            <div class="form-group col-md-6">
-                <label for="pt-email-input">Email address</label>
-                <input type="email" required id="pt-email-input" class="form-control" name="email" maxlength="120" placeholder="jsmith@gmail.com">
-            </div>
-            <div class="form-group col-md-6">
-                <label for="pt-pw-input">Password</label>
-                <input type="password" id="pt-pw-input" class="form-control" required minlength="6" maxlength="20" name="password">
-                <small id="passwordHelpBlock" class="form-text text-muted">
-                    Password must be 6-20 characters long.
-                </small>
-            </div>
-        </div>
-        <div class="form-group">
-            <label for="pt-street-address">Street address</label>
-            <input type="text" required id="pt-street-address" class="form-control" name="street-address" size="50" maxlength="100" placeholder="123 Main St.">
-        </div>
-        <div class="form-row">
-            <div class="form-group col-md-6">
-                <label for="pt-city-input">City</label>
-                <input type="text" required id="pt-city-input" class="form-control" name="city" maxlength="40" placeholder="New York City">
-            </div>
-            <div class="form-group col-md-2">
-                <label for="pt-state-input">State</label>
-                <input type="text" required id="pt-state-input" class="form-control" name="state" maxlength="2" placeholder="NY">
-            </div>
-            <div class="form-group col-md-4">
-                <label for="pt-zip-input">Zipcode</label>
-                <input type="text" required id="pt-zip-input" class="form-control" name="zipcode" maxlength="11" placeholder="54321">
-            </div>
-        </div>
-        <div class="form-row">
-            <div class="form-group col-md-6">
-                <label for="pt-tel-input">Phone number</label>
-                <input type="tel" required id="pt-tel-input" class="form-control" name="phone" maxlength="15" placeholder="5555555555">
-            </div>
-            <div class="form-group col-md-6">
-                <label for="pt-bd-input">Birthdate</label>
-                <input type="date" required id="pt-bd-input" class="form-control" name="birthdate">
-            </div>
-        </div>
-        <div>
-            <a href="/dietitian/{{ dietitian.dietitian_id }}" class="btn btn-outline-primary">Cancel</a>
-            <button type="submit" class="btn btn-primary">Register Patient</button>
-        </div>
-    </form>
+    <div class="form-row">
+      <div class="form-group col-md-6">
+        <label for="pt-email-input">Email address</label>
+        <input type="email" required id="pt-email-input" class="form-control" 
+               name="email" maxlength="120" placeholder="jsmith@gmail.com">
+      </div>
+      <div class="form-group col-md-6">
+        <label for="pt-pw-input">Password</label>
+        <input type="password" id="pt-pw-input" class="form-control" required 
+               minlength="6" maxlength="20" name="password">
+        <small id="passwordHelpBlock" class="form-text text-muted">
+            Password must be 6-20 characters long.
+        </small>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="pt-street-address">Street address</label>
+      <input type="text" required id="pt-street-address" class="form-control" 
+             name="street-address" size="50" maxlength="100" placeholder="123 Main St.">
+    </div>
+    <div class="form-row">
+      <div class="form-group col-md-6">
+        <label for="pt-city-input">City</label>
+        <input type="text" required id="pt-city-input" class="form-control" 
+               name="city" maxlength="40" placeholder="New York City">
+      </div>
+      <div class="form-group col-md-2">
+        <label for="pt-state-input">State</label>
+        <input type="text" required id="pt-state-input" class="form-control" 
+               name="state" maxlength="2" placeholder="NY">
+      </div>
+      <div class="form-group col-md-4">
+        <label for="pt-zip-input">Zipcode</label>
+        <input type="text" required id="pt-zip-input" class="form-control" 
+               name="zipcode" maxlength="11" placeholder="54321">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group col-md-6">
+        <label for="pt-tel-input">Phone number</label>
+        <input type="tel" required id="pt-tel-input" class="form-control" 
+               name="phone" maxlength="15" placeholder="5555555555">
+      </div>
+      <div class="form-group col-md-6">
+        <label for="pt-bd-input">Birthdate</label>
+        <input type="date" required id="pt-bd-input" class="form-control" 
+               name="birthdate">
+      </div>
+    </div>
+    <div>
+      <a href="/dietitian/{{ dietitian.dietitian_id }}" 
+         class="btn btn-outline-primary">
+        Cancel
+      </a>
+      <button type="submit" class="btn btn-primary">Register Patient</button>
+    </div>
+  </form>
 </div>
 {% endblock %}

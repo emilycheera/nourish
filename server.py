@@ -48,7 +48,7 @@ app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024
 
 @app.route("/", methods=["GET"])
 def index():
-    """Homepage that shows login form."""
+    """Show homepage and login form."""
 
     patient_id = session.get("patient_id")
     if patient_id:
@@ -352,6 +352,9 @@ def show_patient_goals(patient_id):
 
     if user_type == "dietitian":
         diet_and_pats = get_dietitian_and_patients_list()
+
+        # Set current_goal to the most recent goal if it exists.
+        # Set past goals to a list of all goals except the most recent goal.
         current_goal = sorted_goals[0] if sorted_goals else None
         past_goals = sorted_goals[1:] if sorted_goals else None
 
@@ -460,8 +463,11 @@ def show_patient_homepage(patient_id):
     """Show a patient's homepage."""
 
     patient = get_current_patient()
+
+    # Get the current time to set the default meal_time in the new post form.
     current_time = datetime.now().strftime("%Y-%m-%dT%H:%M")
 
+    # Sort goals and set current_goal to the most recent goal if it exists.
     sorted_goals = sort_date_desc(patient.goals)
     current_goal = sorted_goals[0] if sorted_goals else None
 
