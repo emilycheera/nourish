@@ -1,6 +1,6 @@
 $(document).ready(function() {
     $(".patient-search").select2({
-        placeholder: "Patient Search",
+        placeholder: "",
         allowClear: true,
         theme: "bootstrap"
     });
