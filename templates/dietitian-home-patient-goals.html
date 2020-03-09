@@ -23,7 +23,7 @@
             <div id="goal-{{ current_goal.goal_id }}">
                 <div class="goal-container">
                     <div class="goal-content">
-                        <p class="post-time mb-2">{{ current_goal.time_stamp|datecomma }} {% if current_goal.edited %}(edited){% endif %}</p>
+                        <p class="post-time mb-2 bold">{{ current_goal.time_stamp|datecomma }} {% if current_goal.edited %}(edited){% endif %}</p>
                         <p class="mb-1">{{ current_goal.goal_body }}</p>
                         <button class="btn btn-link edit-goal-btn pl-0" data-goal-id="{{ current_goal.goal_id }}">Edit</button>
                         <button class="btn btn-link delete-goal-btn" data-goal-id="{{ current_goal.goal_id }}">Delete</button>
@@ -57,7 +57,7 @@
             <div id="goal-{{ goal.goal_id }}">
                 <div class="goal-container">
                     <div class="goal-content">
-                        <p class="post-time mb-2">{{ goal.time_stamp|datecomma }} {% if goal.edited %}(edited){% endif %}</p>
+                        <p class="post-time mb-2 bold">{{ goal.time_stamp|datecomma }} {% if goal.edited %}(edited){% endif %}</p>
                         <p class="mb-1">{{ goal.goal_body }}</p>
                         <button class="delete-goal-btn btn btn-link pl-0" data-goal-id="{{ goal.goal_id }}">Delete</button>
                     </div>

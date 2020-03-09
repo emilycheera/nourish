@@ -29,9 +29,32 @@ body {
     background-color: #f3f5f7;
     margin-top: -72px;
     padding-top: 72px;
-    padding-right: 75px;
-    padding-left: 75px;
     text-align: center;
+}
+
+.carousel {
+    max-width: 650px;
+    box-shadow: 0 0 5px -1px rgba(0,0,0,0.25);
+}
+
+.get-started {
+    height: 450px;
+}
+
+
+
+.carousel-control-prev-icon {
+ background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23000' viewBox='0 0 8 8'%3E%3Cpath d='M5.25 0l-4 4 4 4 1.5-1.5-2.5-2.5 2.5-2.5-1.5-1.5z'/%3E%3C/svg%3E") !important;
+}
+
+.carousel-control-next-icon {
+  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23000' viewBox='0 0 8 8'%3E%3Cpath d='M2.75 0l-1.5 1.5 2.5 2.5-2.5 2.5 1.5 1.5 4-4-4-4z'/%3E%3C/svg%3E") !important;
+}
+
+.tagline {
+    font-size: 1.2rem;
+    max-width: 85%;
+    margin: auto;
 }
 
 .sidebar {
@@ -328,6 +351,11 @@ a:hover {
   background-color: #ef7f33 !important;
   border-color: #ef7f33 !important;
   box-shadow: none !important;
+}
+
+.active {
+    background-color: #ef7f33 !important;
+    border-color: #ef7f33 !important;
 }
 
 .edit-comment-div {

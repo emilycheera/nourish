@@ -11,7 +11,7 @@
             {% for goal in goals %}
             <div class="goal-container">
                 <div class="goal-content">
-                    <p class="post-time mb-2">{{ goal.time_stamp|datecomma }} {% if goal.edited %}(edited){% endif %}</p>
+                    <p class="post-time mb-2 bold">{{ goal.time_stamp|datecomma }} {% if goal.edited %}(edited){% endif %}</p>
                     <p>{{ goal.goal_body }}</p>
                 </div>
             </div>

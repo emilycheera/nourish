@@ -8,8 +8,6 @@ from jinja2 import StrictUndefined
 from sqlalchemy import desc
 from werkzeug.utils import secure_filename
 
-from flask_debugtoolbar import DebugToolbarExtension
-
 from comments import (add_post_comment, edit_post_comment, delete_comment,
                       create_comment_dict)
 from decorators import (dietitian_auth, dietitians_only, 
@@ -628,9 +626,7 @@ def save_image():
 
 if __name__ == "__main__":
     app.debug = True
-    app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 
     connect_to_db(app)
-    DebugToolbarExtension(app)
 
     app.run(host="0.0.0.0")

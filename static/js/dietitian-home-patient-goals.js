@@ -38,7 +38,7 @@ const getCurrentGoal = (res) => {
                 <div id="goal-${res.current_goal.goal_id}">
                     <div class="goal-container">
                         <div class="goal-content">
-                            <p class="post-time mb-2">${timeStamp} ${res.current_goal.edited}</p>
+                            <p class="post-time mb-2 bold">${timeStamp} ${res.current_goal.edited}</p>
                             <p class="mb-1">${res.current_goal.goal_body}</p>
                             <button class="btn btn-link edit-goal-btn pl-0" data-goal-id="${res.current_goal.goal_id}">Edit</button>
                             <button class="btn btn-link delete-goal-btn" data-goal-id="${res.current_goal.goal_id}">Delete</button>
@@ -73,7 +73,7 @@ const getPastGoal = (res) => {
     return `<div id="goal-${res.goal.goal_id}">
                 <div class="goal-container">
                     <div class="goal-content">
-                        <p class="post-time mb-2">${timeStamp} ${res.goal.edited}</p>
+                        <p class="post-time mb-2 bold">${timeStamp} ${res.goal.edited}</p>
                         <p class="mb-1">${res.goal.goal_body}</p>
                         <button class="delete-goal-btn btn btn-link pl-0" data-goal-id="${res.goal.goal_id}">Delete</button>
                     </div>
