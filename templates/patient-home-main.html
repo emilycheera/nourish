@@ -2,7 +2,7 @@
 {% block dashboard_content %}
   <div id="patient-main-content">
     <div class="current-goal-div mb-5">
-      <h3 class="mb-4"><b>Current Goal</b></h3>
+      <h3 class="mb-3"><b>Current Goal</b></h3>
       {% if not goal %}
         <p>No goal to display.</p>
       {% endif %}
@@ -14,13 +14,13 @@
       {% endif %}
     </div>
     <div>
-      <h3 class="mb-4"><b>Add a New Post</b></h3>
+      <h3 class="mb-3"><b>Add a New Post</b></h3>
       <form class="new-post-form" enctype="multipart/form-data" 
             action="/post/new-post" method="POST">
         <input type="hidden" name="patient-id" value={{ patient.patient_id }}>
         <div class="form-row">
           <div class="form-group col-md-6">
-            <label for="meal-time-input">Time of Meal/Snack</label>
+            <label for="meal-time-input">Time of Meal/Snack*</label>
             <input type="datetime-local" required name="meal-time" 
                    id="meal-time-input" class="form-control" 
                    value={{ current_time }}>
@@ -39,14 +39,14 @@
         </div>
         <div class="form-group">
           <label for="meal-setting-input">
-            Where did you eat and with whom?
+            Where did you eat and with whom?*
           </label>
           <input type="text" name="meal-setting" required id="meal-setting-input" 
                  class="form-control" maxlength="200">
         </div>
         <div class="form-group">
           <label for="TEB-input">
-            What thoughts, emotions, behaviors did you notice?
+            What thoughts, emotions, behaviors did you notice?*
           </label>
           <textarea id="TEB-input" class="form-control" name="TEB" required></textarea>
         </div>

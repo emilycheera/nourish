@@ -46,9 +46,7 @@
             <form class="edit-goal-form" id="edit-goal-form-{{ current_goal.goal_id }}" 
                   data-goal-id="{{ current_goal.goal_id }}">
               <div class="form-group mb-1">
-                <textarea name="goal-body" class="form-control" rows="4" required>
-                  {{ current_goal.goal_body }}
-                </textarea>
+                <textarea name="goal-body" class="form-control" rows="4" required>{{ current_goal.goal_body }}</textarea>
               </div>
               <div>
                 <button class="cancel-edit-btn btn btn-link" 
