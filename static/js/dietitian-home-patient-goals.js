@@ -34,7 +34,7 @@ $("body").on("click", "button.delete-goal-btn", (evt) => {
 const getCurrentGoal = (res) => {
     const timeStamp = (moment(res.current_goal.time_stamp).format("MMM D, YYYY"));
     return `<div id="current-goal-div" class="patient-goals-list mb-5">
-                <h3 class="mb-3">Current Goal</h3>
+                <h4 class="mb-3">Current Goal</h4>
                 <div id="goal-${res.current_goal.goal_id}">
                     <div class="goal-container">
                         <div class="goal-content">

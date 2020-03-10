@@ -9,6 +9,7 @@ def query_for_ratings(patient_obj, post_rating, from_date, to_date):
                              .filter(Post.patient == patient_obj, 
                              post_rating != None, 
                              Post.meal_time.between(from_date, to_date))
+                             .order_by(Post.time_stamp.desc())
                              .all())
 
     dates_ratings_dicts = []
