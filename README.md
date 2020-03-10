@@ -15,9 +15,9 @@ http://getnourish.co/
 * [License](#license)
 
 ## <a name="tech-stack"></a>Technologies
-__Frontend:__ JavaScript, jQuery, Chart.js, HTML5, CSS, Bootstrap
-__Backend:__ Python, Flask, PostgreSQL, SQLAlchemy
-__API:__ Amazon S3
+__Frontend:__ JavaScript, jQuery, Chart.js, HTML5, CSS, Bootstrap<br/>
+__Backend:__ Python, Flask, PostgreSQL, SQLAlchemy<br/>
+__API:__ Amazon S3<br/>
 
 ## <a name="features"></a>Features
 
@@ -50,7 +50,7 @@ Lastly, if patients have added ratings for hunger, fullness, and or/satisfaction
 #### Dietitian Dashboard
 On their dashboard homepage, dietitians can view a newsfeed of all of their patients’ most recent posts. If they select a single patient, they can view/edit that patient’s account, customize their post form, add a new goal or view past goals, and view the same ratings chart available on the patient dashboard.
 
-![alt text](https://github.com/mearajennifer/jobtracker/blob/master/static/img/archived-jobs.png "JobTracker archived jobs dashboard")
+![alt text](https://github.com/emilycheera/nourish/blob/master/static/images/dietitian-dashboard.gif?raw=true "Nourish dietitian dashboard")
 
 
 ## <a name="future"></a>Future State
