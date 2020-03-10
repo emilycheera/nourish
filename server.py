@@ -2,6 +2,7 @@
 from datetime import datetime, timedelta
 import os
 
+import boto3
 from flask import (Flask, render_template, request, flash, redirect,
                    session, jsonify, Markup)
 from jinja2 import StrictUndefined
@@ -39,11 +40,9 @@ app.jinja_env.filters["date"] = dateformat
 app.jinja_env.filters["htmldatetime"] = htmldateformat
 app.jinja_env.undefined = StrictUndefined
 
-UPLOAD_FOLDER = "static/images/uploads/"
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg"}
-
-app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024
+
 
 
 @app.route("/", methods=["GET"])
@@ -622,8 +621,10 @@ def save_image():
 
     if file:
         filename = secure_filename(file.filename)
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        img_path = f"/static/images/uploads/{filename}"
+        s3_resource = boto3.resource("s3")
+        my_bucket = s3_resource.Bucket("nourish-post-images")
+        my_bucket.Object(file.filename).put(Body=file)
+        img_path = f"https://nourish-post-images.s3-us-west-1.amazonaws.com/{filename}"
 
     return img_path
 
