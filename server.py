@@ -22,7 +22,7 @@ from jinja_filters import (datetimeformat, datecommaformat, dateformat,
 from model import connect_to_db, db, Dietitian, Patient, Goal, Post, Comment
 from posts import (create_new_post, edit_post, delete_post,
                    get_all_patients_posts, save_customized_patient_post_form,
-                   get_post_object, create_post_dict)
+                   get_post_object, create_post_dict, get_single_patients_posts)
 from ratings import get_ratings_dict, get_sundays_with_data
 from users import (create_new_dietitian_account, update_dietitian_account,
                    create_new_patient_account, update_patient_account,
@@ -150,8 +150,10 @@ def handle_dietitian_registration():
 def show_dietitian_homepage(dietitian_id):
     """Show a dietitian's homepage."""
 
+    page = request.args.get("page", 1, type=int)
+
     diet_and_pats = get_dietitian_and_patients_list()
-    posts = get_all_patients_posts(diet_and_pats["dietitian"])
+    posts = get_all_patients_posts(diet_and_pats["dietitian"], page)
 
     return render_template("dietitian-home-posts.html",
                             dietitian=diet_and_pats["dietitian"],
@@ -406,8 +408,9 @@ def show_single_patient_posts(patient_id):
     """Show a patient's posts."""
 
     user_type = get_user_type_from_session()
+    page = request.args.get("page", 1, type=int)
+    posts = get_single_patients_posts(patient_id, page)
     patient = Patient.query.get(patient_id)
-    sorted_posts = sort_date_desc(patient.posts)
 
     if user_type == "dietitian":
         diet_and_pats = get_dietitian_and_patients_list()
@@ -415,13 +418,13 @@ def show_single_patient_posts(patient_id):
                                 dietitian=diet_and_pats["dietitian"],
                                 patients=diet_and_pats["sorted_patients"],
                                 patient=patient,
-                                posts=sorted_posts)
+                                posts=posts)
     
     dietitian = patient.dietitian
     return render_template("patient-posts.html",
                             patient=patient,
                             dietitian=dietitian,
-                            posts=sorted_posts)
+                            posts=posts)
 
 
 

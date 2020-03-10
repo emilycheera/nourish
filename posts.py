@@ -75,14 +75,24 @@ def delete_post(post_id):
     return "Success"
 
 
-def get_all_patients_posts(dietitian):
-    """Get all of a dietitian's patient's posts, limit to 30."""
+def get_all_patients_posts(dietitian, page):
+    """Get all of a dietitian's patient's posts."""
 
     posts = (Post.query.filter(Patient.dietitian_id == dietitian.dietitian_id)
             .join(Patient)
             .join(Dietitian)
             .order_by(Post.time_stamp.desc())
-            .limit(30).all())
+            .paginate(per_page=10, page=page))
+
+    return posts
+
+
+def get_single_patients_posts(patient_id, page):
+    """Get all of a particular patient's posts."""
+
+    posts = (Post.query.filter_by(patient_id=patient_id)
+                       .order_by(Post.time_stamp.desc())
+                       .paginate(per_page=10, page=page))
 
     return posts
 

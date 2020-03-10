@@ -11,7 +11,7 @@
 {% endif %}
 
 {% if posts %}
-  {% for post in posts %}
+  {% for post in posts.items %}
     <div id="post-{{ post.post_id }}">
       <div class="post-container">
         <div class="post-content">

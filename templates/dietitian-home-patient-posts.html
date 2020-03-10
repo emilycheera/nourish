@@ -1,6 +1,25 @@
 {% extends "dietitian-single-patient-base.html" %}
 {% block patient_content %}
   {% include "posts.html" %}
+  {% for page_num in posts.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+    {% if page_num %}
+      {% if posts.page == page_num %}
+        <a class="btn btn-primary mb-4" 
+           href="{{ url_for('show_single_patient_posts', 
+           patient_id= patient.patient_id, page=page_num) }}">
+          {{ page_num }}
+        </a>
+        {% else %}
+        <a class="btn btn-outline-primary mb-4" 
+           href="{{ url_for('show_single_patient_posts', 
+           patient_id= patient.patient_id, page=page_num) }}">
+          {{ page_num }}
+        </a>
+      {% endif %}
+    {% else %}
+      ...
+    {% endif %}
+  {% endfor %}
 {% endblock %}
 {% block script %}
   <script src="/static/js/comments.js"></script>
