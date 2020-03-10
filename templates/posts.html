@@ -1,5 +1,5 @@
 <div>
-{% if not posts %}
+{% if not posts.items %}
   <p>No posts to display.</p>
   {% if session.get("patient_id") %}
     <p>

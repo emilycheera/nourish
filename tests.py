@@ -337,10 +337,10 @@ class DatabaseTests(unittest.TestCase):
         """Test that query returns a list of a patient's posts."""
 
         dietitian = Dietitian.query.get(1)
-        posts = get_all_patients_posts(dietitian)
+        posts = get_all_patients_posts(dietitian, 1)
 
-        self.assertIn("At work", posts[0].meal_setting)
-        self.assertIn("Home alone", posts[1].meal_setting)
+        self.assertIn("At work", posts.items[0].meal_setting)
+        self.assertIn("Home alone", posts.items[1].meal_setting)
 
 
     def test_saving_customized_patient_post_form(self):

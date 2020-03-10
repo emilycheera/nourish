@@ -1,6 +1,26 @@
+from copy import copy
 from datetime import datetime
 from helpers import sort_date_desc
 from model import db, Goal, Patient
+
+
+def get_patients_goals_dict(patient_id, page):
+    """Get all goals of a particular patient."""
+
+    all_goals = (Goal.query.filter_by(patient_id=patient_id)
+                       .order_by(Goal.time_stamp.desc())
+                       .paginate(per_page=10, page=page))
+
+    current_goal = (Goal.query.filter_by(patient_id=patient_id)
+                              .order_by(Goal.time_stamp.desc())
+                              .first())
+
+    past_goals = copy(all_goals)
+    past_goals.items = past_goals.items[1:]
+
+    return {"all_goals": all_goals,
+            "past_goals": past_goals, 
+            "current_goal": current_goal}
 
 
 def create_new_goal(patient_id, form_data):

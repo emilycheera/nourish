@@ -15,7 +15,7 @@ from decorators import (dietitian_auth, dietitians_only,
                         patient_or_dietitian_auth, patient_belongs_to_dietitian,
                         patient_auth, dietitian_redirect)
 from goals import (edit_patient_goal, delete_goal, create_goal_dict,
-                   add_goal_and_get_dict)
+                   add_goal_and_get_dict, get_patients_goals_dict)
 from helpers import sort_date_desc
 from jinja_filters import (datetimeformat, datecommaformat, dateformat,
                            htmldateformat)
@@ -348,27 +348,23 @@ def show_patient_goals(patient_id):
     """Show goals for a patient and allow dietitian to update goals."""
 
     user_type = get_user_type_from_session()
+    page = request.args.get("page", 1, type=int)
+    goals = get_patients_goals_dict(patient_id, page)
     patient = Patient.query.get(patient_id)
-    sorted_goals = sort_date_desc(patient.goals)
 
     if user_type == "dietitian":
         diet_and_pats = get_dietitian_and_patients_list()
-
-        # Set current_goal to the most recent goal if it exists.
-        # Set past goals to a list of all goals except the most recent goal.
-        current_goal = sorted_goals[0] if sorted_goals else None
-        past_goals = sorted_goals[1:] if sorted_goals else None
 
         return render_template("dietitian-home-patient-goals.html",
                                 dietitian=diet_and_pats["dietitian"],
                                 patients=diet_and_pats["sorted_patients"],
                                 patient=patient,
-                                current_goal=current_goal,
-                                past_goals=past_goals)
+                                current_goal=goals["current_goal"],
+                                past_goals=goals["past_goals"])
 
     return render_template("patient-goals.html",
                             patient=patient,
-                            goals=sorted_goals)
+                            goals=goals["all_goals"])
 
 
 @app.route("/patient/<int:patient_id>/add-goal.json", methods=["POST"])

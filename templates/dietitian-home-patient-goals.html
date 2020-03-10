@@ -1,73 +1,75 @@
 {% extends "dietitian-single-patient-base.html" %}
 {% block patient_content %}
-<div class="mb-5">
-  <h4>Add a New Goal</h4>
-  <form id="add-goal-form" data-patient-id="{{ patient.patient_id }}">
-    <div class="form-group">
-      <label for="new-goal-input" class="sr-only">Add a new goal</label>
-      <textarea class="form-control" name="goal-body" required 
-      id="new-goal-input"></textarea>
-    </div>
-    <button class="btn btn-primary btn-block" type="submit">Submit</button>
-  </form>
-</div>
-<div id="current-goal-div" class="patient-goals-list mb-5">
-  {% if not current_goal %}
-      <p>
-        {{ patient.fname }} {{ patient.lname }} has no goals yet.
-        Add a goal to see it here.
-      </p>
-  {% endif %}
-  {% if current_goal %}
-    <h4 class="mb-3">Current Goal</h4>
-    <div id="goal-{{ current_goal.goal_id }}">
-      <div class="goal-container">
-        <div class="goal-content">
-          <p class="post-time mb-2 bold">
-            {{ current_goal.time_stamp|datecomma }} 
-            {% if current_goal.edited %}(edited){% endif %}
-          </p>
-          <p class="mb-1">{{ current_goal.goal_body }}</p>
-          <button class="btn btn-link edit-goal-btn pl-0" 
-                  data-goal-id="{{ current_goal.goal_id }}">
-            Edit
-          </button>
-          <button class="btn btn-link delete-goal-btn" 
-                  data-goal-id="{{ current_goal.goal_id }}">
-            Delete
-          </button>
+{% if past_goals.page == 1 %}
+  <div class="mb-5">
+    <h4>Add a New Goal</h4>
+    <form id="add-goal-form" data-patient-id="{{ patient.patient_id }}">
+      <div class="form-group">
+        <label for="new-goal-input" class="sr-only">Add a new goal</label>
+        <textarea class="form-control" name="goal-body" required 
+        id="new-goal-input"></textarea>
+      </div>
+      <button class="btn btn-primary btn-block" type="submit">Submit</button>
+    </form>
+  </div>
+  <div id="current-goal-div" class="patient-goals-list mb-5">
+    {% if not current_goal %}
+        <p>
+          {{ patient.fname }} {{ patient.lname }} has no goals yet.
+          Add a goal to see it here.
+        </p>
+    {% endif %}
+    {% if current_goal %}
+      <h4 class="mb-3">Current Goal</h4>
+      <div id="goal-{{ current_goal.goal_id }}">
+        <div class="goal-container">
+          <div class="goal-content">
+            <p class="post-time mb-2 bold">
+              {{ current_goal.time_stamp|datecomma }} 
+              {% if current_goal.edited %}(edited){% endif %}
+            </p>
+            <p class="mb-1">{{ current_goal.goal_body }}</p>
+            <button class="btn btn-link edit-goal-btn pl-0" 
+                    data-goal-id="{{ current_goal.goal_id }}">
+              Edit
+            </button>
+            <button class="btn btn-link delete-goal-btn" 
+                    data-goal-id="{{ current_goal.goal_id }}">
+              Delete
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-    <div id="editable-goal-{{ current_goal.goal_id }}" class="hidden">
-      <div class="goal-container">
-        <div class="goal-content">
-          <form class="edit-goal-form" id="edit-goal-form-{{ current_goal.goal_id }}" 
-                data-goal-id="{{ current_goal.goal_id }}">
-            <div class="form-group mb-1">
-              <textarea name="goal-body" class="form-control" rows="4" required>
-                {{ current_goal.goal_body }}
-              </textarea>
-            </div>
-            <div>
-              <button class="cancel-edit-btn btn btn-link" 
-                      data-goal-id="{{ current_goal.goal_id }}">
-                Cancel
-              </button>
-              <button type="submit" class="btn btn-link">Save Changes</button>
-            </div>
-          </form>
+      <div id="editable-goal-{{ current_goal.goal_id }}" class="hidden">
+        <div class="goal-container">
+          <div class="goal-content">
+            <form class="edit-goal-form" id="edit-goal-form-{{ current_goal.goal_id }}" 
+                  data-goal-id="{{ current_goal.goal_id }}">
+              <div class="form-group mb-1">
+                <textarea name="goal-body" class="form-control" rows="4" required>
+                  {{ current_goal.goal_body }}
+                </textarea>
+              </div>
+              <div>
+                <button class="cancel-edit-btn btn btn-link" 
+                        data-goal-id="{{ current_goal.goal_id }}">
+                  Cancel
+                </button>
+                <button type="submit" class="btn btn-link">Save Changes</button>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
-    </div>
-  {% endif %}
-</div>
-<h4 id="past-goals-heading" {% if not past_goals %}class="hidden"{% endif %}>
+    {% endif %}
+  </div>
+{% endif %}
+<h4 id="past-goals-heading" {% if not past_goals.items %}class="hidden"{% endif %}>
   Past Goals
 </h4>
 <div id="past-goals-div" class="patient-goals-list mt-3">
-  {% if past_goals %}
-    {% for goal in past_goals %}
+  {% if past_goals.items %}
+    {% for goal in past_goals.items %}
       <div id="goal-{{ goal.goal_id }}">
         <div class="goal-container">
           <div class="goal-content">
@@ -82,6 +84,28 @@
         </div>
       </div>
     {% endfor %}
+    {% if past_goals.pages > 1 %}
+        {% for page_num in past_goals.iter_pages(left_edge=1, right_edge=1, 
+          left_current=1, right_current=2) %}
+          {% if page_num %}
+            {% if past_goals.page == page_num %}
+              <a class="btn btn-primary mb-4" 
+                 href="{{ url_for('show_patient_goals', 
+                 patient_id= patient.patient_id, page=page_num) }}">
+                {{ page_num }}
+              </a>
+              {% else %}
+              <a class="btn btn-outline-primary mb-4" 
+                 href="{{ url_for('show_patient_goals', 
+                 patient_id= patient.patient_id, page=page_num) }}">
+                {{ page_num }}
+              </a>
+            {% endif %}
+          {% else %}
+            ...
+          {% endif %}
+        {% endfor %}
+      {% endif %}
   {% endif %}
 </div>
 {% endblock %}

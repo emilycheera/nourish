@@ -7,18 +7,40 @@
       </p>
     {% endif %}
     {% if goals %}
-    <div class="patient-goals-list">
-      {% for goal in goals %}
-      <div class="goal-container">
-        <div class="goal-content">
-          <p class="post-time mb-2 bold">
-            {{ goal.time_stamp|datecomma }} {% if goal.edited %}(edited){% endif %}
-          </p>
-          <p>{{ goal.goal_body }}</p>
+      <div class="patient-goals-list">
+        {% for goal in goals.items %}
+        <div class="goal-container">
+          <div class="goal-content">
+            <p class="post-time mb-2 bold">
+              {{ goal.time_stamp|datecomma }} {% if goal.edited %}(edited){% endif %}
+            </p>
+            <p>{{ goal.goal_body }}</p>
+          </div>
         </div>
+        {% endfor %}
       </div>
-      {% endfor %}
-    </div>
+      {% if goals.pages > 1 %}
+        {% for page_num in goals.iter_pages(left_edge=1, right_edge=1, 
+          left_current=1, right_current=2) %}
+          {% if page_num %}
+            {% if goals.page == page_num %}
+              <a class="btn btn-primary mb-4" 
+                 href="{{ url_for('show_patient_goals', 
+                 patient_id= patient.patient_id, page=page_num) }}">
+                {{ page_num }}
+              </a>
+              {% else %}
+              <a class="btn btn-outline-primary mb-4" 
+                 href="{{ url_for('show_patient_goals', 
+                 patient_id= patient.patient_id, page=page_num) }}">
+                {{ page_num }}
+              </a>
+            {% endif %}
+          {% else %}
+            ...
+          {% endif %}
+        {% endfor %}
+      {% endif %}
     {% endif %}
   </div>
 {% endblock %}
