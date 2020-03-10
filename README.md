@@ -14,7 +14,7 @@ http://getnourish.co/
 * [Installation](#installation)
 * [License](#license)
 
-## <a name="tech-stack"></a>Technologies
+## <a name="tech-stack"></a>Tech Stack
 __Frontend:__ JavaScript, jQuery, Chart.js, HTML5, CSS, Bootstrap<br/>
 __Backend:__ Python, Flask, PostgreSQL, SQLAlchemy<br/>
 __API:__ Amazon S3<br/>
@@ -62,7 +62,7 @@ There are several features to be added during future sprints:
 ## <a name="installation"></a>Installation
 To run Nourish on your local machine, follow the steps below:
 
-Install PostgresQL (Mac OSX)
+Install PostgreSQL (Mac OSX)
 
 Clone or fork this repo:
 ```
@@ -84,7 +84,6 @@ Set up the database:
 
 ```
 createdb nourish
-python3 model.py
 python3 seed.py
 ```
 
