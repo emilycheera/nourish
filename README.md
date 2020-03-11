@@ -1,18 +1,14 @@
 # <img src="https://raw.githubusercontent.com/emilycheera/nourish/master/static/images/nourish-logo-dark.png" width="40%" alt="Nourish">
 Healing your relationship with food can be a challenging endeavor. Nourish makes it easier by giving dietitians and their patients a way to stay in touch between sessions. Patients can log photos and data about their meals, and dietitians can create goals and comment on meal posts for real-time feedback and accountability.
 
-## About Me
-Before attending Hackbright Academy, I earned my masters in nutrition and worked for several years as a registered dietitian. Most recently, I was the wellness program manager for Verizon Media where I redesigned the wellness benefits strategy for companies including Yahoo, AOL, and HuffPost. Previously, I owned a private practice in San Diego, providing nutrition counseling for disordered eating and chronic disease management. While creating a website to market my new business, I fell in love with the endless excitement, challenges, and rewards of programming. My love for learning and making an impact run strong, and I'm excited to use my problem-solving mindset and technical skills in a role as a full-stack developer.
-
 ## Deployment
 http://getnourish.co/
 
 ## Contents
 * [Tech Stack](#tech-stack)
-* [Features](#features)
-* [Future State](#future)
 * [Installation](#installation)
-* [License](#license)
+* [Features](#features)
+* [About the Developer](#about-the-developer)
 
 ## <a name="tech-stack"></a>Tech Stack
 __Frontend:__ JavaScript, jQuery, Chart.js, HTML5, CSS, Bootstrap<br/>
@@ -52,13 +48,6 @@ On their dashboard homepage, dietitians can view a newsfeed of all of their pati
 
 ![alt text](https://github.com/emilycheera/nourish/blob/master/static/images/dietitian-dashboard.gif?raw=true "Nourish dietitian dashboard")
 
-
-## <a name="future"></a>Future State
-There are several features to be added during future sprints:
-* Logging emotions on patient meal posts and visualizing this data using Chart.js
-* Tracking specific activities or behaviors, and allowing dietitians to create custom activities
-* Optional text reminders sent via Twilio API reminding patients to log their meals
-
 ## <a name="installation"></a>Installation
 To run Nourish on your local machine, follow the steps below:
 
@@ -95,11 +84,5 @@ python3 server.py
 
 You can now navigate to 'localhost:5000' to access Nourish.
 
-## <a name="license"></a>License
-The MIT License (MIT) Copyright (c) 2016 Agne Klimaite
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+## <a name="about-the-developer"></a>About the Developer
+Before attending Hackbright Academy, I earned my masters in nutrition and worked for several years as a registered dietitian. Most recently, I was the wellness program manager for Verizon Media where I redesigned the wellness benefits strategy for companies including Yahoo, AOL, and HuffPost. Previously, I owned a private practice in San Diego, providing nutrition counseling for disordered eating and chronic disease management. While creating a website to market my new business, I fell in love with the endless excitement, challenges, and rewards of programming. Nourish is my first full-stack project.
