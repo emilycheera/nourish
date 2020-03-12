@@ -20,13 +20,51 @@
     <script src="/static/js/patient-search.js"></script>
 </head>
 <body>
-    <nav class="navbar fixed-top navbar-expand navbar-dark bg-dark">
+    <nav class="navbar fixed-top navbar-expand-md navbar-dark bg-dark">
       <a class="navbar-brand" href="/">
         <img src="/static/images/nourish-logo.png" width="180">
       </a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
       {% if session.get("patient_id") or session.get("dietitian_id") %}
-        <div class="collapse navbar-collapse">
+         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <ul class="navbar-nav ml-auto">
+            <li class="d-md-none nav-item">
+              {% if session.get("patient_id") %}
+                <a class="nav-link" href="/patient/{{ patient.patient_id }}">
+                  Dashboard Home
+                </a>
+              </li>
+              <li class="d-md-none nav-item">
+                <a class="nav-link" href="/patient/{{ patient.patient_id }}/goals">
+                  View All Goals
+                </a>
+              </li>
+              <li class="d-md-none nav-item">
+                <a class="nav-link" href="/patient/{{ patient.patient_id }}/posts">
+                  View All Posts
+                </a>
+              </li>
+              <li class="d-md-none nav-item">
+                <button type="button" class="btn nav-link ratings-chart-btn mb-2 hidden" 
+                      data-patient-id="{{ patient.patient_id }}">
+                  Ratings Chart
+                </button>
+              </li>
+            {% endif %}
+            {% if session.get("dietitian_id") %}
+              <li class="d-md-none nav-item">
+                <a class="nav-link" href="/dietitian/{{ dietitian.dietitian_id }}">
+                  All Patient Posts
+                </a>
+              </li>
+              <li class="d-md-none nav-item">
+                <a class="nav-link" href="/patient/new-patient">
+                  Register a New Patient
+                </a>
+              </li>
+            {% endif %}
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <i class="fas fa-user"></i> Profile
