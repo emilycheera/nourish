@@ -47,18 +47,23 @@
       </div>
     </nav>
     <main class="col-md-8 col-lg-9 ml-auto pb-5">
-      <div class="d-md-none mb-5">
-        <h6 class="d-flex justify-content-between align-items-center 
-                   px-3 mb-3">
-        <select id="patient-mobile" class="patient-search">
-          <option></option>
-          {% for patient in patients %}
-            <option value ="/patient/{{ patient.patient_id }}">
-            {{ patient.fname }} {{ patient.lname }}</option>
-          {% endfor %}
-        </select>
-        </h6>
-      </div>
+      <form class="d-md-none mb-5 px-3 mb-3 patient-search-form">
+        <div class="form-group">
+          <label for="patient-search-mobile" class="bold">
+            Patient search:
+          </label>
+          <select id="patient-search-mobile" class="form-control">
+            <option></option>
+            {% for patient in patients %}
+              <option value ="/patient/{{ patient.patient_id }}">
+              {{ patient.fname }} {{ patient.lname }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <button type="submit" id="pt-search-btn" class="btn btn-sm btn-primary">
+          View Patient
+        </button>
+      </form>
       <div>
         {% block flash %} {{ super() }} {% endblock %}
       </div>
@@ -68,5 +73,14 @@
     </main>
   </div>
 </div>
+
+<script>
+  $("#pt-search-btn").on("click", (evt) => {
+    evt.preventDefault();
+    const patient_url = $("#patient-search-mobile").val()
+    console.log(patient_url)
+    window.location.replace(patient_url);
+  });
+</script>
 {% endblock %}
     
