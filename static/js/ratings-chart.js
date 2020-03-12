@@ -39,6 +39,7 @@ const config_chart = (hungerData, fullnessData, satisfactionData) => {
                     }]
                 },
             options: {
+                maintainAspectRatio: false,
                 legend: {
                     labels: {
                         padding: 30,

@@ -436,5 +436,8 @@ textarea {
     max-width: 400px;
 }
 
+canvas {
+    min-height: 300px;
+}
 
 
