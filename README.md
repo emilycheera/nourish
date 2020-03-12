@@ -1,5 +1,5 @@
 # <img src="https://raw.githubusercontent.com/emilycheera/nourish/master/static/images/nourish-logo-dark.png" width="40%" alt="Nourish">
-Changing your eating habits can be a challenging endeavor. Nourish makes it easier by giving dietitians and their patients a way to stay in touch between sessions. Patients can log photos and data about their meals, and dietitians can create goals and comment on meal posts for real-time feedback and accountability.
+Changing your eating habits can be a challenging endeavor. Nourish makes it easier by giving dietitians and their patients a way to stay connected between sessions. Patients can log photos and data about their meals, and dietitians can create goals and comment on meal posts, providing patients with feedback and accountability.
 
 ## Deployment
 http://getnourish.co/
