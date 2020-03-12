@@ -18,7 +18,7 @@ __API:__ Amazon S3<br/>
 ## <a name="features"></a>Features
 
 #### Landing Page
-Dietitians and patients can log in on the homepage. Alternatively, dietitians can create an account. Patients need to be registered by their dietitian.
+Dietitians and patients can log in on the homepage, or dietitians can create an account. Patients must be registered by their dietitian.
 
 ![alt text](https://github.com/emilycheera/nourish/blob/master/static/images/homepage.gif?raw=true "Nourish landing page")
 

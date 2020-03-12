@@ -32,7 +32,7 @@ from users import (create_new_dietitian_account, update_dietitian_account,
 
 
 app = Flask(__name__)
-app.secret_key = "b_xd3xf9095~xa68x90E^O1xd3R"
+app.secret_key = os.environ["SECRET_KEY"]
 
 app.jinja_env.filters["datetime"] = datetimeformat
 app.jinja_env.filters["datecomma"] = datecommaformat
