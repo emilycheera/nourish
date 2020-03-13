@@ -29,3 +29,13 @@ $(".delete-post-btn").on("click", (evt) => {
         });
     };
 });
+
+// Limit image size to 5MB and update filename on form input.
+$('input[type="file"]').change( (evt) => {
+  if (evt.target.files[0].size > 5000000) {
+     alert("Please upload an image smaller than 5 MB.");
+  } else {
+    const fileName = evt.target.files[0].name;
+    $('.custom-file-label').html(fileName);
+  };
+});
