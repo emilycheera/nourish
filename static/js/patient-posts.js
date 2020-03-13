@@ -34,6 +34,7 @@ $(".delete-post-btn").on("click", (evt) => {
 $('input[type="file"]').change( (evt) => {
   if (evt.target.files[0].size > 5000000) {
      alert("Please upload an image smaller than 5 MB.");
+     $('#custom-file').val('');
   } else {
     const fileName = evt.target.files[0].name;
     $('.custom-file-label').html(fileName);
