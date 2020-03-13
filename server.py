@@ -41,6 +41,7 @@ app.jinja_env.filters["htmldatetime"] = htmldateformat
 app.jinja_env.undefined = StrictUndefined
 
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg"}
+app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024
 
 
 @app.route("/", methods=["GET"])
