@@ -622,7 +622,7 @@ def save_image():
         filename = secure_filename(file.filename)
         s3_resource = boto3.resource("s3")
         my_bucket = s3_resource.Bucket("nourish-post-images")
-        my_bucket.Object(file.filename).put(Body=file)
+        my_bucket.Object(filename).put(Body=file)
         img_path = f"https://nourish-post-images.s3-us-west-1.amazonaws.com/{filename}"
 
     return img_path
@@ -631,5 +631,6 @@ def save_image():
 
 
 if __name__ == "__main__":
+
     connect_to_db(app)
     app.run()
