@@ -172,7 +172,7 @@
                 <textarea id="TEB-input" class="form-control" name="TEB" required>{{ post.TEB }}</textarea>
               </div>
               <div class="form-row">
-                {% if patient.hunger_visible %}
+                {% if patient.hunger_visible or post.hunger %}
                 <div class="form-group col-md-4">
                   <label for="hunger-input" class="bold">Hunger:</label>
                   <input type="number" id="hunger-input" class="form-control" 
@@ -180,7 +180,7 @@
                          {% if post.hunger %} value={{ post.hunger }} {% endif %}>
                 </div>
                 {% endif %}
-                {% if patient.fullness_visible %}
+                {% if patient.fullness_visible or post.fullness %}
                 <div class="form-group col-md-4">
                   <label for="fullness-input" class="bold">Fullness:</label>
                   <input type="number" id="fullness-input" class="form-control" 
@@ -188,7 +188,7 @@
                          {% if post.fullness %} value={{ post.fullness }} {% endif %}>
                 </div>
                 {% endif %}
-                {% if patient.satisfaction_visible %}
+                {% if patient.satisfaction_visible or post.satisfaction %}
                 <div class="form-group col-md-4">
                   <label for="satisfaction-input" class="bold">
                     Satisfaction:
