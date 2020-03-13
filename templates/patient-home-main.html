@@ -81,4 +81,11 @@
       </form>
     </div>
   </div>
+
+  <script>
+    $("#custom-file").on("change", () => {
+        const fileName = $(this).val();
+        $(this).next(".custom-file-label").html(fileName);
+    })
+</script>
 {% endblock %}
