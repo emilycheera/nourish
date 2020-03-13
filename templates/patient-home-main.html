@@ -83,9 +83,10 @@
   </div>
 
   <script>
-    $("#custom-file").on("change", () => {
-        const fileName = $(this).val();
-        $(this).next(".custom-file-label").text(fileName);
-    })
+    // Update filename on file upload form input.
+    $('input[type="file"]').change( (evt) => {
+        const fileName = evt.target.files[0].name;
+        $('.custom-file-label').html(fileName);
+    });
 </script>
 {% endblock %}
