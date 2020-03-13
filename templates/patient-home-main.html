@@ -85,7 +85,7 @@
   <script>
     $("#custom-file").on("change", () => {
         const fileName = $(this).val();
-        $(this).next(".custom-file-label").html(fileName);
+        $(this).next(".custom-file-label").text(fileName);
     })
 </script>
 {% endblock %}
