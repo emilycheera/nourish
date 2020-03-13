@@ -40,7 +40,6 @@ app.jinja_env.filters["date"] = dateformat
 app.jinja_env.filters["htmldatetime"] = htmldateformat
 app.jinja_env.undefined = StrictUndefined
 
-app.config['MAX_CONTENT_LENGTH'] = 8 * 1024 * 1024
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg"}
 
 
@@ -630,6 +629,6 @@ def save_image():
 
 
 if __name__ == "__main__":
-    
+
     connect_to_db(app)
     app.run()
