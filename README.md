@@ -58,6 +58,13 @@ Clone or fork this repo:
 https://github.com/emilycheera/nourish.git
 ```
 
+Create secrets.sh file inside your Nourish directory, making sure to update
+the secret key below:
+```
+touch secrets.sh
+echo 'export SECRET_KEY = "(insert your secret key here)"' > secrets.sh
+```
+
 Create and activate a virtual environment inside your Nourish directory:
 ```
 virtualenv env
@@ -70,14 +77,12 @@ pip install -r requirements.txt
 ```
 
 Set up the database:
-
 ```
 createdb nourish
 python3 seed.py
 ```
 
 Run the app:
-
 ```
 python3 server.py
 ```
