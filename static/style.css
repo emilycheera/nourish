@@ -440,4 +440,8 @@ canvas {
     min-height: 300px;
 }
 
+.custom-file-label {
+    overflow: hidden;
+}
+
 
