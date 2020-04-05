@@ -444,4 +444,32 @@ canvas {
     overflow: hidden;
 }
 
+@media (max-width: 480px) {
+    .input-group-sm {
+        display: block;
+        width: 100%;
+    }
+
+    .input-group-text  {
+        width: 100%;
+    }
+
+    .input-group>.input-group-prepend>.input-group-text {
+        border-top-right-radius: .2rem;
+        border-bottom-left-radius: 0;
+    }
+
+    #chart-date-select {
+        width: 100%;
+    }
+
+    #get-chart-btn {
+        width: 100%;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: .2rem;
+        border-top-right-radius: 0;
+    }
+
+}
+
 
