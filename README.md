@@ -63,6 +63,7 @@ the secret key below:
 ```
 touch secrets.sh
 echo 'export SECRET_KEY = "(insert your secret key here)"' > secrets.sh
+source secrets.sh
 ```
 
 Create and activate a virtual environment inside your Nourish directory:
