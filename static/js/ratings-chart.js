@@ -200,7 +200,7 @@ $(".ratings-chart-btn").on("click", (evt) => {
                         ${dateOptions}
                     </select>
                     <div class="input-group-append">
-                        <button type="submit" class="btn btn-outline-secondary">Get Chart</button>
+                        <button type="submit" id="get-chart-btn" class="btn btn-outline-secondary">Get Chart</button>
                     </div>
                     </div>
                 </form>
