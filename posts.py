@@ -1,4 +1,5 @@
-from datetime import datetime
+from datetime import datetime, date
+from calendar import monthrange
 from helpers import sort_date_asc
 from model import db, Patient, Dietitian, Post
 from users import get_user_type_from_session
@@ -75,26 +76,83 @@ def delete_post(post_id):
     return "Success"
 
 
-def get_all_patients_posts(dietitian, page):
+def get_all_patients_posts(dietitian, page, filter_date):
     """Get all of a dietitian's patient's posts."""
 
-    posts = (Post.query.filter(Patient.dietitian_id == dietitian.dietitian_id)
+    q = (Post.query.filter(Patient.dietitian_id == dietitian.dietitian_id)
             .join(Patient)
-            .join(Dietitian)
-            .order_by(Post.time_stamp.desc())
-            .paginate(per_page=10, page=page))
+            .join(Dietitian))
+
+    if filter_date:
+        filter_date_dt = datetime.strptime(filter_date, "%B %Y")
+        year = filter_date_dt.year
+        month = filter_date_dt.month
+        num_days = monthrange(year, month)[1]
+        start_date = date(year, month, 1)
+        end_date = date(year, month, num_days)
+
+        q = q.filter(Post.time_stamp >= start_date, Post.time_stamp <= end_date)
+
+    posts = q.order_by(Post.time_stamp.desc()).paginate(per_page=10, page=page)
 
     return posts
 
 
-def get_single_patients_posts(patient_id, page):
+def get_single_patients_posts(patient_id, page, filter_date):
     """Get all of a particular patient's posts."""
 
-    posts = (Post.query.filter_by(patient_id=patient_id)
-                       .order_by(Post.time_stamp.desc())
-                       .paginate(per_page=10, page=page))
+    q = Post.query.filter_by(patient_id=patient_id)
+
+    if filter_date:
+        filter_date_dt = datetime.strptime(filter_date, "%B %Y")
+        year = filter_date_dt.year
+        month = filter_date_dt.month
+        num_days = monthrange(year, month)[1]
+        start_date = date(year, month, 1)
+        end_date = date(year, month, num_days)
+
+        q = q.filter(Post.time_stamp >= start_date, Post.time_stamp <= end_date)
+
+    posts = (q.order_by(Post.time_stamp.desc())
+             .paginate(per_page=10, page=page))
 
     return posts
+
+
+def get_months_years_posts_for_dietitian(dietitian_id):
+
+    dates = (db.session.query(Post.time_stamp)
+                       .filter(Patient.dietitian_id == dietitian_id)
+                       .join(Patient).all())
+
+    months_years = set()
+
+    for date, in dates:
+        month_year_str = date.strftime("%b%Y")
+        month_year_dt = datetime.strptime(month_year_str, "%b%Y")
+        months_years.add(month_year_dt)
+
+    months_years = list(months_years)
+    months_years.sort(reverse=True)
+
+    return months_years
+
+
+def get_months_years_of_patient_posts(patient_id):
+
+    dates = db.session.query(Post.time_stamp).filter(Post.patient_id==patient_id).all()
+
+    months_years = set()
+
+    for date, in dates:
+        month_year_str = date.strftime("%b%Y")
+        month_year_dt = datetime.strptime(month_year_str, "%b%Y")
+        months_years.add(month_year_dt)
+
+    months_years = list(months_years)
+    months_years.sort(reverse=True)
+
+    return months_years
 
 
 def save_customized_patient_post_form(patient_id, form_data):

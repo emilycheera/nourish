@@ -1,4 +1,4 @@
-
+ 
 from datetime import datetime, timedelta
 import os
 
@@ -18,11 +18,13 @@ from goals import (edit_patient_goal, delete_goal, create_goal_dict,
                    add_goal_and_get_dict, get_patients_goals_dict)
 from helpers import sort_date_desc
 from jinja_filters import (datetimeformat, datecommaformat, dateformat,
-                           htmldateformat)
+                           htmldateformat, monthyearformat)
 from model import connect_to_db, db, Dietitian, Patient, Goal, Post, Comment
 from posts import (create_new_post, edit_post, delete_post,
                    get_all_patients_posts, save_customized_patient_post_form,
-                   get_post_object, create_post_dict, get_single_patients_posts)
+                   get_post_object, create_post_dict, get_single_patients_posts,
+                   get_months_years_of_patient_posts, 
+                   get_months_years_posts_for_dietitian)
 from ratings import get_ratings_dict, get_sundays_with_data
 from users import (create_new_dietitian_account, update_dietitian_account,
                    create_new_patient_account, update_patient_account,
@@ -38,6 +40,7 @@ app.jinja_env.filters["datetime"] = datetimeformat
 app.jinja_env.filters["datecomma"] = datecommaformat
 app.jinja_env.filters["date"] = dateformat
 app.jinja_env.filters["htmldatetime"] = htmldateformat
+app.jinja_env.filters["monthyear"] = monthyearformat
 app.jinja_env.undefined = StrictUndefined
 
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg"}
@@ -152,12 +155,16 @@ def show_dietitian_homepage(dietitian_id):
     page = request.args.get("page", 1, type=int)
 
     diet_and_pats = get_dietitian_and_patients_list()
-    posts = get_all_patients_posts(diet_and_pats["dietitian"], page)
+    filter_date = request.args.get("date", None)
+    filter_dates = get_months_years_posts_for_dietitian(dietitian_id)
+    posts = get_all_patients_posts(diet_and_pats["dietitian"], page, filter_date)
 
     return render_template("dietitian-home-posts.html",
                             dietitian=diet_and_pats["dietitian"],
                             patients=diet_and_pats["sorted_patients"],
-                            posts=posts)
+                            posts=posts,
+                            date=filter_date,
+                            dates=filter_dates)
 
 
 @app.route("/dietitian/<int:dietitian_id>/account")
@@ -404,7 +411,9 @@ def show_single_patient_posts(patient_id):
 
     user_type = get_user_type_from_session()
     page = request.args.get("page", 1, type=int)
-    posts = get_single_patients_posts(patient_id, page)
+    filter_date = request.args.get("date", None)
+    filter_dates = get_months_years_of_patient_posts(patient_id)
+    posts = get_single_patients_posts(patient_id, page, filter_date)
     patient = Patient.query.get(patient_id)
 
     if user_type == "dietitian":
@@ -413,13 +422,17 @@ def show_single_patient_posts(patient_id):
                                 dietitian=diet_and_pats["dietitian"],
                                 patients=diet_and_pats["sorted_patients"],
                                 patient=patient,
-                                posts=posts)
+                                posts=posts,
+                                dates=filter_dates,
+                                date=filter_date)
     
     dietitian = patient.dietitian
     return render_template("patient-posts.html",
                             patient=patient,
                             dietitian=dietitian,
-                            posts=posts)
+                            posts=posts,
+                            dates=filter_dates,
+                            date=filter_date)
 
 
 
@@ -630,6 +643,6 @@ def save_image():
 
 
 if __name__ == "__main__":
-
+    app.debug = True
     connect_to_db(app)
-    app.run()
+    app.run(port=5000, host="0.0.0.0")

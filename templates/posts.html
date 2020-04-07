@@ -11,6 +11,21 @@
 {% endif %}
 
 {% if posts %}
+  <form class="mb-4 filter-date-form" action="" method="get">
+    <div class="input-group input-group-sm">
+      <div class="input-group-prepend">
+        <label class="input-group-text" for="filter-dates">Filter by date:</label>
+      </div>
+      <select class="custom-select" name="date" id="filter-dates">
+        {% for date in dates %}
+          <option value="{{ date|monthyear }}" >{{ date|monthyear }}</option>
+        {% endfor %}
+      </select>
+      <div class="input-group-append">
+        <button class="btn btn-outline-secondary" type="submit">Apply Filter</button>
+      </div>
+    </div>
+  </form>
   {% for post in posts.items %}
     <div id="post-{{ post.post_id }}">
       <div class="post-container">

@@ -11,3 +11,6 @@ def dateformat(value, format="%m-%d-%Y"):
 
 def htmldateformat(value, format="%Y-%m-%dT%H:%M"):
     return value.strftime(format)
+
+def monthyearformat(value, format="%B %Y"):
+    return value.strftime(format)

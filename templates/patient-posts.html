@@ -8,13 +8,13 @@
         {% if posts.page == page_num %}
           <a class="btn btn-primary mb-4" 
              href="{{ url_for('show_single_patient_posts', 
-             patient_id= patient.patient_id, page=page_num) }}">
+             patient_id= patient.patient_id, page=page_num, date=date) }}">
             {{ page_num }}
           </a>
           {% else %}
           <a class="btn btn-outline-primary mb-4" 
              href="{{ url_for('show_single_patient_posts', 
-             patient_id= patient.patient_id, page=page_num) }}">
+             patient_id= patient.patient_id, page=page_num, date=date) }}">
             {{ page_num }}
           </a>
         {% endif %}

@@ -444,6 +444,10 @@ canvas {
     overflow: hidden;
 }
 
+.filter-date-form {
+    max-width: 350px;
+}
+
 @media (max-width: 480px) {
     .input-group-sm {
         display: block;
