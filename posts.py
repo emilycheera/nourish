@@ -84,14 +84,7 @@ def get_all_patients_posts(dietitian, page, filter_date):
             .join(Dietitian))
 
     if filter_date:
-        filter_date_dt = datetime.strptime(filter_date, "%B %Y")
-        year = filter_date_dt.year
-        month = filter_date_dt.month
-        num_days = monthrange(year, month)[1]
-        start_date = date(year, month, 1)
-        end_date = date(year, month, num_days)
-
-        q = q.filter(Post.time_stamp >= start_date, Post.time_stamp <= end_date)
+        q = add_filter_date_to_query(q, filter_date)
 
     posts = q.order_by(Post.time_stamp.desc()).paginate(per_page=10, page=page)
 
@@ -104,48 +97,54 @@ def get_single_patients_posts(patient_id, page, filter_date):
     q = Post.query.filter_by(patient_id=patient_id)
 
     if filter_date:
-        filter_date_dt = datetime.strptime(filter_date, "%B %Y")
-        year = filter_date_dt.year
-        month = filter_date_dt.month
-        num_days = monthrange(year, month)[1]
-        start_date = date(year, month, 1)
-        end_date = date(year, month, num_days)
+        q = add_filter_date_to_query(q, filter_date)
 
-        q = q.filter(Post.time_stamp >= start_date, Post.time_stamp <= end_date)
-
-    posts = (q.order_by(Post.time_stamp.desc())
-             .paginate(per_page=10, page=page))
+    posts = q.order_by(Post.time_stamp.desc()).paginate(per_page=10, page=page)
 
     return posts
 
 
-def get_months_years_posts_for_dietitian(dietitian_id):
+def add_filter_date_to_query(query, filter_date):
+    """Add filter to query for a specific month and year."""
 
-    dates = (db.session.query(Post.time_stamp)
+    filter_date_dt = datetime.strptime(filter_date, "%B %Y")
+    year = filter_date_dt.year
+    month = filter_date_dt.month
+    num_days = monthrange(year, month)[1]
+    start_date = date(year, month, 1)
+    end_date = date(year, month, num_days)
+
+    q = query.filter(Post.time_stamp >= start_date, Post.time_stamp <= end_date)
+
+    return q
+
+
+def get_months_years_posts_for_dietitian(dietitian_id):
+    """Return list of months, years where post data exists for a dietitian."""
+
+    post_time_stamps = (db.session.query(Post.time_stamp)
                        .filter(Patient.dietitian_id == dietitian_id)
                        .join(Patient).all())
 
-    months_years = set()
-
-    for date, in dates:
-        month_year_str = date.strftime("%b%Y")
-        month_year_dt = datetime.strptime(month_year_str, "%b%Y")
-        months_years.add(month_year_dt)
-
-    months_years = list(months_years)
-    months_years.sort(reverse=True)
-
-    return months_years
+    return get_months_years_with_posts(post_time_stamps)
 
 
 def get_months_years_of_patient_posts(patient_id):
+    """Return a list of months, years where meal posts exist for a patient."""
 
-    dates = db.session.query(Post.time_stamp).filter(Post.patient_id==patient_id).all()
+    post_time_stamps = (db.session.query(Post.time_stamp)
+             .filter(Post.patient_id==patient_id).all())
+
+    return get_months_years_with_posts(post_time_stamps)
+
+
+def get_months_years_with_posts(post_time_stamps):
+    """Convert time_stamps to a unique list of months and years."""
 
     months_years = set()
 
-    for date, in dates:
-        month_year_str = date.strftime("%b%Y")
+    for time_stamp, in post_time_stamps:
+        month_year_str = time_stamp.strftime("%b%Y")
         month_year_dt = datetime.strptime(month_year_str, "%b%Y")
         months_years.add(month_year_dt)
 
