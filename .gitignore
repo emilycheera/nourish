@@ -5,3 +5,4 @@ uploads
 .coverage
 create_posts.py
 secrets.sh
+htmlcov/

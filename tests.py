@@ -337,7 +337,7 @@ class DatabaseTests(unittest.TestCase):
         """Test that query returns a list of a patient's posts."""
 
         dietitian = Dietitian.query.get(1)
-        posts = get_all_patients_posts(dietitian, 1)
+        posts = get_all_patients_posts(dietitian, 1, None)
 
         self.assertIn("At work", posts.items[0].meal_setting)
         self.assertIn("Home alone", posts.items[1].meal_setting)
