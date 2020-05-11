@@ -1,12 +1,12 @@
 {% extends "patient-base.html" %}
 {% block dashboard_content %}
   <div>
-    {% if not goals %}
+    {% if not goals.items %}
       <p>
         Your dietitian hasn't created any goals yet.
       </p>
     {% endif %}
-    {% if goals %}
+    {% if goals.items %}
       <div class="patient-goals-list">
         {% for goal in goals.items %}
         <div class="goal-container">
