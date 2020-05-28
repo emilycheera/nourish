@@ -458,6 +458,17 @@ canvas {
         width: 100%;
     }
 
+    #filter-dates {
+        width: 100% !important;
+    }
+
+    #filter-date-btn {
+        width: 100%;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: .2rem;
+        border-top-right-radius: 0;
+    }
+
     .input-group>.input-group-prepend>.input-group-text {
         border-top-right-radius: .2rem;
         border-bottom-left-radius: 0;
